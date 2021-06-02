@@ -1,0 +1,166 @@
+type UserProfile @model @auth(rules: [{allow: public}]) @key(name: "byUsers", fields: ["usersID"]) {
+  id: ID!
+  bio: String
+  relationship_status: String
+  languages_spoken: AWSJSON
+  sect: String
+  are_you_revert: Boolean
+  islam_interest: Boolean
+  profile_privacy: String
+  community_interests: AWSJSON
+  skills: AWSJSON
+  religious_interests: AWSJSON
+  usersID: ID
+}
+
+type UserEducation @model @auth(rules: [{allow: public}]) @key(name: "byUsers", fields: ["usersID"]) {
+  id: ID!
+  institution: String!
+  course: String!
+  from: String
+  to: String
+  usersID: ID!
+}
+
+type UserPhotos @model @auth(rules: [{allow: public}]) @key(name: "byUsers", fields: ["usersID"]) {
+  id: ID!
+  photo_type: String!
+  photo_path: String!
+  usersID: ID!
+}
+
+type Friends @model @auth(rules: [{allow: public}]) @key(name: "byUsers", fields: ["usersID"]) {
+  id: ID!
+  friends_list: AWSJSON!
+  usersID: ID!
+}
+
+type FriendRequest @model @auth(rules: [{allow: public}]) {
+  id: ID!
+  request_date: AWSDate!
+  request_from_id: ID!
+  request_to_id: ID!
+  request_message: String!
+  request_status: String
+  request_status_date: AWSDate
+  unfriend_date: AWSDate
+}
+
+type MosqueFollowers @model @auth(rules: [{allow: public}]) @key(name: "byMosque", fields: ["mosqueID"]) @key(name: "byUsers", fields: ["usersID"]) {
+  id: ID!
+  mosqueID: ID!
+  usersID: ID!
+}
+
+type MosquePrayers @model @auth(rules: [{allow: public}]) @key(name: "byMosque", fields: ["mosqueID"]) {
+  id: ID!
+  prayer: String!
+  time: AWSTime!
+  mosqueID: ID
+}
+
+type MosqueUsers @model @auth(rules: [{allow: public}]) @key(name: "byMosque", fields: ["mosqueID"]) {
+  id: ID!
+  name: String!
+  designation: String!
+  role: String
+  photo_path: String
+  mosqueID: ID!
+}
+
+type MosquePhotos @model @auth(rules: [{allow: public}]) @key(name: "byMosque", fields: ["mosqueID"]) {
+  id: ID!
+  photo_type: String!
+  photo_path: String!
+  mosqueID: ID!
+}
+
+type PostLikes @model @auth(rules: [{allow: public}]) @key(name: "byPosts", fields: ["postsID"]) @key(name: "byUsers", fields: ["usersID"]) @key(name: "byPostComments", fields: ["postcommentsID"]) {
+  id: ID!
+  postsID: ID
+  usersID: ID!
+  postcommentsID: ID
+}
+
+type PostComments @model @auth(rules: [{allow: public}]) @key(name: "byPosts", fields: ["postsID"]) @key(name: "byUsers", fields: ["usersID"]) {
+  id: ID!
+  comment: String!
+  parent_id: ID
+  postsID: ID!
+  usersID: ID!
+  Comments_PostLikes: [PostLikes] @connection(keyName: "byPostComments", fields: ["id"])
+}
+
+type Mosque @model @auth(rules: [{allow: public}]) {
+  id: ID!
+  mosque_name: String!
+  about: String
+  is_verified: Boolean
+  sect: String
+  mosque_photos_list: AWSJSON
+  mosque_facility_list: AWSJSON
+  contact_description: String
+  phone: String
+  email: String
+  url: String
+  house_number: String
+  street: String
+  city: String
+  postcode: String
+  country: String
+  Mosque_Posts: [Posts] @connection(keyName: "byMosque", fields: ["id"])
+  Mosque_Photos: [MosquePhotos] @connection(keyName: "byMosque", fields: ["id"])
+  Mosque_Users: [MosqueUsers] @connection(keyName: "byMosque", fields: ["id"])
+  Mosque_Prayers: [MosquePrayers] @connection(keyName: "byMosque", fields: ["id"])
+  Mosque_Followers: [MosqueFollowers] @connection(keyName: "byMosque", fields: ["id"])
+}
+
+type Posts @model @auth(rules: [{allow: public}]) @key(name: "byUsers", fields: ["usersID"]) @key(name: "byMosque", fields: ["mosquesID"]) {
+  id: ID!
+  post: String!
+  post_image_path: String
+  description: String
+  visibility: String
+  usersID: ID
+  mosquesID: ID
+  Post_Comments: [PostComments] @connection(keyName: "byPosts", fields: ["id"])
+  Post_Likes: [PostLikes] @connection(keyName: "byPosts", fields: ["id"])
+}
+
+type Users @model @auth(rules: [{allow: public}]) {
+  id: ID!
+  first_name: String!
+  last_name: String!
+  email: String!
+  password: String!
+  phone: String
+  age: String
+  gender: String
+  parent_email: String
+  house_number: String
+  street: String
+  city: String
+  postcode: String
+  country: String
+  latitude: String
+  longitude: String
+  parent_consent_form_agree: Boolean
+  terms_privacy_policy_agree: Boolean
+  community_promise_agree: Boolean
+  email_verification: Boolean
+  phone_verification: Boolean
+  parent_verification: Boolean
+  address_verification: Boolean
+  photo_verification: Boolean
+  joined_date: AWSDate
+  active_status: Boolean
+  User_Posts: [Posts] @connection(keyName: "byUsers", fields: ["id"])
+  User_Comments: [PostComments] @connection(keyName: "byUsers", fields: ["id"])
+  User_PostLikes: [PostLikes] @connection(keyName: "byUsers", fields: ["id"])
+  User_MosqueFollowers: [MosqueFollowers] @connection(keyName: "byUsers", fields: ["id"])
+  User_Friends: [Friends] @connection(keyName: "byUsers", fields: ["id"])
+  User_Photos: [UserPhotos] @connection(keyName: "byUsers", fields: ["id"])
+  User_Educations: [UserEducation] @connection(keyName: "byUsers", fields: ["id"])
+  User_Profiles: [UserProfile] @connection(keyName: "byUsers", fields: ["id"])
+}
+ 

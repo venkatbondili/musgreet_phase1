@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" id="_001-magnifying-glass" width="21.769" height="21.768" viewBox="0 0 21.769 21.768">
+    <defs>
+        <style>
+            .cls-1{fill:#010002}.cls-2{fill:#c7cace}.cls-3{fill:#fff}
+        </style>
+    </defs>
+    <g id="Group_2133" transform="translate(4.282 4.282)">
+        <path id="Path_4286" d="M16.925 117.649a1.919 1.919 0 0 0 0-2.713L2.9 100.911a.638.638 0 0 0-.9 0l-1.813 1.811a.638.638 0 0 0 0 .9l14.025 14.025a1.921 1.921 0 0 0 2.713 0z" class="cls-1" transform="translate(0 -100.724)"/>
+    </g>
+    <path id="Path_4287" d="M13.4 127.324a.638.638 0 0 0 0 .9l14.025 14.025a1.921 1.921 0 0 0 2.713 0L14.31 126.418z" class="cls-1" transform="translate(-8.935 -121.043)"/>
+    <circle id="Ellipse_223" cx="8.323" cy="8.323" r="8.323" class="cls-2"/>
+    <path id="Path_4288" d="M180.339 57.409A8.319 8.319 0 1 0 192.1 69.174z" class="cls-2" transform="translate(-177.899 -54.969)"/>
+    <circle id="Ellipse_224" cx="5.761" cy="5.761" r="5.761" class="cls-3" transform="translate(2.562 2.562)"/>
+    <path id="Path_4289" d="M226.243 109.826a5.743 5.743 0 0 0 4.072-1.689l-8.144-8.144a5.758 5.758 0 0 0 4.072 9.833z" class="cls-3" transform="translate(-217.92 -95.742)"/>
+</svg>

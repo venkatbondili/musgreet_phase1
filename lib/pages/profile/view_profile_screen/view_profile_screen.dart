@@ -1,0 +1,310 @@
+import 'dart:ui';
+
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:mus_greet/core/utils/constants.dart';
+import 'package:mus_greet/core/widgets/asset_image_widget.dart';
+import 'package:mus_greet/core/widgets/custom_spacer_widget.dart';
+import 'package:mus_greet/core/widgets/rounded_button_widget.dart';
+import 'package:mus_greet/core/widgets/tab_style_widget.dart';
+import 'package:mus_greet/core/widgets/upload_image_bottom_sheet_widget.dart';
+import 'package:mus_greet/pages/profile/view_profile_screen/about_tab/about_tab.dart';
+import 'package:mus_greet/pages/profile/view_profile_screen/friend_tab/friend_tab.dart';
+import 'package:mus_greet/pages/profile/view_profile_screen/interest_tab/interest_tab.dart';
+import 'package:mus_greet/pages/profile/view_profile_screen/post_tab/post_tab.dart';
+
+import '../../../core/utils/constants.dart';
+
+///This will render the current user profile on screen
+class ViewProfileScreen extends StatefulWidget {
+  @override
+  _ViewProfileScreenState createState() => _ViewProfileScreenState();
+}
+
+class _ViewProfileScreenState extends State<ViewProfileScreen>
+    with TickerProviderStateMixin {
+  TabController _tabController;
+
+  TextEditingController _controller = TextEditingController();
+  bool _isInEditMode = true;
+
+  @override
+  void initState() {
+    _tabController = TabController(length: 4, vsync: this);
+    _tabController.addListener(_handleTabSelection);
+
+    super.initState();
+  }
+
+  /// For changing the tab properly
+  _handleTabSelection() {
+    if (_tabController.indexIsChanging) {
+      setState(() {});
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppColors.GREY_KIND,
+      body: _getBody(),
+    );
+  }
+
+  /// This will render whole body of profile on screen
+  _getBody() {
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          _getUpperSection(),
+          _getTabBar(),
+          Center(
+            child: [
+              PostTab(),
+              AboutTab(),
+              InterestTab(),
+              FriendTab(),
+            ][_tabController.index],
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// This will render all the upper section of profile till before tab bars
+  _getUpperSection() {
+    return Container(
+      color: AppColors.white,
+      child: Column(
+        children: [
+          _getCoverAndProfileImage(),
+          CustomSpacerWidget(
+            height: 80,
+          ),
+          _getUserName(),
+          CustomSpacerWidget(
+            height: 10,
+          ),
+          _getLocation(),
+          CustomSpacerWidget(
+            height: 20,
+          ),
+          _getEditButton(),
+          CustomSpacerWidget(
+            height: 20,
+          ),
+        ],
+      ),
+    );
+  }
+
+  ///User profile Image and Cover image
+  _getCoverAndProfileImage() {
+    return Stack(
+      overflow: Overflow.visible,
+      children: [
+        Container(
+          height: 185,
+          width: MediaQuery.of(context).size.width,
+          child: Image.asset(
+            ImageConstants.IMG_COVER,
+            fit: BoxFit.cover,
+          ),
+        ),
+        Positioned(
+          left: 0,
+          right: 0,
+          top: 100,
+          child: _isInEditMode
+              ? GestureDetector(
+                  onTap: () => _uploadImage(),
+                  child: _getUserProfile(),
+                )
+              : AssetImageWidget(
+                  image: ImageConstants.IMG_PROFILE,
+                  height: 180,
+                  width: 180,
+                ),
+        ),
+        Positioned(
+          left: 20,
+          top: 20,
+          child: AssetImageWidget(
+            image: ImageConstants.IC_BACK,
+            height: 20,
+            width: 20,
+          ),
+        ),
+        _isInEditMode
+            ? Positioned(
+                right: 20,
+                bottom: 20,
+                child: _getCameraImageOnProfile(),
+              )
+            : Container(),
+      ],
+    );
+  }
+
+  _getUserProfile() {
+    return Container(
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+      ),
+      height: 180,
+      width: 180,
+      child: Stack(
+        children: [
+          AssetImageWidget(
+            image: ImageConstants.IMG_PROFILE,
+            height: 180,
+            width: 180,
+          ),
+          _isInEditMode
+              ? Positioned(
+                  right: 40,
+                  bottom: 55,
+                  child: _getCameraImageOnProfile(),
+                )
+              : Container(),
+        ],
+      ),
+    );
+  }
+
+  _getCameraImageOnProfile() {
+    return GestureDetector(
+      onTap: () => _uploadImage(),
+      child: Container(
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          border: Border.all(
+            color: AppColors.green_light,
+            width: 1.5,
+          ),
+        ),
+        child: CircleAvatar(
+          backgroundColor: AppColors.white,
+          radius: 12,
+          child: AssetImageWidget(
+            image: ImageConstants.IC_CAM,
+            height: 15,
+            width: 15,
+          ),
+        ),
+      ),
+    );
+  }
+
+  _uploadImage() {
+    showModalBottomSheet(
+      elevation: 15,
+      enableDrag: true,
+      backgroundColor: Colors.transparent,
+      context: context,
+      builder: (context) {
+        return BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+          child: UploadImageBottomSheetWidget(),
+        );
+      },
+    );
+  }
+
+  ///This will return name of the user
+  _getUserName() {
+    return Text(
+      AppTexts.TEMP_USER_NAME,
+      style: TextStyle(
+          fontFamily: FontConstants.FONT,
+          fontSize: 17,
+          fontWeight: FontWeight.bold,
+          color: AppColors.header_black),
+    );
+  }
+
+  ///This will return location of the user
+  _getLocation() {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        AssetImageWidget(
+          image: ImageConstants.TEMP_LOCATION,
+          height: 15,
+          width: 15,
+        ),
+        CustomSpacerWidget(
+          width: 4,
+        ),
+        Text(
+          AppTexts.TEMP_LOCATION,
+          style: TextStyle(
+            fontFamily: FontConstants.FONT,
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
+            color: AppColors.black.withOpacity(0.6),
+          ),
+        )
+      ],
+    );
+  }
+
+  ///This will render edit button on screen
+  _getEditButton() {
+    return RoundedButtonWidget(
+      text: _isInEditMode
+          ? AppTexts.VIEW_PROFILE_TEXT
+          : AppTexts.EDIT_PROFILE_TEXT,
+      callBack: () {
+        setState(() {
+          _isInEditMode = !_isInEditMode;
+        });
+      },
+    );
+  }
+
+  /// for Rendering the tab bar on screen
+  _getTabBar() {
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            AppColors.white.withOpacity(0.7),
+            AppColors.white,
+            AppColors.white,
+            AppColors.white,
+          ],
+        ),
+      ),
+      child: Padding(
+        padding: EdgeInsets.only(top: 15),
+        child: TabBar(
+          controller: _tabController,
+          labelColor: AppColors.black,
+          indicatorSize: TabBarIndicatorSize.tab,
+          indicator: UnderlineTabIndicator(
+            borderSide: BorderSide(width: 2, color: AppColors.green),
+            insets: EdgeInsets.symmetric(horizontal: 12),
+          ),
+          tabs: [
+            TabStyleWidget(
+              text: AppTexts.POST_TEXT,
+            ),
+            TabStyleWidget(
+              text: AppTexts.ABOUT_TEXT,
+            ),
+            TabStyleWidget(
+              text: AppTexts.INTEREST_TEXT,
+            ),
+            TabStyleWidget(
+              text: AppTexts.FRIENDS_TEXT,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

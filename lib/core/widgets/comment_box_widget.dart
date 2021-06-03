@@ -4,8 +4,9 @@ import 'package:mus_greet/core/widgets/custom_spacer_widget.dart';
 
 class CommentBoxWidget extends StatefulWidget {
   final String userComment;
+  final String userName;
 
-  const CommentBoxWidget({Key key, this.userComment}) : super(key: key);
+  const CommentBoxWidget({Key key, this.userComment, this.userName}) : super(key: key);
 
   @override
   _CommentBoxWidgetState createState() => _CommentBoxWidgetState();
@@ -53,7 +54,8 @@ class _CommentBoxWidgetState extends State<CommentBoxWidget> {
     return Flexible(
       child: Text.rich(
         TextSpan(
-          text: AppTexts.COMMENT_USER_NAME,
+          //text: AppTexts.COMMENT_USER_NAME,
+          text: widget.userName,
           style: TextStyle(
             fontFamily: FontConstants.FONT,
             fontSize: 13,
@@ -92,7 +94,7 @@ class _CommentBoxWidgetState extends State<CommentBoxWidget> {
             ),
           ),
           Text(
-            "•",
+            "                  •",
             style: TextStyle(color: AppColors.vertical_divider),
           ),
           Text(
@@ -105,7 +107,7 @@ class _CommentBoxWidgetState extends State<CommentBoxWidget> {
             ),
           ),
           Text(
-            "•",
+            "      •",
             style: TextStyle(color: AppColors.vertical_divider),
           ),
           Text(

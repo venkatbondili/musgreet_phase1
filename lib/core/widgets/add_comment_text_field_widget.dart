@@ -1,15 +1,30 @@
+import 'package:amplify_flutter/amplify.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:mus_greet/core/utils/constants.dart';
 import 'package:mus_greet/core/widgets/custom_spacer_widget.dart';
+import 'package:mus_greet/models/ModelProvider.dart';
+import 'package:mus_greet/models/PostComments.dart';
 
 
 class AppCommentTextFieldWidget extends StatefulWidget {
+  final String hintText;
+  final String ScreenType;
+  //final String PostID;
+  final String ParentID;
+  //final String UserID;
+  final Posts PostObject;
+  final Users UserObject;
+  final PostComments postComments ;
+  AppCommentTextFieldWidget({this.hintText, this.ScreenType, this.ParentID,this.PostObject, this.UserObject,this.postComments});
   @override
   _AppCommentTextFieldWidgetState createState() => _AppCommentTextFieldWidgetState();
 }
 
 class _AppCommentTextFieldWidgetState extends State<AppCommentTextFieldWidget> {
+  bool Action = false;
+  bool reloadPage = false;
+  final ctrlText = TextEditingController();
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -18,13 +33,15 @@ class _AppCommentTextFieldWidgetState extends State<AppCommentTextFieldWidget> {
         borderRadius: BorderRadius.circular(30),
       ),
       child: TextField(
+        controller: ctrlText,
         style: TextStyle(
           fontWeight: FontWeight.normal,
           fontSize: 14,
           color: AppColors.black,
         ),
         decoration: InputDecoration(
-          hintText: "Write your replay",
+          hintText: widget.hintText,
+          //hintText: "Write your replay",
           hintStyle: TextStyle(
             fontSize: 12,
             fontWeight: FontWeight.w600,
@@ -38,6 +55,10 @@ class _AppCommentTextFieldWidgetState extends State<AppCommentTextFieldWidget> {
           errorBorder: InputBorder.none,
           contentPadding: EdgeInsets.only(left: 20,right: 20,top: 15),
         ),
+        onSubmitted: (String str){
+          _CreateComment(str, widget.ScreenType);
+          print(str);
+        },
       ),
     );
   }
@@ -60,14 +81,46 @@ class _AppCommentTextFieldWidgetState extends State<AppCommentTextFieldWidget> {
             color: AppColors.vertical_divider,
           ),
           CustomSpacerWidget(width: 10,),
-          Image.asset(
-            ImageConstants.IC_SEND,
-            height: 20,
-            width: 20,
+          GestureDetector(
+            onTap: ()=>{
+              _CreateComment(ctrlText.text, widget.ScreenType),
+
+            print("about to refresh"),
+            print(ctrlText.text),
+            Action = true,
+            },
+            child: Image.asset(
+              ImageConstants.IC_SEND,
+              height: 20,
+              width: 20,
+            ),
           ),
         ],
       ),
     );
+  }
+  _CreateComment(String textFeildText, String ScreenType) async {
+    //print(textFeildText);
+    //print(widget.ParentID);
+    //print(widget.PostObject.id);
+    //print(widget.UserObject.id);
+    final item = PostComments(
+        comment: textFeildText,
+        parent_id: widget.ParentID,
+        postsID: widget.PostObject.id,
+        usersID: widget.UserObject.id,
+        Comments_PostLikes: []);
+    await Amplify.DataStore.save(item);
+    await Future.delayed(Duration(seconds: 2));
+    _reloadPage();
+  }
+
+  _reloadPage(){
+    print("inside Reload function");
+    //Navigator.pushReplacement(context, MaterialPageRoute( builder: (BuildContext context) => super.widget));
+    reloadPage = true;
+    Navigator.pop(context);
+    print("Thank you for reloading");
   }
 
 }

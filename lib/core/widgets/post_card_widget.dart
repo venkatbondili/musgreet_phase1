@@ -11,6 +11,7 @@ class PostCardWidget extends StatefulWidget {
   final String name;
   final String image;
   final String timeAgo;
+  final String post;
   final bool isSponsored;
   final bool isForComment;
   final Function callBack;
@@ -20,6 +21,7 @@ class PostCardWidget extends StatefulWidget {
     this.name,
     this.image,
     this.timeAgo,
+    this.post,
     this.isSponsored,
     this.isForComment = false,
     this.callBack,
@@ -156,7 +158,8 @@ class _PostCardWidgetState extends State<PostCardWidget> {
     return Container(
       padding: EdgeInsets.only(left: 30, right: 20, bottom: 10),
       child: Text(
-        AppTexts.DUMMY_TEXT,
+        widget.post,
+        //AppTexts.DUMMY_TEXT,
         style: TextStyle(
           fontFamily: FontConstants.FONT,
           fontSize: 12,

@@ -10,6 +10,10 @@ import 'package:mus_greet/pages/mosque_screen/mosque_screen.dart';
 import 'package:mus_greet/pages/mosque_screen/mosque_search_list_view/mosque_search_list_view.dart';
 import 'package:mus_greet/pages/profile/view_profile_screen/view_profile_screen.dart';
 
+
+
+
+
 ///This the main home where  all the pages will load like home scree,profile etc.
 class Home extends StatefulWidget {
   @override

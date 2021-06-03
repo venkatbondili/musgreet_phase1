@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:mus_greet/core/utils/constants.dart';
 import 'package:mus_greet/core/widgets/asset_image_widget.dart';
+import 'package:mus_greet/main.dart';
+import 'package:mus_greet/models/ModelProvider.dart';
+import 'package:mus_greet/models/Mosque.dart';
 import 'package:readmore/readmore.dart';
+import 'package:amplify_flutter/amplify.dart';
 
 class MosqueAboutTab extends StatefulWidget {
   @override
@@ -9,8 +13,14 @@ class MosqueAboutTab extends StatefulWidget {
 }
 
 class _MosqueAboutTabState extends State<MosqueAboutTab> {
+  var string="50a1d745-b0b8-4e1a-b649-3141c3c1ea6a";
+  String  verfied;
+  List<MosqueUsers> mosqueUsers;
+  List<Mosque> mosque;
   @override
   Widget build(BuildContext context) {
+    aboutMosque();
+    gettingUsers();
     return Container(
       padding: EdgeInsets.only(bottom: 100),
       margin: EdgeInsets.only(top: 4),
@@ -23,7 +33,7 @@ class _MosqueAboutTabState extends State<MosqueAboutTab> {
           Padding(
             padding: const EdgeInsets.only(top: 30.0, left: 30),
             child: Text(
-              AppTexts.ABOUT_TEXT,
+              mosque[0].about,
               style: TextStyle(
                   fontSize: 16,
                   fontFamily: FontConstants.FONT,
@@ -66,7 +76,7 @@ class _MosqueAboutTabState extends State<MosqueAboutTab> {
               Padding(
                 padding: const EdgeInsets.only(top: 30.0, left: 13),
                 child: Text(
-                  'Not Verified',
+                  verfied,
                   style: TextStyle(
                       fontSize: 14,
                       fontFamily: FontConstants.FONT,
@@ -92,7 +102,7 @@ class _MosqueAboutTabState extends State<MosqueAboutTab> {
                   Padding(
                     padding: const EdgeInsets.only(top: 25.0, left: 12),
                     child: Text(
-                      'Madhab • Sect',
+                      'Madhab •Sect',
                       style: TextStyle(
                           fontSize: 14,
                           fontFamily: FontConstants.FONT,
@@ -103,7 +113,7 @@ class _MosqueAboutTabState extends State<MosqueAboutTab> {
                   Padding(
                     padding: const EdgeInsets.only(top: 0.0, left: 13),
                     child: Text(
-                      'Sunni',
+                      mosque[0].sect,
                       style: TextStyle(
                           fontSize: 13,
                           fontFamily: FontConstants.FONT,
@@ -138,28 +148,30 @@ class _MosqueAboutTabState extends State<MosqueAboutTab> {
               ),
             ],
           ),
-          _getFriendsDataList(),
+         _getFriendsDataList(),
         ],
       ),
     );
   }
 
   /// This will render all the friends list
-  _getFriendsDataList() {
+  _getFriendsDataList1() {
+    print(mosqueUsers.length);
     return Container(
-      width: MediaQuery.of(context).size.width,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(padding: EdgeInsets.only(top: 10)),
-          _getFriendsDataListItem(),
-          Padding(padding: EdgeInsets.only(top: 10)),
-          _getFriendsDataListItem(),
-          Padding(padding: EdgeInsets.only(top: 30)),
-        ],
-      ),
+    width: MediaQuery.of(context).size.width,
+    child: Column(
+    mainAxisSize: MainAxisSize.min,
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: <Widget> [
+    Padding(padding: EdgeInsets.only(top: 10)),
+    //_getFriendsDataListItem(),
+    Padding(padding: EdgeInsets.only(top: 10)),
+    //_getFriendsDataListItem(),
+    //Padding(padding: EdgeInsets.only(top: 30)),
+    ],
+    ),
     );
+
   }
 
   ///Create a common padding widget for the About Us View
@@ -173,51 +185,157 @@ class _MosqueAboutTabState extends State<MosqueAboutTab> {
   }
 
   /// This will render all the friends item
-  _getFriendsDataListItem() {
-    return Row(mainAxisSize: MainAxisSize.max, children: [
-      getCommonPadding(
-          68,
-          6,
-          0,
-          12,
-          Center(
-            child: AssetImageWidget(
-              image: ImageConstants.IC_FATHER,
-              height: 35,
-              width: 35,
-            ),
-          )),
-      Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          getCommonPadding(
-            0,
+  _getFriendsDataListItem1() {
+      return Row(
+          mainAxisSize: MainAxisSize.max,
+          children: [
+        getCommonPadding(
+            68,
             6,
             0,
-            27,
-            Text(
-              'Muhammad',
-              style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.black),
+            12,
+            Center(
+              child: AssetImageWidget(
+                image: ImageConstants.IC_FATHER,
+                height: 35,
+                width: 35,
+              ),
+            )),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            getCommonPadding(
+              0,
+              6,
+              0,
+              27,
+              Text("Hello",
+                //mosqueUsers[index].name,
+                style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.black),
+              ),
             ),
-          ),
-          getCommonPadding(
-            0,
-            3,
-            0,
-            27,
-            Text(
-              'Chairman',
-              style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.GREY_KIND),
+
+            getCommonPadding(
+              0,
+              3,
+              0,
+              27,
+              Text("Hi",
+                style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.GREY_KIND),
+              ),
             ),
-          ),
+          ],
+        ),
+      ]);
+  }
+  Future<void> aboutMosque() async{
+
+    try {
+      mosque = await Amplify.DataStore.query(Mosque.classType ,where :Mosque.ID.eq(string));
+
+      if(mosque[0].is_verified==true)
+        {
+          verfied ="Verified";
+        }else{
+        verfied ="Not Verified";
+      }
+      //print(mosque[0].house_number);
+    } catch (e) {
+      print("Could not query DataStore: " + e);
+    }
+  }
+
+  Future<void> gettingUsers() async{
+    try {
+      mosqueUsers = await Amplify.DataStore.query(MosqueUsers.classType , where: MosqueUsers.MOSQUEID.eq(string));
+
+
+      print(mosqueUsers);
+      //print(mosquePrayers[0].time);
+    } catch (e) {
+      print("Could not query DataStore: " + e);
+    }
+  }
+
+  _getFriendsDataList() {
+    print(mosqueUsers.length);
+    return Container(
+      width: MediaQuery.of(context).size.width,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+
+          Padding(padding: EdgeInsets.only(top: 10)),
+          ListView.builder(
+              physics: NeverScrollableScrollPhysics(),
+              shrinkWrap: true,
+              itemCount:mosqueUsers.length,
+              itemBuilder: (context,index){
+                print(index);
+                return  Row(
+                    mainAxisSize: MainAxisSize.max,
+                    children: [
+                      getCommonPadding(
+                          68,
+                          6,
+                          0,
+                          12,
+                          Center(
+                            child: AssetImageWidget(
+                              image: ImageConstants.IC_FATHER,
+                              //image:mosqueUsers[index].photo_path,
+                              height: 35,
+                              width: 35,
+                            ),
+                          )),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          getCommonPadding(
+                            0,
+                            6,
+                            0,
+                            27,
+                            Text(
+                              mosqueUsers[index].name,
+                              style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.black),
+                            ),
+                          ),
+
+                          getCommonPadding(
+                            0,
+                            3,
+                            0,
+                            27,
+                            Text(
+                              mosqueUsers[index].role,
+                              style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.GREY_KIND),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ]);
+              })
+          //Padding(padding: EdgeInsets.only(top: 10)),
+          //_getFriendsDataListItem(),
+          //Padding(padding: EdgeInsets.only(top: 30)),
         ],
       ),
-    ]);
+    );
+
   }
+
 }

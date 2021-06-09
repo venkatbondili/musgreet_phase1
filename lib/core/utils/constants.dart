@@ -467,6 +467,11 @@ class AppTexts {
     "Yes",
     "No",
   ];
+
+  static const List<String> POST_VISIBILITY_CATEGORIES=[
+    "Community",
+    "Friends",
+  ];
 }
 
 ///Assets Images

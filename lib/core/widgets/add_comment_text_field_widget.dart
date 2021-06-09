@@ -69,18 +69,18 @@ class _AppCommentTextFieldWidgetState extends State<AppCommentTextFieldWidget> {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Image.asset(
-            ImageConstants.IC_CAMERA,
-            height: 20,
-            width: 20,
-          ),
-          CustomSpacerWidget(width: 10,),
-          Container(
-            width: 1.5,
-            height: 15,
-            color: AppColors.vertical_divider,
-          ),
-          CustomSpacerWidget(width: 10,),
+          //Image.asset(
+            //ImageConstants.IC_CAMERA,
+            //height: 20,
+            //width: 20,
+          //),
+          //CustomSpacerWidget(width: 10,),
+          //Container(
+            //width: 1.5,
+            //height: 15,
+            //color: AppColors.vertical_divider,
+          //),
+          //CustomSpacerWidget(width: 10,),
           GestureDetector(
             onTap: ()=>{
               _CreateComment(ctrlText.text, widget.ScreenType),
@@ -99,6 +99,7 @@ class _AppCommentTextFieldWidgetState extends State<AppCommentTextFieldWidget> {
       ),
     );
   }
+
   _CreateComment(String textFeildText, String ScreenType) async {
     //print(textFeildText);
     //print(widget.ParentID);

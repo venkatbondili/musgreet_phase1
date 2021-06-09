@@ -4,6 +4,7 @@ import 'package:mus_greet/core/utils/constants.dart';
 import 'package:mus_greet/core/widgets/asset_image_widget.dart';
 import 'package:mus_greet/core/widgets/custom_spacer_widget.dart';
 import 'package:mus_greet/core/widgets/footer_icon_text_widget.dart';
+import 'package:mus_greet/core/widgets/s3_bucket_image_widget.dart';
 
 /// User Submitted post card..where all data for single post will show on the screen
 class PostCardWidget extends StatefulWidget {
@@ -15,6 +16,7 @@ class PostCardWidget extends StatefulWidget {
   final bool isSponsored;
   final bool isForComment;
   final Function callBack;
+  final String commentsCount;
 
   PostCardWidget({
     this.profileImage,
@@ -25,6 +27,7 @@ class PostCardWidget extends StatefulWidget {
     this.isSponsored,
     this.isForComment = false,
     this.callBack,
+    this.commentsCount,
   });
 
   @override
@@ -69,7 +72,8 @@ class _PostCardWidgetState extends State<PostCardWidget> {
 
   /// This will return profile image.
   _getProfileImage() {
-    return AssetImageWidget(
+    print(widget.profileImage);
+    return S3BucketImageWidget(
       image: widget.profileImage,
       height: 50,
       width: 50,
@@ -172,7 +176,7 @@ class _PostCardWidgetState extends State<PostCardWidget> {
 
   /// This will return user submitted [PICTURE]
   _getImageSection() {
-    return Image.asset(
+    return Image.network(
       widget.image,
       height: 190,
       width: double.infinity,
@@ -212,7 +216,8 @@ class _PostCardWidgetState extends State<PostCardWidget> {
               child: FooterIconAndTextWidget(
                 image: ImageConstants.IC_COMMENT,
                 text: AppTexts.COMMENT_TEXT,
-                count: "55",
+                //count: "55",
+                count: widget.commentsCount,
               ),
             ),
           ),
@@ -247,7 +252,8 @@ class _PostCardWidgetState extends State<PostCardWidget> {
             child: FooterIconAndTextWidget(
               image: ImageConstants.IC_COMMENT,
               text: AppTexts.COMMENT_TEXT,
-              count: "55",
+              //count: "55",
+              count: widget.commentsCount,
             ),
           ),
         ],

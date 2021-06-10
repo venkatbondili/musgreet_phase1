@@ -14,11 +14,12 @@ import 'package:mus_greet/models/ModelProvider.dart';
 class CommentScreen extends StatefulWidget {
   final Posts PostObject;
   final Users UserObject;
+  final String CommentsCount;
   //final String UserName;
   //final String Post;
   //final String Post_image_path;
 
-  CommentScreen({this.PostObject, this.UserObject});
+  CommentScreen({this.PostObject, this.UserObject, this.CommentsCount});
   @override
   _CommentScreenState createState() => _CommentScreenState();
 }
@@ -87,6 +88,7 @@ class _CommentScreenState extends State<CommentScreen> {
               //image: ImageConstants.IMG_POST_2,
               image: widget.PostObject.post_image_path,
               isForComment: true,
+              commentsCount:widget.CommentsCount,
             ),
             _getCommentSection(),
             CustomSpacerWidget(
@@ -118,7 +120,7 @@ class _CommentScreenState extends State<CommentScreen> {
       width: double.maxFinite,
       child: Column(
         children: [
-          _getViewAllCommentButton(),
+          //_getViewAllCommentButton(),
           CustomSpacerWidget(
             height: 10,
           ),

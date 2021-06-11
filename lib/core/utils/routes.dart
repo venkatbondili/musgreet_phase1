@@ -19,6 +19,8 @@ class AppRoutes{
   static const String LANGUAGES_SCREEN="/languages_screen";
   static const String ADD_SKILLS_IMAGES = "/interest_screen/add_skills_images.dart";
   static const String FRIEND_SEARCH="/friend_search";
+  static const String REGISTER="/registration/registration_screen.dart";
+  static const String VERIFYEMAIL="/verify_email_screem/verify_email_screem.dart";
 
 
 

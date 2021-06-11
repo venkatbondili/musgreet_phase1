@@ -45,10 +45,10 @@ class _UploadImageBottomSheetWidgetState
     final picker = ImagePicker();
 
     if (isCamera) {
-      final pickedFile = await picker.getImage(source: ImageSource.camera);
+      //final pickedFile = await picker.getImage(source: ImageSource.camera);
     }
     else {
-      final pickedFile = await picker.getImage(source: ImageSource.gallery);
+      //final pickedFile = await picker.getImage(source: ImageSource.gallery);
     }
 
     setState(() {

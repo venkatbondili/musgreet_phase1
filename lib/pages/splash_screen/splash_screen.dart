@@ -44,6 +44,7 @@ class _SplashScreenState extends State<SplashScreen> {
 class SplashScreenFirst extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    print('In splash screen');
     return Scaffold(
         body: Center(
             child: Container(

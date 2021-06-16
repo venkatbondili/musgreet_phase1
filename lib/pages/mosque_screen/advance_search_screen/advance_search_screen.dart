@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:mus_greet/core/config/navigation.dart';
 import 'package:mus_greet/core/utils/constants.dart';
+import 'package:mus_greet/core/utils/routes.dart';
 import 'package:mus_greet/core/widgets/action_button_widget.dart';
 import 'package:mus_greet/core/widgets/asset_image_widget.dart';
 import 'package:mus_greet/core/widgets/custom_spacer_widget.dart';
 import 'package:mus_greet/pages/add_skills_screen/add_skills_screen.dart';
+import 'package:mus_greet/pages/mosque_screen/mosque_search_list_view/mosque_search_list_view.dart';
 
 class AdvanceSearchScreen extends StatefulWidget {
   @override
@@ -138,6 +140,8 @@ class _AdvanceSearchScreenState extends State<AdvanceSearchScreen> {
             isFilled: false,
             callBack: (){
               print("Cancel");
+              Navigation.back(context);
+             // _navigationToSearch();
             },
           ),
           CustomSpacerWidget(width: 20,),
@@ -146,12 +150,22 @@ class _AdvanceSearchScreenState extends State<AdvanceSearchScreen> {
               text: AppTexts.APPLY_TEXT,
               isFilled: true,
               callBack: (){
+                print(_selectedReligion);
+                print(_selectPreference);
                 print("Apply");
+                _navigationToSearch();
               },
             ),
           ),
         ],
       ),
     );
+  }
+
+  _navigationToSearch() {
+    //_selectedReligion.clear();
+    //_selectPreference.clear();
+    Navigation.intentWithData(context, AppRoutes.MOSQUE_SEARCH_LIST_VIEW,ArgumentClass(_selectedReligion,_selectPreference));
+
   }
 }

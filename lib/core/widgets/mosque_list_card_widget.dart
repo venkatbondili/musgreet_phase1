@@ -4,13 +4,15 @@ import 'package:mus_greet/core/widgets/action_button_widget.dart';
 import 'package:mus_greet/core/widgets/asset_image_widget.dart';
 import 'package:mus_greet/core/widgets/following_mosque_list_grid.dart';
 import 'package:mus_greet/core/widgets/rounded_button_widget.dart';
+import 'package:mus_greet/models/ModelProvider.dart';
 
 import 'custom_spacer_widget.dart';
 
 class MosqueListCardWidget extends StatefulWidget {
   final int index;
+  final Mosque mosqueObject;
 
-  const MosqueListCardWidget({Key key, this.index}) : super(key: key);
+  const MosqueListCardWidget({Key key, this.index, this.mosqueObject}) : super(key: key);
 
   @override
   _MosqueListCardWidgetState createState() => _MosqueListCardWidgetState();
@@ -19,6 +21,7 @@ class MosqueListCardWidget extends StatefulWidget {
 class _MosqueListCardWidgetState extends State<MosqueListCardWidget> {
   @override
   Widget build(BuildContext context) {
+    //print(widget.mosqueObject);
     return Material(
       elevation: 2,
       shadowColor: AppColors.black,
@@ -32,7 +35,7 @@ class _MosqueListCardWidgetState extends State<MosqueListCardWidget> {
         child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              _getMemberDetails(),
+              _getMosqueDetails(),
               CustomSpacerWidget(
                 width: 5,
               ),
@@ -45,19 +48,19 @@ class _MosqueListCardWidgetState extends State<MosqueListCardWidget> {
       );
   }
 
-  _getMemberDetails() {
+  _getMosqueDetails() {
     return Row(
       children: [
-        _getMemberImage(),
+        _getMosqueImage(),
         CustomSpacerWidget(
           width: 5,
         ),
-        _getNameAndRelationShip(),
+        _getMosqueNameAndLocation(),
       ],
     );
   }
 
-  _getMemberImage() {
+  _getMosqueImage() {
     return ClipRRect(
       borderRadius: BorderRadius.circular(40),
       child: Image.asset(
@@ -69,13 +72,14 @@ class _MosqueListCardWidgetState extends State<MosqueListCardWidget> {
     );
   }
 
-  _getNameAndRelationShip() {
+  _getMosqueNameAndLocation() {
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          AppTexts.MOSQUE_NAME,
+          //AppTexts.MOSQUE_NAME,
+          widget.mosqueObject.mosque_name,
           style: TextStyle(
             fontFamily: FontConstants.FONT,
             fontSize: 12,
@@ -99,7 +103,8 @@ class _MosqueListCardWidgetState extends State<MosqueListCardWidget> {
               width: 4,
             ),
             Text(
-              AppTexts.MOSQUE_LOCATION,
+             // AppTexts.MOSQUE_LOCATION,
+              widget.mosqueObject.city,
               style: TextStyle(
                 fontFamily: FontConstants.FONT,
                 fontSize: 13,
@@ -123,7 +128,8 @@ class _MosqueListCardWidgetState extends State<MosqueListCardWidget> {
               width: 4,
             ),
             Text(
-              AppTexts.SHIA_TEXT,
+              //AppTexts.SHIA_TEXT,
+              widget.mosqueObject.sect,
               style: TextStyle(
                 fontFamily: FontConstants.FONT,
                 fontSize: 13,

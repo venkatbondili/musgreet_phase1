@@ -382,7 +382,7 @@ class AppTexts {
   ];
 
   static const List<String> FACILITIES_CATEGORIES=[
-    "Female Prayer Center",
+    "Female Prayer Corner",
     "Main Prayer Hall",
     "Funeral Service",
     "Nikaah Services",

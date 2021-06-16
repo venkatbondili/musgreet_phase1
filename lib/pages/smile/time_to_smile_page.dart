@@ -1,5 +1,8 @@
+import 'package:amplify_flutter/amplify.dart';
 import 'package:flutter/material.dart';
+import 'package:mus_greet/models/Users.dart';
 import 'package:mus_greet/pages/final/final_step_page.dart';
+import 'package:mus_greet/pages/otp/components/parent_email_verification_view.dart';
 
 class TimeToSmilePage extends StatefulWidget {
   @override
@@ -7,6 +10,7 @@ class TimeToSmilePage extends StatefulWidget {
 }
 
 class _TimeToSmilePageState extends State<TimeToSmilePage> {
+
   @override
   Widget build(BuildContext context) {
     /*var height = SizeConfig.getHeight(context);
@@ -27,6 +31,7 @@ void _navigateToNextScreen(BuildContext context) {
   Navigator.of(context)
       .push(MaterialPageRoute(builder: (context) => FinalStepPage()));
 }
+List<Users> users;
 
 Widget _buildContent(context) {
   return Center(
@@ -201,6 +206,7 @@ Widget _buildContent(context) {
                     Radius.circular(8.0),
                   )),
               onPressed: () {
+                updatePhoneVerficationData();
                 _navigateToNextScreen(context);
               },
             ),
@@ -209,4 +215,26 @@ Widget _buildContent(context) {
     ],
   ),
       ));
+}
+
+Future<void> updatePhoneVerficationData() async {
+
+  final updatedItem = users[0].copyWith(
+
+      phone_verification: true);
+
+  await Amplify.DataStore.save(updatedItem);
+}
+
+Future<void> userDetailsData() async
+{
+  print("getting the data from the users");
+  try {
+    users = await Amplify.DataStore.query(Users.classType , where:Users.ID.eq("315eca04-ab0d-46f7-b063-d8707d607a18"));
+    print(users);
+  }
+  catch(e)
+  {
+
+  }
 }

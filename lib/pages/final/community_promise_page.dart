@@ -1,12 +1,19 @@
+import 'package:amplify_datastore/amplify_datastore.dart';
+import 'package:amplify_flutter/amplify.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mus_greet/core/utils/size_config.dart';
+import 'package:mus_greet/models/Users.dart';
 import 'package:mus_greet/pages/address-verification/confirm_address_2_screen.dart';
 import 'package:mus_greet/pages/home/home.dart';
 
+import '../../main.dart';
+
 class CommunityPromisePage extends StatelessWidget {
   bool checked = false;
+List<Users> users;
 
+  TemporalDate date=new TemporalDate(DateTime.now());
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -220,6 +227,7 @@ class CommunityPromisePage extends StatelessWidget {
                                 Radius.circular(8.0),
                               )),
                           onPressed: () {
+                            updateUserDetails();
                             _navigateToNextScreen(context);
                           },
                         ),
@@ -234,5 +242,25 @@ class CommunityPromisePage extends StatelessWidget {
   void _navigateToNextScreen(BuildContext context) {
     Navigator.of(context)
         .push(MaterialPageRoute(builder: (context) => Home()));
+  }
+
+  void updateUserDetails()  async{
+    final updatedItem = users[0].copyWith(
+        active_status: true,
+         joined_date: date);
+    await Amplify.DataStore.save(updatedItem);
+  }
+
+  Future<void> userDetailsData() async
+  {
+    print("getting the data from the users");
+    try {
+      users = await Amplify.DataStore.query(Users.classType , where:Users.ID.eq("315eca04-ab0d-46f7-b063-d8707d607a18"));
+      print(users);
+    }
+    catch(e)
+    {
+
+    }
   }
 }

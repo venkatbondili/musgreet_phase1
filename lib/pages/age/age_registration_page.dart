@@ -1,5 +1,9 @@
+import 'package:amplify_flutter/amplify.dart';
 import 'package:flutter/material.dart';
+import 'package:mus_greet/models/Users.dart';
 import 'package:mus_greet/pages/parent/parent_verification.dart';
+
+import '../../main.dart';
 
 class AgeRegistrationPage extends StatefulWidget {
   @override
@@ -7,6 +11,8 @@ class AgeRegistrationPage extends StatefulWidget {
 }
 
 class _AgeRegistrationPageState extends State<AgeRegistrationPage> {
+
+
   @override
   Widget build(BuildContext context) {
     /*var height = SizeConfig.getHeight(context);
@@ -31,8 +37,11 @@ void _navigateToNextScreen(BuildContext context) {
 bool checked = true;
 
 int _selectedGender = 0;
+var numberOne;
+String gender;
 
 List<DropdownMenuItem<int>> genderList = [];
+List<Users> users;
 
 void loadGenderList() {
   genderList = [];
@@ -45,13 +54,28 @@ void loadGenderList() {
     value: 1,
   ));
   //genderList.add(new DropdownMenuItem(
-    //child: new Text('Other'),
-   // value: 2,
+  //child: new Text('Other'),
+  // value: 2,
   //));
+}
+
+Future<void> userDetailsDataAge() async {
+
+  print("getting the data from the users");
+  try {
+    users = await Amplify.DataStore.query(Users.classType , where:Users.ID.eq("315eca04-ab0d-46f7-b063-d8707d607a18"));
+    print(users);
+  }
+  catch(e)
+  {
+
+  }
 }
 
 Widget _buildContent(context) {
   loadGenderList();
+  userDetailsDataAge();
+  final myController = TextEditingController();
   return Center(
       child: Column(
         //crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -86,7 +110,9 @@ Widget _buildContent(context) {
                   'required to get your account verified by a\n '
                   'parent or guardian',
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 15.0, fontWeight: FontWeight.bold, color: Colors.grey),
+              style: TextStyle(fontSize: 15.0,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.grey),
             ),
           ),
           SizedBox(
@@ -96,21 +122,23 @@ Widget _buildContent(context) {
             alignment: Alignment.bottomLeft,
             child: Container(
               padding: EdgeInsets.symmetric(horizontal: 25, vertical: 7),
-              child:Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: <Widget>[
-                  Text(
-                    'How old are you?',
-                    textAlign: TextAlign.left,
-                    style: TextStyle(fontSize: 14.0, fontWeight: FontWeight.bold, color: Colors.black87),
-                  ),
-                  SizedBox(width: 7),
-                  Icon(
-                    Icons.info_sharp,
-                    color: Colors.grey,
-                    size: 18.0,
-                  ),
-                ]
+              child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: <Widget>[
+                    Text(
+                      'How old are you?',
+                      textAlign: TextAlign.left,
+                      style: TextStyle(fontSize: 14.0,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87),
+                    ),
+                    SizedBox(width: 7),
+                    Icon(
+                      Icons.info_sharp,
+                      color: Colors.grey,
+                      size: 18.0,
+                    ),
+                  ]
               ),
             ),
           ),
@@ -120,6 +148,7 @@ Widget _buildContent(context) {
           Container(
             padding: EdgeInsets.symmetric(horizontal: 25, vertical: 0),
             child: TextFormField(
+              controller: myController,
               keyboardType: TextInputType.number,
               decoration: InputDecoration(
                 //border: Border.all(1.0),
@@ -138,13 +167,15 @@ Widget _buildContent(context) {
             alignment: Alignment.bottomLeft,
             child: Container(
               padding: EdgeInsets.symmetric(horizontal: 25, vertical: 7),
-              child:Row(
+              child: Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: <Widget>[
                     Text(
                       'Choose your gender',
                       textAlign: TextAlign.left,
-                      style: TextStyle(fontSize: 14.0, fontWeight: FontWeight.bold, color: Colors.black87),
+                      style: TextStyle(fontSize: 14.0,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87),
                     ),
                     SizedBox(width: 7),
                     Icon(
@@ -166,7 +197,16 @@ Widget _buildContent(context) {
               value: _selectedGender,
               onChanged: (value) {
                 ///*setState(() {
-                  _selectedGender = value;
+                print("inside the value");
+                print(value);
+                if(value ==0)
+                  {
+                    gender ="Male";
+                  }else
+                    {
+                      gender="Female";
+                    }
+                _selectedGender = value;
                 //}
                 //)*/
               },
@@ -190,29 +230,50 @@ Widget _buildContent(context) {
           ),
           Container(
             padding: EdgeInsets.all(20.0),
-            child:SizedBox(
-                width: double.infinity, // <-- match_parent
-                child: RaisedButton(
-                  padding: EdgeInsets.symmetric(horizontal: 50, vertical: 7),
-                  child: Text(
-                    'Continue',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 15.0,
-                      fontWeight: FontWeight.bold,
-                    ),
+            child: SizedBox(
+              width: double.infinity, // <-- match_parent
+              child: RaisedButton(
+                padding: EdgeInsets.symmetric(horizontal: 50, vertical: 7),
+                child: Text(
+                  'Continue',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 15.0,
+                    fontWeight: FontWeight.bold,
                   ),
-                  color: Colors.green[800],
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.all(
-                        Radius.circular(8.0),
-                      )),
-                  onPressed: () {
-                    _navigateToNextScreen(context);
-                  },
                 ),
+                color: Colors.green[800],
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.all(
+                      Radius.circular(8.0),
+                    )),
+                onPressed: () {
+                  print("pressing the button");
+                   var number=myController.text;
+                  numberOne = int.parse(number);
+                  print(int.parse(number));
+                  if(numberOne >16) {
+                    _navigateToNextScreen(context);
+                  }
+                  updateAgeGender();
+                },
+              ),
             ),
           ),
         ],
       ));
+
 }
+
+
+void updateAgeGender() async {
+  final updatedItem = users[0].copyWith(
+      age: numberOne.toString(),
+      gender:gender.toString());
+  await Amplify.DataStore.save(updatedItem);
+
+
+}
+
+
+

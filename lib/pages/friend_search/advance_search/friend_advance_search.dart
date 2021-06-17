@@ -124,7 +124,7 @@ class _FriendAdvanceSearchState extends State<FriendAdvanceSearch> {
                   child: GestureDetector(
                     onTap: (){
                       print("TEST");
-                      Navigation.intent(context, AppRoutes.INTEREST_SCREEN);
+                      Navigation.intent(context, AppRoutes.MOSQUE_SEARCH_LIST_VIEW);
                     },
                     child:AdvanceFriendSearchContextWidget(
                       contextName: AppTexts.INTEREST_BASED_SEARCH[4],

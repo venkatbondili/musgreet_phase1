@@ -6,24 +6,28 @@ import 'package:mus_greet/core/widgets/custom_spacer_widget.dart';
 import 'package:mus_greet/models/ModelProvider.dart';
 import 'package:mus_greet/models/PostComments.dart';
 import 'package:mus_greet/pages/home_screen/comment_screen/comment_screen.dart';
+import 'package:mus_greet/pages/mosque_screen/mosque_details/mosque_comment_screen/mosque_comment_screen.dart';
 
 
-class AppCommentTextFieldWidget extends StatefulWidget {
+class MosqueCommentTextFieldWidget extends StatefulWidget {
   final String hintText;
   final String ScreenType;
   //final String PostID;
   final String ParentID;
   //final String UserID;
   final Posts PostObject;
-  final Users UserObject;
+  //final Users UserObject;
+  final Mosque MosqueObject;
   final PostComments postComments ;
   final String commentsCount;
-  AppCommentTextFieldWidget({this.hintText, this.ScreenType, this.ParentID,this.PostObject, this.UserObject,this.postComments,this.commentsCount});
+  MosqueCommentTextFieldWidget({this.hintText, this.ScreenType, this.ParentID,this.PostObject,
+    //this.UserObject,
+    this.MosqueObject,this.postComments,this.commentsCount});
   @override
-  _AppCommentTextFieldWidgetState createState() => _AppCommentTextFieldWidgetState();
+  _MosqueCommentTextFieldWidgetState createState() => _MosqueCommentTextFieldWidgetState();
 }
 
-class _AppCommentTextFieldWidgetState extends State<AppCommentTextFieldWidget> {
+class _MosqueCommentTextFieldWidgetState extends State<MosqueCommentTextFieldWidget> {
   bool Action = false;
   bool reloadPage = false;
   int commentsCount ;
@@ -74,23 +78,23 @@ class _AppCommentTextFieldWidgetState extends State<AppCommentTextFieldWidget> {
         mainAxisSize: MainAxisSize.min,
         children: [
           //Image.asset(
-            //ImageConstants.IC_CAMERA,
-            //height: 20,
-            //width: 20,
+          //ImageConstants.IC_CAMERA,
+          //height: 20,
+          //width: 20,
           //),
           //CustomSpacerWidget(width: 10,),
           //Container(
-            //width: 1.5,
-            //height: 15,
-            //color: AppColors.vertical_divider,
+          //width: 1.5,
+          //height: 15,
+          //color: AppColors.vertical_divider,
           //),
           //CustomSpacerWidget(width: 10,),
           GestureDetector(
             onTap: ()=>{
               _CreateComment(ctrlText.text, widget.ScreenType),
-            print("about to refresh"),
-            print(ctrlText.text),
-            Action = true,
+              print("about to refresh"),
+              print(ctrlText.text),
+              Action = true,
             },
             child: Image.asset(
               ImageConstants.IC_SEND,
@@ -109,17 +113,17 @@ class _AppCommentTextFieldWidgetState extends State<AppCommentTextFieldWidget> {
     //print(widget.PostObject.id);
     //print(widget.UserObject.id);
     try {
-    final item = PostComments(
-        comment: textFeildText,
-        parent_id: widget.ParentID,
-        postsID: widget.PostObject.id,
-        usersID: widget.UserObject.id,
-        Comments_PostLikes: []);
-    await Amplify.DataStore.save(item);
-    await Future.delayed(Duration(seconds: 2));
-    ctrlText.clear();
-    commentsCount++;
-    _reloadPage(commentsCount);
+      final item = PostComments(
+          comment: textFeildText,
+          parent_id: widget.ParentID,
+          postsID: widget.PostObject.id,
+          usersID: widget.MosqueObject.id,
+          Comments_PostLikes: []);
+      await Amplify.DataStore.save(item);
+      await Future.delayed(Duration(seconds: 2));
+      ctrlText.clear();
+      commentsCount++;
+      _reloadPage(commentsCount);
     }catch (e) {
       print("Could not query DataStore: " + e);
     }
@@ -133,7 +137,7 @@ class _AppCommentTextFieldWidgetState extends State<AppCommentTextFieldWidget> {
     print("Thank you for reloading");
     Navigator.push(context,
         MaterialPageRoute(
-          builder: (context) => CommentScreen(CommentsCount: commentsCount.toString(),UserObject: widget.UserObject,PostObject: widget.PostObject),
+          builder: (context) => MosqueCommentScreen(CommentsCount: commentsCount.toString(), MosqueObject:widget.MosqueObject, PostObject: widget.PostObject),
         )
     );
   }

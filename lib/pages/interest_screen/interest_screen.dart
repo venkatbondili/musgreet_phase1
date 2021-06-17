@@ -5,12 +5,9 @@ import 'package:mus_greet/core/utils/constants.dart';
 import 'package:mus_greet/core/widgets/action_button_widget.dart';
 import 'package:mus_greet/core/widgets/asset_image_widget.dart';
 import 'package:mus_greet/core/widgets/custom_spacer_widget.dart';
-import 'package:mus_greet/models/Facilitiesmaster.dart';
 import 'package:mus_greet/models/MasterIntrests.dart';
 import 'package:mus_greet/models/UserProfile.dart';
 import 'package:mus_greet/pages/add_skills_screen/add_skills_screen.dart';
-
-
 
 class InterestScreen extends StatefulWidget {
   List<UserProfile> userProfile;
@@ -160,6 +157,7 @@ class _InterestScreenState extends State<InterestScreen> {
       {String header, List<String> data, List<String> categories}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
+
       children: [
         CustomSpacerWidget(
           height: 10,
@@ -178,7 +176,7 @@ class _InterestScreenState extends State<InterestScreen> {
         ),
         MultiSelectChip(
           categories,
-          _selectedIntrests,
+          //_selectedIntrests,
           onSelectionChanged: (val) {
             print("selecting the value");
              print(val);

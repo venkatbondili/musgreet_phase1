@@ -34,9 +34,10 @@ class _MosquesDetailsScreenState extends State<MosquesDetailsScreen>
 
   static const _kCurve = Curves.ease;
 
-
   TabController _tabController;
 
+  List<Mosque> mosque = [];
+  String mosqueID = "9de478b5-04c7-4074-baf4-2cadf902f594";
   @override
   void initState() {
     _tabController = TabController(length: 4, vsync: this);
@@ -52,18 +53,23 @@ class _MosquesDetailsScreenState extends State<MosquesDetailsScreen>
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.GREY_KIND,
-      body: _getBody(),
+    return FutureBuilder<List<Mosque>>(
+      future: getMosque(),
+      builder: (ctx, snapshot) {
+        switch (snapshot.connectionState) {
+          case ConnectionState.done:
+            mosque = snapshot.data;
+            return buildUI(mosque);
+          default:
+            return _buildLoadingScreen();
+        }
+      },
     );
   }
-  List<Mosque> mosque;
+
   _getBody() {
-    print(mosque);
-    getMosque();
     print("inside the body of main");
     return SingleChildScrollView(
       child: Column(
@@ -72,7 +78,7 @@ class _MosquesDetailsScreenState extends State<MosquesDetailsScreen>
           _getTabBar(),
           Center(
             child: [
-              HomeTab(),
+              HomeTab(mosque: mosque),
               ContactTab(mosque: mosque),
               MosqueAboutTab(mosque: mosque),
               FacilitiesTab(mosque: mosque),
@@ -170,8 +176,6 @@ class _MosquesDetailsScreenState extends State<MosquesDetailsScreen>
     );
   }
 
-
-
   /// for Rendering the tab bar on screen
   _getTabBar() {
     return Container(
@@ -262,7 +266,6 @@ class _MosquesDetailsScreenState extends State<MosquesDetailsScreen>
     );
   }
 
-
   _getMemberImage() {
     return ClipRRect(
       borderRadius: BorderRadius.circular(40),
@@ -325,17 +328,33 @@ class _MosquesDetailsScreenState extends State<MosquesDetailsScreen>
     );
   }
 
-
-  Future<void> getMosque() async
-  {
+  Future<List<Mosque>> getMosque() async {
     try {
-      mosque = await Amplify.DataStore.query(Mosque.classType , where:Mosque.ID.eq("7334d43c-8532-470a-89ab-6ca362f11107"));
+      mosque = await Amplify.DataStore.query(Mosque.classType , where:Mosque.ID.eq(mosqueID));
       print("Before the details of mosque");
-      print(mosque[0]);
+      print(mosque);
       print("inside the main page");
+      return mosque;
     } catch (e) {
       print("Could not query DataStore: " + e.StackTrace);
     }
   }
+
+  Widget buildUI(List<Mosque> mosque) {
+    return Scaffold(
+      backgroundColor: AppColors.GREY_KIND,
+      body: _getBody(),
+    );
+  }
+  Widget _buildLoadingScreen() {
+    return Center(
+      child: Container(
+        width: 50,
+        height: 50,
+        child: CircularProgressIndicator(),
+      ),
+    );
+  }
+
 }
 

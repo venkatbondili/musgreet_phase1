@@ -1195,8 +1195,7 @@ class _AboutTabState extends State<AboutTab> {
 
   }
 
-  getUserFamily()
-  {
+  getUserFamily() {
     if(userFamily.isNotEmpty) {
       for (int i = 0; i < user.length; i++) {
         print(userFamily[i].name);
@@ -1213,8 +1212,7 @@ class _AboutTabState extends State<AboutTab> {
       }
   }
 
-  Future<List<UserEducation>> education() async
-  {
+  Future<List<UserEducation>> education() async {
     try {
       userEducation= await Amplify.DataStore.query(UserEducation.classType);
       print(userEducation);

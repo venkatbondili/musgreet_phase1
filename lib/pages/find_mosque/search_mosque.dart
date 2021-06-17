@@ -1,3 +1,4 @@
+import 'package:amplify_flutter/amplify.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mus_greet/core/config/navigation.dart';
@@ -8,6 +9,7 @@ import 'package:mus_greet/core/widgets/custom_spacer_widget.dart';
 import 'package:mus_greet/core/widgets/following_mosque_list_grid.dart';
 import 'package:mus_greet/core/widgets/mosque_advance_search.dart';
 import 'package:mus_greet/core/widgets/search_text_field_widget.dart';
+import 'package:mus_greet/models/Mosque.dart';
 
 class MosuqueSearchFromMap extends StatefulWidget {
   @override
@@ -15,8 +17,10 @@ class MosuqueSearchFromMap extends StatefulWidget {
 }
 
 class _MosuqueSearchFromMapState extends State<MosuqueSearchFromMap> {
+  List<Mosque> Mosques = [];
   @override
   Widget build(BuildContext context) {
+    listMosque();
     return SafeArea(
       child: Scaffold(
         backgroundColor: AppColors.white,
@@ -299,4 +303,15 @@ class _MosuqueSearchFromMapState extends State<MosuqueSearchFromMap> {
   _navigateToAdvanceSearchScreen() {
     Navigation.intent(context, AppRoutes.MOSQUE_ADVANCE_SEARCH);
   }
+
+  Future<void> listMosque() async {
+    try {
+      Mosques = await Amplify.DataStore.query(Mosque.classType);
+      print(Mosques);
+    } catch (e) {
+      print("Could not query DataStore: " + e);
+    }
+  }
+
+
 }

@@ -16,6 +16,7 @@ class AdvanceSearchScreen extends StatefulWidget {
 class _AdvanceSearchScreenState extends State<AdvanceSearchScreen> {
   final List<String> _selectedReligion = List.empty(growable: true);
   final List<String> _selectPreference = List.empty(growable: true);
+  static const List<String> _selected = [];
 
   @override
   Widget build(BuildContext context) {
@@ -115,6 +116,7 @@ class _AdvanceSearchScreenState extends State<AdvanceSearchScreen> {
         ),
         MultiSelectChip(
           categories,
+          //_selected,
           onSelectionChanged: (val) {
             // print(val);
             setState(() {

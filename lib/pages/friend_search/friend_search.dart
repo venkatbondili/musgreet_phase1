@@ -1,3 +1,4 @@
+import 'package:amplify_flutter/amplify.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mus_greet/core/config/navigation.dart';
@@ -8,6 +9,7 @@ import 'package:mus_greet/core/widgets/asset_image_widget.dart';
 import 'package:mus_greet/core/widgets/custom_spacer_widget.dart';
 import 'package:mus_greet/core/widgets/friend_search_list_widget.dart';
 import 'package:mus_greet/core/widgets/sponsored_widget.dart';
+import 'package:mus_greet/models/ModelProvider.dart';
 
 class FriendSearch extends StatefulWidget {
   @override
@@ -15,14 +17,21 @@ class FriendSearch extends StatefulWidget {
 }
 
 class _FriendSearchState extends State<FriendSearch> {
+  List<Users> Userss = [];
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Scaffold(
-        backgroundColor: AppColors.white_shade,
-        appBar: _getAppBar(context),
-        body: _getBody(),
-      ),
+    print("Hello");
+    return FutureBuilder<List<Users>>(
+      future: listUsers(),
+      builder: (ctx, snapshot) {
+        switch (snapshot.connectionState) {
+          case ConnectionState.done:
+             Userss = snapshot.data;
+            return _buildUI(Userss);
+          default:
+            return _buildLoadingScreen();
+        }
+      },
     );
   }
 
@@ -67,7 +76,7 @@ class _FriendSearchState extends State<FriendSearch> {
               padding: EdgeInsets.only(left: 20, right: 20),
               physics: NeverScrollableScrollPhysics(),
               shrinkWrap: true,
-              itemCount: 7,
+              itemCount: Userss.length,
               separatorBuilder: (context, int index) {
                 return Divider(
                   height: 10,
@@ -75,11 +84,11 @@ class _FriendSearchState extends State<FriendSearch> {
                 );
               },
               itemBuilder: (BuildContext context, int index) {
-                if(index==3){
-                  return _getSponsoredWidget();
+                if(index == 3){
+                  return _getSponsoredWidget(index);
                 }else{
                   return FriendSearchListWidget(
-                    index: index,
+                    index: index, UserObject: Userss[index],
                   );
                 }
               },
@@ -112,7 +121,8 @@ class _FriendSearchState extends State<FriendSearch> {
     return Container(
       padding: EdgeInsets.only(left: 20, top: 5, bottom: 20),
       child: Text(
-        AppTexts.FOUND_RESULT,
+        "We found " +Userss.length.toString()+ " result",
+        //AppTexts.FOUND_RESULT,
         style: TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: 15,
@@ -143,9 +153,57 @@ class _FriendSearchState extends State<FriendSearch> {
   }
 
 
-  _getSponsoredWidget(){
-    return SponsoredWidget();
+  _getSponsoredWidget(int index){
+    return Column(
+      children: [
+        SponsoredWidget(),
+        FriendSearchListWidget(index: index,UserObject: Userss[index]),
+      ],
+    );
+   //return SponsoredWidget();
   }
+
+  Future<List<Users>> listUsers() async{
+    try {
+      Userss = await Amplify.DataStore.query(Users.classType);
+      print("Users length inside friends search");
+      //print(Userss.length);
+      //print(Userss[0]);
+      //print(Userss[1]);
+      //print(Userss[2]);
+      //print(Userss[3]);
+      //print(Userss[4]);
+      //print(Userss[5]);
+
+      //print(Userss[0].first_name);
+      //print(Userss.first);
+      //print(Userss.length);
+      //print(Userss[0].first_name);
+      return Userss;
+    } catch (e) {
+      print("Could not query DataStore: " + e);
+    }
+  }
+
+  Widget _buildUI(List<Users> userss) {
+    return SafeArea(
+      child: Scaffold(
+        backgroundColor: AppColors.white_shade,
+        appBar: _getAppBar(context),
+        body: _getBody(),
+      ),
+    );
+  }
+}
+
+Widget _buildLoadingScreen() {
+  return Center(
+    child: Container(
+      width: 50,
+      height: 50,
+      child: CircularProgressIndicator(),
+    ),
+  );
 }
 
 ///Friend search field

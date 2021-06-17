@@ -7,6 +7,7 @@ import 'package:mus_greet/core/utils/constants.dart';
 import 'package:mus_greet/core/widgets/asset_image_widget.dart';
 import 'package:mus_greet/core/widgets/custom_spacer_widget.dart';
 import 'package:mus_greet/core/widgets/rounded_button_widget.dart';
+import 'package:mus_greet/core/widgets/s3_bucket_image_widget.dart';
 import 'package:mus_greet/core/widgets/tab_style_widget.dart';
 import 'package:mus_greet/core/widgets/upload_image_bottom_sheet_widget.dart';
 import 'package:mus_greet/models/UserProfile.dart';
@@ -29,6 +30,8 @@ class _ViewProfileScreenState extends State<ViewProfileScreen>
 
   TextEditingController _controller = TextEditingController();
   bool _isInEditMode = true;
+  String UserID = "61b35418-9426-4652-9e59-a65ad173117c";
+  List<UserProfile> userProfile;
 
   @override
   void initState() {
@@ -53,7 +56,6 @@ class _ViewProfileScreenState extends State<ViewProfileScreen>
     );
   }
 
-  List<UserProfile> userProfile;
   _getBody() {
     getDetails();
     return SingleChildScrollView(
@@ -123,8 +125,10 @@ class _ViewProfileScreenState extends State<ViewProfileScreen>
                   onTap: () => _uploadImage(),
                   child: _getUserProfile(),
                 )
-              : AssetImageWidget(
-                  image: ImageConstants.IMG_PROFILE,
+              // : AssetImageWidget(
+              //     image: ImageConstants.IMG_PROFILE,
+                :S3BucketImageWidget(
+                  image: "https://musgreetphase1images184452-staging.s3.eu-west-2.amazonaws.com/public/public.png",
                   height: 180,
                   width: 180,
                 ),
@@ -159,8 +163,9 @@ class _ViewProfileScreenState extends State<ViewProfileScreen>
       width: 180,
       child: Stack(
         children: [
-          AssetImageWidget(
-            image: ImageConstants.IMG_PROFILE,
+          S3BucketImageWidget(
+            image: "https://musgreetphase1images184452-staging.s3.eu-west-2.amazonaws.com/public/public.png",
+            //image: ImageConstants.IMG_PROFILE,
             height: 180,
             width: 180,
           ),

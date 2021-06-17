@@ -1,19 +1,33 @@
 import 'package:flutter/material.dart';
 import 'package:mus_greet/core/config/navigation.dart';
 import 'package:mus_greet/core/utils/constants.dart';
+import 'package:mus_greet/core/utils/routes.dart';
 import 'package:mus_greet/core/widgets/action_button_widget.dart';
 import 'package:mus_greet/core/widgets/asset_image_widget.dart';
 import 'package:mus_greet/core/widgets/custom_spacer_widget.dart';
 import 'package:mus_greet/models/ModelProvider.dart';
+import 'package:mus_greet/pages/advanced_search/search_skills_screen.dart';
 import 'package:mus_greet/pages/profile/view_profile_screen/view_profile_screen.dart';
 import 'package:amplify_flutter/amplify.dart';
 
 class LanguagesScreen extends StatefulWidget {
+  final String callingScreen;
+  final List<String> skillsList;
+  final String gender;
+  final String age;
+  //final List<Users> genderFilteredUsers;
+  //final List<Users> ageFilteredUsers;
+  LanguagesScreen({this.callingScreen,
+    this.skillsList,
+    this.gender,
+    this.age
+    //this.genderFilteredUsers,
+    //this.ageFilteredUsers
+  });
   @override
   _LanguagesScreenState createState() => _LanguagesScreenState();
 }
 class _LanguagesScreenState extends State<LanguagesScreen> {
-
    String languages;
    List<UserProfile> userProfile;
    List<String> _selectedItems = [];
@@ -133,12 +147,20 @@ class _LanguagesScreenState extends State<LanguagesScreen> {
               text: AppTexts.ADD,
               isFilled: true,
               callBack: (){
-                print(_selectedItems);
-                languages =_selectedItems.join(",");
-                print(languages);
-                print("Add");
-                updateUserProfile(languages);
-                Navigation.back(context);
+                if(widget.callingScreen == "AdvancedSearch"){
+                  print("Calling from advanced Search");
+                  print(_selectedItems);
+                  _navigateToAdvancedSearchScreen(_selectedItems);
+                  //_selectedItems.clear();
+                }else{
+                  print(_selectedItems);
+                  languages =_selectedItems.join(",");
+                  print(languages);
+                  print("Add");
+                  updateUserProfile(languages);
+                  Navigation.back(context);
+                }
+
                 //Navigator.pop(context);
               },
             ),
@@ -147,6 +169,15 @@ class _LanguagesScreenState extends State<LanguagesScreen> {
       ),
     );
   }
+
+   _navigateToAdvancedSearchScreen(List<String> selectedItems) {
+     List<String> selectedLanguagesList =_selectedItems;
+     // Navigation.intentWithData(context, AppRoutes.SEARCH_SKILLS_SCREEN ,ArgumentLanguageClass(_selectedItems,"Languages"));
+     Navigation.intentWithData(context, AppRoutes.SEARCH_SKILLS_SCREEN ,ArgumentClass(widget.skillsList,selectedLanguagesList, widget.gender,widget.age,
+         //widget.genderFilteredUsers,
+         //widget.ageFilteredUsers,
+         "Languages"));
+   }
 
   Future<void> userDetails() async{
     userProfile = await Amplify.DataStore.query(UserProfile.classType,where: UserProfile.ID.eq("0263d01c-1250-4541-826d-8d63f96cf8c0"));
@@ -233,6 +264,4 @@ class _MultiSelectChipState extends State<MultiSelectChip> {
       children: _buildChoiceList(),
     );
   }
-
-
 }

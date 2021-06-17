@@ -20,7 +20,7 @@ class _MosqueAboutTabState extends State<MosqueAboutTab> {
   var string="50a1d745-b0b8-4e1a-b649-3141c3c1ea6a";
   String  verfied;
   List<MosqueUsers> mosqueUsers;
-
+  List<Mosque> mosque;
   @override
   Widget build(BuildContext context) {
 

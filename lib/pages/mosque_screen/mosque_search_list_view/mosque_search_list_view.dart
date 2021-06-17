@@ -30,7 +30,7 @@ class _MosqueSearchListViewState extends State<MosqueSearchListView> {
   List<Mosque> sectFilteredMosques = [];
   List<Mosque> facilityFilteredMosques = [];
   @override
-  Widget build(BuildContext context) {
+  Widget build1(BuildContext context) {
     print("printing args");
     args = ModalRoute.of(context).settings.arguments as ArgumentClass;
     print(args);
@@ -57,6 +57,21 @@ class _MosqueSearchListViewState extends State<MosqueSearchListView> {
         appBar: _getAppBar(context),
         body: _getBody(),
       ),
+    );
+  }
+  
+  Widget build(BuildContext context){
+    return FutureBuilder<List<Mosque>>(
+      future: _getMosque(),
+      builder: (ctx, snapshot) {
+        switch (snapshot.connectionState) {
+          case ConnectionState.done:
+                Mosques = snapshot.data;
+            return _getMosqueUI(Mosques);
+          default:
+            return _buildLoadingScreen();
+        }
+      },
     );
   }
 
@@ -169,6 +184,7 @@ class _MosqueSearchListViewState extends State<MosqueSearchListView> {
   _navigateToAdvanceSearchScreen() {
     Navigation.intent(context, AppRoutes.MOSQUE_ADVANCE_SEARCH);
   }
+
 /// this method is to get result mosques list
   Future<void> listMosque(List<String> advancedSearchSectList,List<String> advancedSearchFacilitiesList, bool  advanceSearchStatus) async {
     print("inside list mosques");
@@ -360,6 +376,110 @@ class _MosqueSearchListViewState extends State<MosqueSearchListView> {
       //widget.callBack;
     }
   }
+
+ Future<List<Mosque>> _getMosque() async {
+   try {
+     Mosques = await Amplify.DataStore.query(Mosque.classType);
+     return Mosques;
+   } catch (e) {
+     print("Could not query DataStore: " + e);
+   }
+ }
+
+  Widget _getMosqueUI(List<Mosque> Mosques) {
+    return FutureBuilder<List<Facilitiesmaster>>(
+      future: _getFacilitiesMaster(),
+      builder: (ctx, snapshot) {
+        switch (snapshot.connectionState) {
+          case ConnectionState.done:
+              Facilitiesmasters = snapshot.data;
+            return _getFacilitiesAndMosque(Mosques,Facilitiesmasters);
+          default:
+            return _buildLoadingScreen();
+        }
+      },
+    );
+
+  }
+
+  Future<List<Facilitiesmaster>> _getFacilitiesMaster() async {
+    try {
+      Facilitiesmasters = await Amplify.DataStore.query(Facilitiesmaster.classType);
+      return Facilitiesmasters;
+    } catch (e) {
+      print("Could not query DataStore: " + e);
+    }
+
+  }
+
+  Widget _getFacilitiesAndMosque(List<Mosque> mosques, List<Facilitiesmaster> facilitiesmasters,) {
+    print("printing args");
+    args = ModalRoute.of(context).settings.arguments as ArgumentClass;
+    print(args);
+    //listMosque(advancedSearchSectList,advancedSearchFacilitiesList);
+    if (args != null) {
+      advancedSearchSectList = args.advancedSearchSectList;
+      advancedSearchFacilitiesList = args.advancedSearchFacilitiesList;
+      print(advancedSearchSectList);
+      print(advancedSearchFacilitiesList);
+      //advancedSearchMosqueList(advancedSearchSectList, advancedSearchFacilitiesList);
+      getMosquesList(mosques,facilitiesmasters, advancedSearchSectList, advancedSearchFacilitiesList, true);
+      //advancedSearchMosqueList(advancedSearchSectList,advancedSearchFacilitiesList);
+    }
+    else {
+      print(advancedSearchFacilitiesList);
+      print(advancedSearchSectList);
+      getMosquesList(mosques,facilitiesmasters,advancedSearchSectList, advancedSearchFacilitiesList, false);
+    }
+    //advancedSearchSectList = args.advancedSearchSectList;
+    //advancedSearchFacilitiesList = args.advancedSearchFacilitiesList;
+    return SafeArea(
+      child: Scaffold(
+        backgroundColor: AppColors.white,
+        appBar: _getAppBar(context),
+        body: _getBody(),
+      ),
+    );
+  }
+
+  getMosquesList(List<Mosque> Mosques, List<Facilitiesmaster> Facilitiesmasters, List<String> advancedSearchSectList,List<String> advancedSearchFacilitiesList, bool  advanceSearchStatus) {
+    print("inside list mosques");
+
+    ///get the master facilitieslist
+      print(Facilitiesmasters);
+    ///get the list of mosques
+
+      print("Mosque length");
+      print(Mosques.length);
+
+    if (advanceSearchStatus == true){
+      if(Mosques != []){
+        print(advancedSearchSectList);
+        //advancedSearchMosqueList(advancedSearchSectList,advancedSearchFacilitiesList);
+        advancedSearchSectFilter(advancedSearchSectList, advancedSearchFacilitiesList);
+      }
+    }
+    else{
+      print("inside else block in list Mosques method");
+      ResultMosques = Mosques;
+      print("ResultMosques");
+      print(ResultMosques.length);
+      print(ResultMosques);
+    }
+
+  }
+
+  Widget _buildLoadingScreen() {
+    return Center(
+      child: Container(
+        width: 50,
+        height: 50,
+        child: CircularProgressIndicator(),
+      ),
+    );
+  }
+
+
 }
 
 class ArgumentClass {

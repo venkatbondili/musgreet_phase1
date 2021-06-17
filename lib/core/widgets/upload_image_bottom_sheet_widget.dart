@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:ui';
+import 'package:amplify_flutter/amplify.dart';
 import 'package:image_picker/image_picker.dart';
 
 import 'package:flutter/cupertino.dart';
@@ -7,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:mus_greet/core/config/navigation.dart';
 import 'package:mus_greet/core/utils/constants.dart';
 import 'package:mus_greet/core/widgets/custom_spacer_widget.dart';
+import 'package:path_provider/path_provider.dart';
 //import 'package:mus_greet/pages/upload_image/phonegallery.dart';
 
 
@@ -38,11 +40,13 @@ class _UploadImageBottomSheetWidgetState
     extends State<UploadImageBottomSheetWidget> {
   var pickedFile;
   var filepath = '';
+  String S3ImageURL = "";
   File _image;
 
   Future getImage(bool isCamera) async {
-
+    print("inside getImage");
     final picker = ImagePicker();
+    print(pickedFile);
 
     if (isCamera) {
       final pickedFile = await picker.getImage(source: ImageSource.camera);
@@ -52,9 +56,17 @@ class _UploadImageBottomSheetWidgetState
     }
 
     setState(() {
+      print("inside set state");
       if (pickedFile != null) {
         _image = File(pickedFile.path);
         filepath = pickedFile.path;
+        print("calling upload file");
+        uploadFile(_image, filepath).then((result) {
+          setState(() {
+            if (result is String)
+              S3ImageURL = result.toString(); //use toString to convert as String
+          });
+        });
       } else {
         filepath = 'assets/images/google.png';
         print('No image selected.');
@@ -150,4 +162,63 @@ class _UploadImageBottomSheetWidgetState
     print("open gallery");
     getImage(false);
   }
+
+
+  /// Method to upload image file to S3 bucket
+  Future<String> uploadFile(File _image, String filepath) async {
+    try {
+      final fileName = filepath.split('/').last;
+      //final fileName = DateTime.now().toIso8601String();
+      var dir = await getApplicationDocumentsDirectory();
+      //File file = File(await getFilePath()); // 1
+      File file = _image;
+      file.writeAsString("This is my demo text that will be saved to : demoTextFile.txt");
+      final result = await Amplify.Storage.uploadFile(
+        //local: file,
+        local: file,
+        //local: File(await getFilePath()),
+        //local: File('C:/Venkat/Sriram/Projects/MusGreet/Code/musgreet_phase1/musgreet/assets/images/logo.png'),
+        //key: fileName + '.png',
+        key:fileName,
+      );
+      //final x = Amplify.Storage.put('text.txt', 'Hello');
+      print('image uploaded to S3 successfully!');
+      print(result.key);
+      //String url = getUrlForFile(result.key);
+      String url = "";
+      getUrlForFile(result.key).then((result) {
+        setState(() {
+          print("inside set state");
+          if (result is String)
+            url = result.toString(); //use toString to convert as String
+        });
+      });
+      await Future.delayed(Duration(milliseconds: 1000));
+      //return result.key;
+      print("inside upload file");
+      print(url.split('?')[0]);
+      return url;
+    } catch (e) {
+      print('Error in uploading image to S3');
+      throw e;
+    }
+  }
+  /// Method to get Image URL of the file
+  Future<String> getUrlForFile(String fileKey) async {
+    try {
+      final result = await Amplify.Storage.getUrl(key: fileKey);
+      print("inside get url");
+      print(result.url.toString());
+      //UrlString = result.url.toString();
+      //s3://musgreetphase1images184452-staging/public/2021-05-26T22:07:56.979371.txt
+      //await Future.delayed(Duration(seconds: 2));
+      return result.url;
+      //return UrlString;
+    } catch (e) {
+      print('Error in getUrl method');
+      throw e;
+    }
+  }
+
+
 }

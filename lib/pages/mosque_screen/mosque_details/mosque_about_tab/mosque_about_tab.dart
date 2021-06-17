@@ -8,6 +8,10 @@ import 'package:readmore/readmore.dart';
 import 'package:amplify_flutter/amplify.dart';
 
 class MosqueAboutTab extends StatefulWidget {
+  final List<Mosque> mosque;
+  //FacilitiesTab(List<Mosque> mosque);
+  MosqueAboutTab({this.mosque});
+
   @override
   _MosqueAboutTabState createState() => _MosqueAboutTabState();
 }
@@ -16,11 +20,28 @@ class _MosqueAboutTabState extends State<MosqueAboutTab> {
   var string="50a1d745-b0b8-4e1a-b649-3141c3c1ea6a";
   String  verfied;
   List<MosqueUsers> mosqueUsers;
-  List<Mosque> mosque;
+
   @override
   Widget build(BuildContext context) {
+
+    return FutureBuilder<List<MosqueUsers>>(
+      future: gettingUsers(),
+      builder: (ctx, snapshot) {
+        switch (snapshot.connectionState) {
+          case ConnectionState.done:
+            mosqueUsers = snapshot.data;
+            return buildUI(mosqueUsers);
+          default:
+            return _buildLoadingScreen();
+        }
+      },
+    );
+  }
+
+  buildUI(List<MosqueUsers> mosqueUsers)
+  {
     aboutMosque();
-    gettingUsers();
+    //gettingUsers();
     return Container(
       padding: EdgeInsets.only(bottom: 100),
       margin: EdgeInsets.only(top: 4),
@@ -33,7 +54,7 @@ class _MosqueAboutTabState extends State<MosqueAboutTab> {
           Padding(
             padding: const EdgeInsets.only(top: 30.0, left: 30),
             child: Text(
-              mosque[0].about,
+              widget.mosque[0].about,
               style: TextStyle(
                   fontSize: 16,
                   fontFamily: FontConstants.FONT,
@@ -113,7 +134,7 @@ class _MosqueAboutTabState extends State<MosqueAboutTab> {
                   Padding(
                     padding: const EdgeInsets.only(top: 0.0, left: 13),
                     child: Text(
-                      mosque[0].sect,
+                      widget.mosque[0].sect,
                       style: TextStyle(
                           fontSize: 13,
                           fontFamily: FontConstants.FONT,
@@ -148,7 +169,7 @@ class _MosqueAboutTabState extends State<MosqueAboutTab> {
               ),
             ],
           ),
-         _getFriendsDataList(),
+          _getFriendsDataList(),
         ],
       ),
     );
@@ -237,9 +258,8 @@ class _MosqueAboutTabState extends State<MosqueAboutTab> {
   Future<void> aboutMosque() async{
 
     try {
-      mosque = await Amplify.DataStore.query(Mosque.classType ,where :Mosque.ID.eq(string));
-
-      if(mosque[0].is_verified==true)
+      //mosque = await Amplify.DataStore.query(Mosque.classType ,where :Mosque.ID.eq(string));
+      if(widget.mosque[0].is_verified==true)
         {
           verfied ="Verified";
         }else{
@@ -251,16 +271,26 @@ class _MosqueAboutTabState extends State<MosqueAboutTab> {
     }
   }
 
-  Future<void> gettingUsers() async{
+  Future<List<MosqueUsers>> gettingUsers() async{
     try {
       mosqueUsers = await Amplify.DataStore.query(MosqueUsers.classType , where: MosqueUsers.MOSQUEID.eq(string));
-
-
       print(mosqueUsers);
+      return mosqueUsers;
       //print(mosquePrayers[0].time);
     } catch (e) {
       print("Could not query DataStore: " + e);
     }
+  }
+
+
+  Widget _buildLoadingScreen() {
+    return Center(
+      child: Container(
+        width: 50,
+        height: 50,
+        child: CircularProgressIndicator(),
+      ),
+    );
   }
 
   _getFriendsDataList() {

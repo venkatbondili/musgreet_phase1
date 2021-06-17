@@ -21,6 +21,7 @@ class AppColors{
   static const Color green_light = Color(0x40278034);
   static const Color header_black= Color(0xff1d1d1d);
   static const Color white_shade= Color(0xfff2f2f2);
+  static const Color red_shade =Color(0xFFEF9A9A);
 
 }
 const kPrimaryColor = Color(0xFFFF7643);
@@ -211,6 +212,25 @@ class AppTexts {
   static const String SELECT_LANGUAGES = "Select Languages";
   static const String CHOOSE_LANGUAGES = "Choose Languages you can speak";
   static const String FRIEND_REQUEST_MESSAGE = "Hello, I hope you are well. We both are in the same community and have similar interests. Let's connect and grow the community...";
+  static const String ISLAM_INTREST="Islam Intrest";
+  static const String LOGIN_TEXT="Login";
+  static const String PASSWORD_TEXT="Password";
+  static const String FORGOT_PASSWORD_TEXT="Forgot Password?";
+  static const String DO_NOT_HAVE_ACCOUNT="Don't have an account?";
+  static const String REGISTER_TEXT="Register";
+  static const String SOCIAL_ACCOUNT_TO_LOGIN="Use social account to Login";
+  static const String CONTINUE="Continue";
+  static const String HAVE_AN_ACCOUNT="Already have an account?";
+  static const String RE_ENTER_PASSWORD="Re-Type Password";
+  static const String PASSWORD_DIRECTION="Password should be 8 characters in length, contain one uppercase and one special character";
+  static const String REGISTRATION_TEXT="Registration";
+  static const String FIRST_NAME="First Name";
+  static const String LAST_NAME="Last Name";
+  static const String CODE_EXPIRED_TEXT="Sorry your code has expired,\nplease click resend code";
+  static const String RESEND_CODE_TEXT="Resend code";
+  static const String VERIFY_TEXT="Verify";
+  static const String VERIFY_EMAIL_TEXT="Verify your Email";
+  static const String ENTER_CODE_HINT="Please enter the 6 digit code sent to";
 
   static const List<String> INTEREST_BASED_SEARCH=[
     "Interests...",
@@ -381,6 +401,12 @@ class AppTexts {
     "other"
   ];
 
+  static const List<String> ISLAM_INTREST_SELECTION=[
+    //"Male/Female",
+    "True",
+    "False",
+  ];
+
   static const List<String> FACILITIES_CATEGORIES=[
     "Female Prayer Corner",
     "Main Prayer Hall",
@@ -469,6 +495,12 @@ class AppTexts {
   ];
 
   static const List<String> POST_VISIBILITY_CATEGORIES=[
+    "Community",
+    "Friends",
+  ];
+
+
+  static const List<String> PROFILE_PRIVACY=[
     "Community",
     "Friends",
   ];
@@ -583,6 +615,18 @@ class ImageConstants{
   static const String IC_TRAVEL_AND_TOURISM = "assets/images/travel_and_tourism.png";
   static const String IC_TUITION_AND_CLASSES = "assets/images/tuition_and_classes.png";
   static const String IC_WEDDINGS = "assets/images/weddings.png";
+  static const String IC_CHECK = "assets/images/ic_check.png";
+  static const String IC_INVISIBLE = "assets/images/ic_invisible.png";
+  static const String IC_VISIBLE = "assets/images/ic_visible.png";
+  static const String IC_LOGIN_LOGO = "assets/images/ic_login_logo.png";
+  //static const String IC_LOCK = "assets/images/ic_lock.png";
+  static const String IC_LOGIN_EMAIL = "assets/images/ic_login_email.png";
+  static const String IC_LOCK="assets/images/IC_LOCK.png";
+  static const String IC_VERIFY_EMAIL = "assets/images/ic_verify_email.png";
+  static const String IC_FACEBOOK = "assets/images/ic_facebook.png";
+  static const String IC_GOOGLE = "assets/images/ic_google.png";
+  static const String IC_VERIFIED = "assets/images/ic_verified.png";
+  static const String IC_EYE="assets/images/eye.png";
 
 }
 

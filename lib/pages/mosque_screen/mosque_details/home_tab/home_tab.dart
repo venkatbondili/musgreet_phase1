@@ -1,7 +1,12 @@
+import 'package:intl/intl.dart';
+
 import 'package:flutter/material.dart';
 import 'package:mus_greet/core/utils/constants.dart';
 import 'package:mus_greet/core/widgets/custom_spacer_widget.dart';
 import 'package:mus_greet/core/widgets/footer_icon_text_widget.dart';
+import 'package:mus_greet/models/ModelProvider.dart';
+import 'package:amplify_flutter/amplify.dart';
+import 'package:amplify_datastore_plugin_interface/src/types/temporal/temporal_time.dart';
 
 class HomeTab extends StatefulWidget {
   @override
@@ -9,8 +14,31 @@ class HomeTab extends StatefulWidget {
 }
 
 class _HomeTabState extends State<HomeTab> {
+  List<MosquePrayers> mosquePrayers;
+  DateTime date = DateTime.now();
+  int count=0;
+  int countback=0;
+  bool _isIcon =true;
+
   @override
   Widget build(BuildContext context) {
+    return FutureBuilder<List<MosquePrayers>>(
+      future: getMosquePrayers(),
+      builder: (ctx, snapshot) {
+        switch (snapshot.connectionState) {
+          case ConnectionState.done:
+            mosquePrayers = snapshot.data;
+            return buildUi(mosquePrayers);
+          default:
+            return _buildLoadingScreen();
+        }
+      },
+    );
+  }
+
+  buildUi(List<MosquePrayers> mosquePrayers)
+  {
+    //getMosquePrayers();
     return Column(
       children: [
         Container(
@@ -57,12 +85,13 @@ class _HomeTabState extends State<HomeTab> {
                   ],
                 ),
               ),
+
               Padding(
                 padding: const EdgeInsets.only(left: 30.0),
                 child: Row(
                   children: [
                     Text(
-                      '28th March, 2021',
+                      DateFormat('d MMMM yyyy').format(date),
                       style: TextStyle(
                           fontSize: 10,
                           fontFamily: FontConstants.FONT,
@@ -84,17 +113,19 @@ class _HomeTabState extends State<HomeTab> {
                       width: 3,
                     ),
                     Text(
-                      'Sunday',
+                      DateFormat('EEEE').format(date),
                       style: TextStyle(
                           fontSize: 10,
                           fontFamily: FontConstants.FONT,
                           fontWeight: FontWeight.bold,
                           color: AppColors.black),
+
                     ),
                   ],
                 ),
               ),
               _getPrayerTable(),
+
               CustomSpacerWidget(
                 height: 10,
               ),
@@ -109,7 +140,18 @@ class _HomeTabState extends State<HomeTab> {
     );
   }
 
-  _getPrayerTable() {
+  Widget _buildLoadingScreen() {
+    return Center(
+      child: Container(
+        width: 50,
+        height: 50,
+        child: CircularProgressIndicator(),
+      ),
+    );
+  }
+
+  _getPrayerTable()
+  {
     return Container(
       child: Row(
         mainAxisSize: MainAxisSize.max,
@@ -117,23 +159,75 @@ class _HomeTabState extends State<HomeTab> {
         children: [
           Flexible(
             flex: 1,
-            child: Icon(
-              Icons.arrow_back_ios_sharp,
+
+            child: IconButton(
+              icon: const Icon(Icons.arrow_back_ios_sharp),
               color: AppColors.black,
+                disabledColor: Colors.orange,
+              onPressed: () {
+                String backward="backward";
+                _clickingiconButton(backward);
+              }
+
             ),
+
           ),
+
           _horizontalList(),
           Flexible(
             flex: 1,
-            child: Icon(
-              Icons.arrow_forward_ios_sharp,
+            child: IconButton(
+              icon: const Icon(Icons.arrow_forward_ios_sharp),
               color: AppColors.black,
+                disabledColor: Colors.orange,
+              onPressed:  () async
+              {
+                String iconName="forward";
+                   _clickingiconButton(iconName);
+              },
             ),
+            //),
           ),
         ],
       ),
     );
   }
+
+  _clickingiconButton(String icon) {
+      countback=0;
+      count=0;
+      DateTime sample=DateTime.now().add(Duration(days: 6));
+      final diffrence=sample.difference(date).inDays;
+      if(icon == "forward")
+        {
+       if(diffrence ==0 )
+         {
+
+           setState(() {
+             _isIcon =false;
+           });
+           print("stopp");
+
+         }else
+           {
+      setState(() {
+        count++;
+        date = date.add(Duration(days: count));
+      });}}
+       else
+         {
+           if(diffrence==6)
+           {
+             print("stopp backward");
+           }else {
+             setState(() {
+               countback++;
+               date = date.subtract(Duration(days: countback));
+             });
+           }
+         }
+  }
+
 
   _horizontalList() {
     return Flexible(
@@ -144,100 +238,106 @@ class _HomeTabState extends State<HomeTab> {
           child: new ListView(
             scrollDirection: Axis.horizontal,
             children: <Widget>[
-              _getPrayerItem(),
-              _getPrayerItem(),
-              _getPrayerItem(),
-              _getPrayerItem(),
-              _getPrayerItem(),
-            ],
-          )),
-    );
-  }
+           new ListView.builder(
+               shrinkWrap: true,
+               scrollDirection: Axis.horizontal,
+               itemCount:mosquePrayers.length,
+               itemBuilder: (context,index){
+                return Container(
+                  width: 55,
+                  padding: EdgeInsets.only(left: 3, right: 3, top: 5, bottom: 3),
+                  child: Card(
+                    color: AppColors.white,
+                    shape: RoundedRectangleBorder(
+                        side: BorderSide(width: 0.5, color: Colors.white),
+                        borderRadius: BorderRadius.circular(10)),
+                    elevation: 2,
+                    margin: EdgeInsets.zero,
+                    child: Column(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(top: 10.0, left: 5),
+                          child: Text(
+                            'FAJIR',
+                            style: TextStyle(
+                                fontSize: 9,
+                                fontFamily: FontConstants.FONT,
+                                fontWeight: FontWeight.w500,
+                                color: AppColors.green),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(top: 3.0, left: 5),
+                          child: Text(
+                            'BEGINS',
+                            style: TextStyle(
+                                fontSize: 10,
+                                fontFamily: FontConstants.FONT,
+                                fontWeight: FontWeight.w500,
+                                color: AppColors.light_grey),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(top: 3.0, left: 5),
+                          child: Text(
+                            '${DateFormat('hh:mm').format(mosquePrayers[index].begin_time.getDateTime())}',
+                            style: TextStyle(
+                                fontSize: 10,
+                                fontFamily: FontConstants.FONT,
+                                fontWeight: FontWeight.bold,
+                                color: AppColors.black),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(top: 3.0, left: 5),
+                          child: Text(
+                            '--',
+                            style: TextStyle(
+                                fontSize: 10,
+                                fontFamily: FontConstants.FONT,
+                                fontWeight: FontWeight.w500,
+                                color: AppColors.green),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(top: 3.0, left: 3),
+                          child: Text(
+                            'JAMAAT',
+                            style: TextStyle(
+                                fontSize: 9,
+                                fontFamily: FontConstants.FONT,
+                                fontWeight: FontWeight.bold,
+                                color: AppColors.black_50),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(top: 3.0, left: 5),
+                          child: Text(
+                            '${DateFormat('hh:mm').format(mosquePrayers[index].end_time.getDateTime())}',
+                            style: TextStyle(
+                                fontSize: 10,
+                                fontFamily: FontConstants.FONT,
+                                fontWeight: FontWeight.bold,
+                                color: AppColors.black),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );}),
+              //_getPrayerItem(),
+              //(),
+              //_getPrayerItem(),
+              // _getPrayerItem(),
+              //_getPrayerItem(),
+          ]),
 
-  _getPrayerItem() {
-    return Container(
-      width: 80,
-      padding: EdgeInsets.only(left: 3, right: 5, top: 5, bottom: 3),
-      child: Card(
-        color: AppColors.white,
-        shape: RoundedRectangleBorder(
-            side: BorderSide(width: 0.5, color: Colors.white),
-            borderRadius: BorderRadius.circular(10)),
-        elevation: 2,
-        margin: EdgeInsets.zero,
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(top: 10.0, left: 5),
-              child: Text(
-                'FAJIR',
-                style: TextStyle(
-                    fontSize: 10,
-                    fontFamily: FontConstants.FONT,
-                    fontWeight: FontWeight.w500,
-                    color: AppColors.green),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(top: 3.0, left: 5),
-              child: Text(
-                'BEGINS',
-                style: TextStyle(
-                    fontSize: 10,
-                    fontFamily: FontConstants.FONT,
-                    fontWeight: FontWeight.w500,
-                    color: AppColors.light_grey),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(top: 3.0, left: 5),
-              child: Text(
-                '6:14',
-                style: TextStyle(
-                    fontSize: 10,
-                    fontFamily: FontConstants.FONT,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.black),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(top: 3.0, left: 5),
-              child: Text(
-                '--',
-                style: TextStyle(
-                    fontSize: 10,
-                    fontFamily: FontConstants.FONT,
-                    fontWeight: FontWeight.w500,
-                    color: AppColors.green),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(top: 3.0, left: 5),
-              child: Text(
-                'JAMAAT',
-                style: TextStyle(
-                    fontSize: 10,
-                    fontFamily: FontConstants.FONT,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.black_50),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(top: 3.0, left: 5),
-              child: Text(
-                '06:44',
-                style: TextStyle(
-                    fontSize: 10,
-                    fontFamily: FontConstants.FONT,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.black),
-              ),
-            ),
-          ],
-        ),
+
       ),
     );
   }
+
+
 
 
   _getTopPost() {
@@ -453,4 +553,19 @@ class _HomeTabState extends State<HomeTab> {
       ),
     );
   }
+
+
+  Future<List<MosquePrayers>> getMosquePrayers() async
+  {
+    try {
+     mosquePrayers = await Amplify.DataStore.query(MosquePrayers.classType , where: MosquePrayers.DATE.eq(DateFormat('yyyy-MM-dd').format(date)));
+
+      print(mosquePrayers);
+  return mosquePrayers;
+
+    } catch (e) {
+      print("Could not query DataStore: " + e.stacktrace);
+    }
+  }
+
 }

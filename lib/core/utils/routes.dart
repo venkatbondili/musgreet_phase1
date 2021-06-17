@@ -19,10 +19,9 @@ class AppRoutes{
   static const String LANGUAGES_SCREEN="/languages_screen";
   static const String ADD_SKILLS_IMAGES = "/interest_screen/add_skills_images.dart";
   static const String FRIEND_SEARCH="/friend_search";
-
-
-
-
-
-
+  static const String ISLAM_INTREST="/islam_intrest/islam_intrest.dart";
+  static const String PROFILE_PRIVACY="/profile_privacy";
+  static const String BIO= "/bio";
+  static const String VERIFYEMAIL="/verify_email_screen/verify_email_screen.dart";
+  static const String REGISTER="/registration/registration_screen.dart";
 }

@@ -12,25 +12,48 @@ import 'package:http/http.dart' as http;
 
 
 class FacilitiesTab extends StatefulWidget {
+  final List<Mosque> mosque;
+  //FacilitiesTab(List<Mosque> mosque);
+  FacilitiesTab({this.mosque});
   @override
   _FacilitiesTabState createState() => _FacilitiesTabState();
 }
 
 class _FacilitiesTabState extends State<FacilitiesTab> {
 
-  List<Facilitiesmaster> facilities;
-  List<Mosque> mosque;
+ // List<Mosque> mosque;
   List<String> idStringString;
   Map<String,String> SAMPLE;
+  List<Facilitiesmaster> facilities = [];
 
 
-  String idString="50a1d745-b0b8-4e1a-b649-3141c3c1ea6a";
 
   @override
   Widget build(BuildContext context) {
-    facility();
+    print(facilities);
+    print(widget.mosque);
+    print("inside the build");
+    return FutureBuilder<List<Facilitiesmaster>>(
+      future: facility(),
+      builder: (ctx, snapshot) {
+        switch (snapshot.connectionState) {
+          case ConnectionState.done:
+              facilities = snapshot.data;
+            return _buildUI(facilities);
+          default:
+            return _buildLoadingScreen();
+        }
+      },
+    );
     //getList();
-    getMosque();
+   // getMosque();
+
+  }
+
+
+  _buildUI(List<Facilitiesmaster> facilities)
+  {
+    _getList();
     return Container(
       margin: EdgeInsets.only(top: 4),
       color: AppColors.white,
@@ -97,54 +120,45 @@ class _FacilitiesTabState extends State<FacilitiesTab> {
     );
   }
 
-
-  Future<void> getMosque() async
+  _getList()
   {
-  try {
-  mosque = await Amplify.DataStore.query(Mosque.classType , where:Mosque.ID.eq("c506d8a9-6eb7-4337-9e43-423a97d62455"));
-  var a=mosque[0].mosque_facility_list;
-  var ab = (a.split(','));
-  idStringString=ab;
-
-  for(int i=0;i<idStringString.length;i++) {
-    if (idStringString[i] == facilities[i].id) {
-      print(idStringString[i]);
-      print("hiiiiii");
+    var a=widget.mosque[0].mosque_facility_list;
+    var ab = (a.split(','));
+    idStringString=ab;
+    for(int i=0;i<idStringString.length;i++) {
+      if (idStringString[i] == facilities[i].id) {
+        print(idStringString[i]);
+        print("hiiiiii");
         SAMPLE ={
-         for(int i=0;i<idStringString.length ;i++)
-         facilities[i].facility_header : facilities[i].icon_path,
+          for(int i=0;i<idStringString.length ;i++)
+            facilities[i].facility_header : facilities[i].icon_path,
 
-      };
-
-
-      print(SAMPLE);
-      print("Hello");
+        };
+      }
 
     }
-
-
   }
 
-  //print(mosque[22]);
-  } catch (e) {
-  print("Could not query DataStore: " + e.StackTrace);
+  Widget _buildLoadingScreen() {
+    return Center(
+      child: Container(
+        width: 50,
+        height: 50,
+        child: CircularProgressIndicator(),
+      ),
+    );
   }
-  }
-
-
-
-
-  Future<void> facility() async
+  Future<List<Facilitiesmaster>> facility() async
   {
     try {
-      facilities = await Amplify.DataStore.query(Facilitiesmaster.classType  );
+      facilities = await Amplify.DataStore.query(Facilitiesmaster.classType);
+      print("inside the facilitiy tab");
       print(facilities);
-
+    return facilities;
     } catch (e) {
       print("Could not query DataStore: " + e);
     }
   }
-
 
 }
 

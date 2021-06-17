@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:amplify_flutter/amplify.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mus_greet/core/utils/constants.dart';
@@ -8,6 +9,7 @@ import 'package:mus_greet/core/widgets/custom_spacer_widget.dart';
 import 'package:mus_greet/core/widgets/rounded_button_widget.dart';
 import 'package:mus_greet/core/widgets/tab_style_widget.dart';
 import 'package:mus_greet/core/widgets/upload_image_bottom_sheet_widget.dart';
+import 'package:mus_greet/models/UserProfile.dart';
 import 'package:mus_greet/pages/profile/view_profile_screen/about_tab/about_tab.dart';
 import 'package:mus_greet/pages/profile/view_profile_screen/friend_tab/friend_tab.dart';
 import 'package:mus_greet/pages/profile/view_profile_screen/interest_tab/interest_tab.dart';
@@ -51,8 +53,9 @@ class _ViewProfileScreenState extends State<ViewProfileScreen>
     );
   }
 
-  /// This will render whole body of profile on screen
+  List<UserProfile> userProfile;
   _getBody() {
+    getDetails();
     return SingleChildScrollView(
       child: Column(
         children: [
@@ -61,8 +64,8 @@ class _ViewProfileScreenState extends State<ViewProfileScreen>
           Center(
             child: [
               PostTab(),
-              AboutTab(),
-              InterestTab(),
+              AboutTab(userProfile:userProfile),
+              InterestTab(userProfile :userProfile),
               FriendTab(),
             ][_tabController.index],
           ),
@@ -306,5 +309,18 @@ class _ViewProfileScreenState extends State<ViewProfileScreen>
         ),
       ),
     );
+  }
+
+  getDetails() async
+  {
+    try {
+      userProfile = await Amplify.DataStore.query(UserProfile.classType,
+          where: UserProfile.ID.eq("96860140-afa9-47b6-a578-01d30043507c"));
+      print(userProfile);
+      print("In the main page");
+    }catch(e)
+    {
+
+    }
   }
 }

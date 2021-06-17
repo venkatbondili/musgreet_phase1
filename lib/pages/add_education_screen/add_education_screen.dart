@@ -6,6 +6,11 @@ import 'package:mus_greet/core/widgets/action_button_widget.dart';
 import 'package:mus_greet/core/widgets/asset_image_widget.dart';
 import 'package:mus_greet/core/widgets/custom_spacer_widget.dart';
 import 'package:mus_greet/core/widgets/drop_down_text_field.dart';
+import 'package:mus_greet/main.dart';
+import 'package:mus_greet/models/UserEducation.dart';
+import 'package:mus_greet/models/UserProfile.dart';
+import 'package:mus_greet/models/Users.dart';
+import 'package:amplify_flutter/amplify.dart';
 
 class AddEducationScreen extends StatefulWidget {
   @override
@@ -14,9 +19,17 @@ class AddEducationScreen extends StatefulWidget {
 
 class _AddEducationScreenState extends State<AddEducationScreen> {
   final List<Widget> fieldList = List.empty(growable: true);
+  List<UserEducation> userEducation;
+  List<Users> user;
+  String college;
+  String degree;
+  String addDateFrom;
+  String addDateTo;
 
   @override
   Widget build(BuildContext context) {
+    userList();
+    education();
     return SafeArea(
       child: Scaffold(
         backgroundColor: AppColors.white,
@@ -131,6 +144,7 @@ class _AddEducationScreenState extends State<AddEducationScreen> {
         data: AppTexts.COLLEGE_CATEGORIES,
         callBack: (val) {
           print(val);
+          college =val;
         },
       ),
     );
@@ -144,6 +158,7 @@ class _AddEducationScreenState extends State<AddEducationScreen> {
         data: AppTexts.DEGREE_CATEGORIES,
         callBack: (val) {
           print(val);
+          degree=val;
         },
       ),
     );
@@ -163,6 +178,7 @@ class _AddEducationScreenState extends State<AddEducationScreen> {
                 data: AppTexts.DATES_CATEGORIES,
                 callBack: (val) {
                   print(val);
+                  addDateFrom=val;
                 },
               ),
             ),
@@ -178,6 +194,7 @@ class _AddEducationScreenState extends State<AddEducationScreen> {
                 data: AppTexts.DATES_CATEGORIES,
                 callBack: (val) {
                   print(val);
+                  addDateTo=val;
                 },
               ),
             ),
@@ -220,7 +237,18 @@ class _AddEducationScreenState extends State<AddEducationScreen> {
       children: [
         Expanded(
           child: ActionButtonWidget(
-            callBack: () {},
+            callBack: () {
+
+              for(int i=0;i<user.length ;i++)
+                { print("inside the save button");
+                  if(user[i].id == userEducation[i].usersID)
+                    {
+                      print("himaja");
+                      updateUserEducation();
+                    }
+                }
+              Navigation.back(context);
+                },
             text: AppTexts.SAVE,
             isFilled: true,
           ),
@@ -232,5 +260,38 @@ class _AddEducationScreenState extends State<AddEducationScreen> {
   _handleOnTap() {
     fieldList.add(_getListOfInfo());
     setState(() {});
+  }
+
+  Future<void> userList() async{
+    try {
+      user= await Amplify.DataStore.query(Users.classType,where: Users.ID.eq("315eca04-ab0d-46f7-b063-d8707d607a18"));
+      print(user);
+      print("inside the user");
+    }catch(e)
+    {
+      print("Could not query DataStore: " + e);
+    }
+  }
+
+  Future<void> education() async
+  {
+    try {
+      userEducation= await Amplify.DataStore.query(UserEducation.classType);
+      print(userEducation);
+      print("inside the user");
+    }catch(e)
+    {
+      print("Could not query DataStore: " + e);
+    }
+  }
+
+  updateUserEducation() async{
+    final updatedItem = userEducation[0].copyWith(
+        institution: college,
+        course: degree,
+        from: addDateFrom,
+        to: addDateTo,
+        usersID: userEducation[0].usersID);
+    await Amplify.DataStore.save(updatedItem);
   }
 }

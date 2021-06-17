@@ -1,3 +1,4 @@
+import 'package:amplify_flutter/amplify.dart';
 import 'package:flutter/material.dart';
 import 'package:mus_greet/core/utils/constants.dart';
 import 'package:mus_greet/core/widgets/asset_image_widget.dart';
@@ -5,6 +6,8 @@ import 'package:mus_greet/core/widgets/custom_spacer_widget.dart';
 import 'package:mus_greet/core/widgets/dot_indicator.dart';
 import 'package:mus_greet/core/widgets/following_mosque_list_grid.dart';
 import 'package:mus_greet/core/widgets/tab_style_widget.dart';
+import 'package:mus_greet/models/Facilitiesmaster.dart';
+import 'package:mus_greet/models/ModelProvider.dart';
 import 'package:mus_greet/pages/mosque_screen/mosque_details/contact_tab/contect_tab.dart';
 import 'package:mus_greet/pages/mosque_screen/mosque_details/facilities_tab/facilities_tab.dart';
 import 'package:mus_greet/pages/mosque_screen/mosque_details/home_tab/home_tab.dart';
@@ -24,12 +27,12 @@ class MosquesDetailsScreen extends StatefulWidget {
 
 class _MosquesDetailsScreenState extends State<MosquesDetailsScreen>
     with SingleTickerProviderStateMixin {
+
   final _controller = PageController();
 
   static const _kDuration = const Duration(milliseconds: 300);
 
   static const _kCurve = Curves.ease;
-
 
 
   TabController _tabController;
@@ -49,6 +52,7 @@ class _MosquesDetailsScreenState extends State<MosquesDetailsScreen>
     }
   }
 
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -56,8 +60,11 @@ class _MosquesDetailsScreenState extends State<MosquesDetailsScreen>
       body: _getBody(),
     );
   }
-
+  List<Mosque> mosque;
   _getBody() {
+    print(mosque);
+    getMosque();
+    print("inside the body of main");
     return SingleChildScrollView(
       child: Column(
         children: [
@@ -66,9 +73,9 @@ class _MosquesDetailsScreenState extends State<MosquesDetailsScreen>
           Center(
             child: [
               HomeTab(),
-              ContactTab(),
-              MosqueAboutTab(),
-              FacilitiesTab(),
+              ContactTab(mosque: mosque),
+              MosqueAboutTab(mosque: mosque),
+              FacilitiesTab(mosque: mosque),
             ][_tabController.index],
           )
         ],
@@ -162,6 +169,8 @@ class _MosquesDetailsScreenState extends State<MosquesDetailsScreen>
       ),
     );
   }
+
+
 
   /// for Rendering the tab bar on screen
   _getTabBar() {
@@ -266,8 +275,6 @@ class _MosquesDetailsScreenState extends State<MosquesDetailsScreen>
     );
   }
 
-
-
   _getNameAndRelationShip() {
     return Padding(
       padding: const EdgeInsets.only(top: 3.0),
@@ -317,4 +324,18 @@ class _MosquesDetailsScreenState extends State<MosquesDetailsScreen>
       ),
     );
   }
+
+
+  Future<void> getMosque() async
+  {
+    try {
+      mosque = await Amplify.DataStore.query(Mosque.classType , where:Mosque.ID.eq("7334d43c-8532-470a-89ab-6ca362f11107"));
+      print("Before the details of mosque");
+      print(mosque[0]);
+      print("inside the main page");
+    } catch (e) {
+      print("Could not query DataStore: " + e.StackTrace);
+    }
+  }
 }
+

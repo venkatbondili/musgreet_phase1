@@ -6,6 +6,10 @@ import 'package:mus_greet/core/widgets/action_button_widget.dart';
 import 'package:mus_greet/core/widgets/asset_image_widget.dart';
 import 'package:mus_greet/core/widgets/custom_spacer_widget.dart';
 import 'package:mus_greet/core/widgets/rounded_button_widget.dart';
+import 'package:mus_greet/models/ModelProvider.dart';
+import 'package:amplify_flutter/amplify.dart';
+
+
 
 class AddSkillsScreen extends StatefulWidget {
   @override
@@ -13,10 +17,23 @@ class AddSkillsScreen extends StatefulWidget {
 }
 
 class _AddSkillsScreenState extends State<AddSkillsScreen> {
-  final List<String> _selectedItems = List.empty(growable: true);
+  List<MasterIntrests> masterIntrest;
+  List<UserProfile> userProfile;
+  List<String> SKILLS_CATEGORIES=[];
+  List<String> skills;
+  List<String> idIntrest;
+  List<String> SKILLS=[];
+  List<String> SKILLSLIST=[];
+  String skillList;
+  final List<String> _selectedItems =[];
 
   @override
   Widget build(BuildContext context) {
+    if(SKILLS_CATEGORIES.isEmpty) {
+      _getSkills();
+    }
+    _userProfile();
+    _generatingSkillsId();
     return SafeArea(
       child: Scaffold(
         backgroundColor: AppColors.white,
@@ -101,10 +118,13 @@ class _AddSkillsScreenState extends State<AddSkillsScreen> {
   }
 
   _getChipListOfSkills() {
+    print(SKILLS_CATEGORIES);
     return MultiSelectChip(
-      AppTexts.SKILLS_CATEGORIES,
+      SKILLS_CATEGORIES,
+        SKILLS,
       onSelectionChanged: (val) {
-        // print(val);
+        print("hiiiiiii");
+        print(val);
         setState(() {
           _selectedItems.clear();
           _selectedItems.addAll(val);
@@ -146,6 +166,7 @@ class _AddSkillsScreenState extends State<AddSkillsScreen> {
             text: AppTexts.CANCEL,
             isFilled: false,
             callBack: (){
+              Navigation.back(context);
               print("Cancel");
             },
           ),
@@ -155,7 +176,14 @@ class _AddSkillsScreenState extends State<AddSkillsScreen> {
               text: AppTexts.ADD,
               isFilled: true,
               callBack: (){
-                print("Cancel");
+                Navigation.back(context);
+                Navigation.back(context);
+                print("Before the Intrest");
+                print(SKILLSLIST);
+                skillList=SKILLSLIST.join(",");
+                print(skillList=SKILLSLIST.join(","));
+                _UpdatingSkills();
+                print("add");
               },
             ),
           ),
@@ -163,27 +191,112 @@ class _AddSkillsScreenState extends State<AddSkillsScreen> {
       ),
     );
   }
+
+  Future<void> _userProfile() async
+  {
+    userProfile=await Amplify.DataStore.query(UserProfile.classType , where :UserProfile.ID.eq("f6a5cb27-5528-470d-88c5-3f199a03ea79"));
+    print("Inside the User Profile data store skills");
+    var a=userProfile[0].skills;
+    var ab = (a.split(','));
+    idIntrest=ab;
+    print(idIntrest);
+
+    for(int i=0;i<idIntrest.length;i++) {
+      String skillList=idIntrest[i];
+      print("Inside the For loop");
+      for(int i=0;i<masterIntrest.length;i++) {
+        print(skillList);
+        if (skillList == masterIntrest[i].id) {
+          print("inside the master");
+          SKILLS.add(masterIntrest[i].intrest_name);
+        }
+      }
+    }
+
+    }
+
+
+  Future<void> _getSkills() async
+  {
+    try {
+      masterIntrest = await Amplify.DataStore.query(MasterIntrests.classType);
+      for(int i=0;i<masterIntrest.length;i++)
+      {
+        if(masterIntrest[i].category_name =="Skills")
+        {
+          SKILLS_CATEGORIES.add(masterIntrest[i].intrest_name);
+        }
+      }
+      print("Get Skills Method");
+      print(SKILLS_CATEGORIES);
+
+    }
+    catch (e) {
+      print("Could not query DataStore: " + e.stacktrace);
+    }
+  }
+
+  Future<void> _generatingSkillsId() async
+  {
+    print("inside the geneating");
+    for(int i=0;i<_selectedItems.length;i++)
+    {
+      print(_selectedItems[i]);
+      String nameOfSkills=_selectedItems[i];
+      for(int i=0;i<masterIntrest.length;i++)
+      {
+        if(masterIntrest[i].category_name =="Skills") {
+          if (nameOfSkills == masterIntrest[i].intrest_name) {
+            SKILLSLIST.add(masterIntrest[i].id);
+            print(SKILLSLIST);
+            print(masterIntrest[i].id);
+          }
+        }
+      }
+    }
+
+  }
+
+
+  Future<void> _UpdatingSkills() async
+  {
+    final updatedItem = userProfile[0].copyWith(
+
+        skills:  skillList);
+
+    await Amplify.DataStore.save(updatedItem);
+
+  }
 }
 
 class MultiSelectChip extends StatefulWidget {
   final List<String> reportList;
+  List<String> selectedChoices;
   final Function(List<String>) onSelectionChanged;
   final double width;
   final double fontSize;
 
-  MultiSelectChip(this.reportList, {this.onSelectionChanged,this.fontSize=12,this.width=1});
+  MultiSelectChip(this.reportList,this.selectedChoices, {this.onSelectionChanged,this.fontSize=12,this.width=1});
 
   @override
   _MultiSelectChipState createState() => _MultiSelectChipState();
 }
 
+
 class _MultiSelectChipState extends State<MultiSelectChip> {
-  List<String> selectedChoices = List.empty(growable: true);
+
+
+ // // final List<String> =List.empty(growable: true);
+   List<String> selectedList = List.empty(growable: true);
+ //
 
   _buildChoiceList() {
     List<Widget> choices = List.empty(growable: true);
     widget.reportList.forEach(
-      (item) {
+      (item)
+      {
+        print("inside the build");
+        print(item);
         choices.add(
           Theme(
             data: ThemeData(canvasColor: Colors.transparent),
@@ -191,11 +304,11 @@ class _MultiSelectChipState extends State<MultiSelectChip> {
               padding: EdgeInsets.only(left: 5, right: 5),
               side: BorderSide(
                   width: widget.width,
-                  color: selectedChoices.contains(item)
+                  color: widget.selectedChoices.contains(item)
                       ? AppColors.background_color
                       : AppColors.background_color),
               label: Text(item),
-              labelStyle: selectedChoices.contains(item)
+              labelStyle: selectedList.contains(item)
                   ? TextStyle(
                       fontFamily: FontConstants.FONT,
                       fontSize: widget.fontSize,
@@ -207,17 +320,21 @@ class _MultiSelectChipState extends State<MultiSelectChip> {
                       fontSize: widget.fontSize,
                       color: AppColors.black,
                       fontWeight: FontWeight.w500),
-              selected: selectedChoices.contains(item),
-              backgroundColor: selectedChoices.contains(item)
+              selected: widget.selectedChoices.contains(item),
+              backgroundColor: widget.selectedChoices.contains(item)
                   ? AppColors.background_color
                   : AppColors.white,
               selectedColor: AppColors.background_color,
               onSelected: (selected) {
+                print("on Selected");
+                print(item);
+                print(selected);
                 setState(() {
-                  selectedChoices.contains(item)
-                      ? selectedChoices.remove(item)
-                      : selectedChoices.add(item);
-                  widget.onSelectionChanged(selectedChoices); // +added
+                  //_getSelectedChoiceList(item,selected);
+                  selectedList.contains(item)
+                      ? selectedList.remove(item)
+                      : selectedList.add(item);
+                  widget.onSelectionChanged(selectedList);
                 });
               },
             ),
@@ -225,7 +342,30 @@ class _MultiSelectChipState extends State<MultiSelectChip> {
         );
       },
     );
+    print("outside the method");
     return choices;
+  }
+
+  _getSelectedChoiceList(String item,bool selected)
+  {
+    if(selected==true)
+      {
+        print("true");
+        if(!widget.selectedChoices.contains(item)) {
+          widget.selectedChoices.add(item);
+        }
+      }else {
+      print("false");
+      print(widget.selectedChoices);
+      print(item);
+      if(widget.selectedChoices.contains(item));
+      {
+        print("contains true");
+        widget.selectedChoices.remove(item);
+        print(widget.selectedChoices);
+      }
+      }
+    widget.onSelectionChanged(widget.selectedChoices);
   }
 
   @override
@@ -236,4 +376,10 @@ class _MultiSelectChipState extends State<MultiSelectChip> {
       children: _buildChoiceList(),
     );
   }
+
+
+
 }
+
+
+

@@ -6,23 +6,98 @@ import 'package:mus_greet/core/utils/constants.dart';
 import 'package:mus_greet/core/utils/routes.dart';
 import 'package:mus_greet/core/widgets/asset_image_widget.dart';
 import 'package:mus_greet/core/widgets/custom_spacer_widget.dart';
+import 'package:mus_greet/models/UserEducation.dart';
+import 'package:mus_greet/models/UserFamily.dart';
+import 'package:mus_greet/models/UserProfile.dart';
+import 'package:amplify_flutter/amplify.dart';
+import 'package:mus_greet/models/Users.dart';
 
 class AboutTab extends StatefulWidget {
+  List<UserProfile> userProfile;
+  AboutTab({this.userProfile});
   @override
   _AboutTabState createState() => _AboutTabState();
 }
 
 class _AboutTabState extends State<AboutTab> {
-  bool _isEducationExpanded = true;
+  //List<UserProfile> userProfile;
+  List<Users> user;
+  List<UserFamily> userFamily;
+  List<String> name=[];
+  List<String> relationship=[];
+  List<String> listOfLanguages;
+  List<UserEducation> userEducation;
+  bool _isBioExpanded =false;
+   bool _isEducationExpanded = true;
   bool _isContactInfoExpanded = false;
   bool _isGeneralInfoExpanded = false;
   bool _isFaithInfoExpanded = false;
   bool _isFamilyInfoExpanded = false;
   bool _isPrivacyInfoExpanded = false;
+  String userid="315eca04-ab0d-46f7-b063-d8707d607a18";
+  Map<String,String> FAMILY_MEMBER={};
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    //userList();
+    return FutureBuilder<List<Users>>(
+      future: userList(),
+      builder: (ctx, snapshot) {
+        switch (snapshot.connectionState) {
+          case ConnectionState.done:
+            user = snapshot.data;
+            return buildFamilyList(user);
+          default:
+            return _buildLoadingScreen();
+        }
+      }
+    );
+  }
+
+  buildFamilyList(List<Users> user)
+  {
+    //userFamilyList();
+    return FutureBuilder<List<UserFamily>>(
+      future: userFamilyList(),
+      builder: (ctx, snapshot) {
+        switch (snapshot.connectionState) {
+          case ConnectionState.done:
+            userFamily = snapshot.data;
+            return buildEducation(userFamily,user);
+          default:
+            return _buildLoadingScreen();
+        }
+      },
+    );
+  }
+
+
+  buildEducation(List<UserFamily> userFamily, List<Users> user)
+  {
+    //education();
+    return FutureBuilder<List<UserEducation>>(
+      future: education(),
+      builder: (ctx, snapshot) {
+        switch (snapshot.connectionState) {
+          case ConnectionState.done:
+            userEducation = snapshot.data;
+            return buildAbout(userFamily,user,userEducation);
+          default:
+            return _buildLoadingScreen();
+        }
+      },
+    );
+  }
+
+
+  buildAbout(List<UserFamily> userFamily, List<Users> user, List<UserEducation> userEducation)
+  {
+    bool status = false;
+    gettingLanguages();
+    if(userFamily.isNotEmpty && user.isNotEmpty && userEducation.isNotEmpty){
+      status = true;
+    }//
+    return status ? Container(
       width: MediaQuery.of(context).size.width,
       margin: EdgeInsets.only(top: 4),
       padding: EdgeInsets.all(20),
@@ -30,7 +105,9 @@ class _AboutTabState extends State<AboutTab> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _getBioAndDottedBorder(),
+          _isBioExpanded?
+          _getBioAndDottedBorderContainer()
+              :_getBioAndDottedBorderInfo(),
           CustomSpacerWidget(
             height: 18,
           ),
@@ -69,10 +146,11 @@ class _AboutTabState extends State<AboutTab> {
               : _getProfilePrivacyInfo(),
         ],
       ),
-    );
+    ): Container();
   }
 
-  _getBioAndDottedBorder() {
+
+  _getBioAndDottedBorder1() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -94,7 +172,7 @@ class _AboutTabState extends State<AboutTab> {
         Container(
           padding: EdgeInsets.only(left: 15, right: 15),
           child: Text(
-            AppTexts.BIO_TEXT,
+            widget.userProfile[0].bio,
             style: TextStyle(
               fontFamily: FontConstants.FONT,
               fontSize: 12,
@@ -115,6 +193,86 @@ class _AboutTabState extends State<AboutTab> {
       ],
     );
   }
+
+  _getBioAndDottedBorderInfo() {
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          _isBioExpanded = !_isBioExpanded;
+        });
+      },
+      child: Container(
+        padding: EdgeInsets.only(left: 15, right: 15, top: 5, bottom: 5),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              AppTexts.BIO,
+              style: TextStyle(
+                fontFamily: FontConstants.FONT,
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: AppColors.header_black,
+              ),
+            ),
+
+            _isBioExpanded
+                ? RotatedBox(
+              quarterTurns: 2,
+              child: _getArrowDownAndUp(_isBioExpanded),
+            )
+                : _getArrowDownAndUp(_isBioExpanded),
+          ],
+        ),
+      ),
+    );
+  }
+
+  _getBioAndDottedBorderContainer() {
+    return Container(
+      padding: EdgeInsets.only(top: 10, bottom: 10),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(15),
+        color: AppColors.comment_wall_color,
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _getBioAndDottedBorderInfo(),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                        children:[
+                          _getContactInfoData(
+                              contactType: "", details: widget.userProfile[0].bio),
+                        ]
+                    ),
+                  ]
+              ),
+              _isBioExpanded
+                  ? Padding(
+                padding: EdgeInsets.only(right: 25, top: 15),
+                //_getLockDetails(),
+                child: _getEditDetails(callBack: (){
+                  _navigateToEditEducationScreen(route: AppRoutes.BIO);
+                }),
+              )
+                  : Container(),
+            ],
+
+          ),
+        ],
+      ),
+    );
+  }
+
+
 
   _getEducationDetails() {
     return GestureDetector(
@@ -155,8 +313,37 @@ class _AboutTabState extends State<AboutTab> {
     }
   }
 
-  _getEditDetails({Function callBack}) {
+  _getIconDetails()
+  {
     return GestureDetector(
+      child: Padding(
+        padding: const EdgeInsets.all(5.0),
+        child: AssetImageWidget(
+          image: ImageConstants.IC_EYE,
+          height: 20,
+          width: 20,
+        ),
+      ),
+    );
+  }
+
+  _getLockDetails()
+  {
+    return GestureDetector(
+      child: Padding(
+        padding: const EdgeInsets.all(5.0),
+        child: AssetImageWidget(
+          image: ImageConstants.IC_LOCK,
+          height: 20,
+          width: 20,
+        ),
+      ),
+    );
+  }
+
+
+  _getEditDetails({Function callBack}) {
+     return GestureDetector(
       onTap: () => callBack(),
       child: Padding(
         padding: const EdgeInsets.all(5.0),
@@ -167,6 +354,7 @@ class _AboutTabState extends State<AboutTab> {
         ),
       ),
     );
+
   }
 
   _getArrowDownAndUp(bool isExpanded) {
@@ -192,16 +380,13 @@ class _AboutTabState extends State<AboutTab> {
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
           _getEducationDetails(),
+          for(int i=0;i<userEducation.length ;i++)
+            if(userid ==userEducation[i].usersID)
           _getEducationInfo(
-            institution: "London School Of Economics",
-            dept: "BSC Computer Science",
+            institution: userEducation[i].institution,
+            dept: userEducation[i].course,
             years: "2019-2021",
             editIcon: true,
-          ),
-          _getEducationInfo(
-            institution: "Croydon Computer",
-            dept: "HND computer",
-            years: "2019-2021",
           ),
         ],
       ),
@@ -353,27 +538,67 @@ class _AboutTabState extends State<AboutTab> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  Row(
+                    children:[
                   _getContactInfoData(
                       contactType: AppTexts.EMAIL,
-                      details: 'muhammadiqbal.uiux@gmail.com'),
-                  _getContactInfoData(
-                      contactType: AppTexts.PHONE,
-                      details: '+44 07538 211 456'),
-                ],
+                      details: user[0].email),
+                    ]
+                  ),
+                ]
               ),
               _isContactInfoExpanded
                   ? Padding(
-                      padding: EdgeInsets.only(right: 25, top: 15),
-                      child: _getEditDetails(
-                          callBack: _navigateToEditEducationScreen),
-                    )
+                padding: EdgeInsets.only(right: 25, top: 15),
+                child: _getLockDetails(),
+              )
                   : Container(),
             ],
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                        children:[
+                          _getContactInfoData(
+                              contactType: AppTexts.PHONE,
+                              details: user[0].phone),
+                        ]
+                    ),
+                  ]
+              ),
+              GestureDetector(
+                child: Padding(
+                  padding: EdgeInsets.only(left:210, top: 20),
+                  child: AssetImageWidget(
+                    image: ImageConstants.IC_EYE,
+                    height: 20,
+                    width: 20,
+                  ),
+                ),
+              ),
+              _isContactInfoExpanded
+                  ? Padding(
+                padding: EdgeInsets.only(right: 25, top: 15),
+                child:
+                _getEditDetails( callBack: (){
+                  _navigateToEditEducationScreen(route: AppRoutes.MY_FAMILY);
+                }),
+              )
+                  : Container(),
+
+            ],
+
           ),
         ],
       ),
     );
   }
+
 
   _getContactInfoData({
     String contactType,
@@ -424,33 +649,146 @@ class _AboutTabState extends State<AboutTab> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  Row (
+                    children: [
                   _getContactInfoData(
                       contactType: AppTexts.JOINED_MUSGREET,
                       details: 'March 2021'),
-                  _getContactInfoData(
-                      contactType: AppTexts.GENDAR, details: 'Male'),
-                  _getContactInfoData(contactType: AppTexts.AGE, details: '27'),
-                  _getContactInfoData(
-                      contactType: AppTexts.RELATION_SHIP, details: 'Single'),
-                  _getContactInfoData(
-                      contactType: AppTexts.LANGUAGE_SPOKEN,
-                      details: 'English • Arabic • French'),
-                  _getContactInfoData(
-                      contactType: AppTexts.ADDRESS,
-                      details: 'SE1 2RE, London, UK'),
-                ],
-              ),
-              _isGeneralInfoExpanded
-                  ? Padding(
-                      padding: EdgeInsets.only(right: 25, top: 15),
-                      child: _getEditDetails(
-                          callBack: _navigateToEditEducationScreen),
-                    )
-                  : Container(),
-            ],
+                        ]
+                     ),
+                    ]
+                   ),
+                  _isGeneralInfoExpanded
+                      ? Padding(
+                    padding: EdgeInsets.only(right: 25, top: 15),
+                    child: _getLockDetails(),
+                  )
+                      : Container(),
+                  ],
           ),
-        ],
-      ),
+          Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row (
+                          children: [
+                            _getContactInfoData(
+                                contactType: AppTexts.GENDAR, details: 'Male'),
+                          ]
+                      ),
+                    ]
+                ),
+                _isGeneralInfoExpanded
+                    ? Padding(
+                  padding: EdgeInsets.only(right: 25, top: 15),
+                  child: _getLockDetails(),
+                )
+                    : Container(),
+              ]
+          ),
+          Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row (
+                          children: [
+                            _getContactInfoData(
+                                contactType: AppTexts.AGE,
+                                details: "27"),
+                          ]
+                      ),
+                    ]
+                ),
+                _isGeneralInfoExpanded
+                    ? Padding(
+                  padding: EdgeInsets.only(right: 25, top: 15),
+                  child: _getLockDetails(),
+                )
+                    : Container(),
+              ]
+          ),
+          Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row (
+                          children: [
+                            _getContactInfoData(
+                                contactType: AppTexts.RELATION_SHIP,
+                                details: "27"),
+                          ]
+                      ),
+                    ]
+                ),
+                _isGeneralInfoExpanded
+                    ? Padding(
+                  padding: EdgeInsets.only(right: 25, top: 15),
+                  child: _getEditDetails(),
+                )
+                    : Container(),
+              ]
+          ),
+          Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row (
+                          children: [
+                            _getContactInfoData(
+                                contactType: AppTexts.LANGUAGE_SPOKEN,
+                                details: listOfLanguages.join('.')),
+                          ]
+                      ),
+                    ]
+                ),
+                _isGeneralInfoExpanded
+                    ? Padding(
+                  padding: EdgeInsets.only(right: 25, top: 15),
+                  child: _getEditDetails(callBack: (){
+                    _navigateToEditEducationScreen(route: AppRoutes.LANGUAGES_SCREEN);
+                  }),
+                )
+                    : Container(),
+              ]
+          ),
+          Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row (
+                          children: [
+                            _getContactInfoData(
+                                contactType: AppTexts.ADDRESS,
+                                details: "27"),
+                          ]
+                      ),
+                    ]
+                ),
+                _isGeneralInfoExpanded
+                    ? Padding(
+                  padding: EdgeInsets.only(right: 25, top: 15),
+                  child: _getLockDetails(),
+                )
+                    : Container(),
+              ]
+          ),
+         ],
+        ),
     );
   }
 
@@ -504,25 +842,88 @@ class _AboutTabState extends State<AboutTab> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _getContactInfoData(
-                      contactType: AppTexts.SECT, details: 'Shia'),
-                  _getContactInfoData(
-                      contactType: AppTexts.ARE_YOU_A_REVERT, details: 'Yes'),
-                  _getContactInfoData(
-                      contactType: AppTexts.INTERESTED_IN_ISLAM,
-                      details: 'Yes'),
-                ],
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                        children:[
+                          _getContactInfoData(
+                              contactType: AppTexts.SECT, details: widget.userProfile[0].sect),
+                        ]
+                    ),
+                  ]
+              ),
+              GestureDetector(
+                child: Padding(
+                  padding: EdgeInsets.only(left:210, top: 20),
+                  child: AssetImageWidget(
+                    image: ImageConstants.IC_EYE,
+                    height: 20,
+                    width: 20,
+                  ),
+                ),
               ),
               _isFaithInfoExpanded
                   ? Padding(
-                      padding: EdgeInsets.only(right: 25, top: 15),
-                      child: _getEditDetails(
-                          callBack: _navigateToEditEducationScreen),
-                    )
+                padding: EdgeInsets.only(right: 25, top: 15),
+                child: _getLockDetails(),
+              )
                   : Container(),
+
             ],
+
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                        children:[
+                          _getContactInfoData(
+                              contactType: AppTexts.ARE_YOU_A_REVERT, details: widget.userProfile[0].are_you_revert.toString()),
+                        ]
+                    ),
+                  ]
+              ),
+              _isFaithInfoExpanded
+                  ? Padding(
+                padding: EdgeInsets.only(right: 25, top: 15),
+                child: _getLockDetails(),
+              )
+                  : Container(),
+
+            ],
+
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                        children:[
+                          _getContactInfoData(
+                              contactType: AppTexts.INTERESTED_IN_ISLAM,
+                              details: widget.userProfile[0].islam_interest.toString()),
+                        ]
+                    ),
+                  ]
+              ),
+              _isFaithInfoExpanded
+                  ? Padding(
+                padding: EdgeInsets.only(right: 25, top: 15),
+                child: _getEditDetails(callBack: (){
+                  _navigatetoIslamScreen();
+                }),
+              )
+                  : Container(),
+
+            ],
+
           ),
         ],
       ),
@@ -584,16 +985,9 @@ class _AboutTabState extends State<AboutTab> {
                   CustomSpacerWidget(
                     height: 10,
                   ),
+                  for(int i=0;i<FAMILY_MEMBER.length;i++)
                   _getMemberDetails(
-                      name: "Ali Akbar Khan", relationShip: "Father"),
-                  CustomSpacerWidget(
-                    height: 10,
-                  ),
-                  _getMemberDetails(
-                      name: "Asifa Ansari", relationShip: "Mother"),
-                  CustomSpacerWidget(
-                    height: 10,
-                  ),
+                      name: FAMILY_MEMBER.keys.elementAt(i), relationShip: FAMILY_MEMBER.values.elementAt(i)),
                 ],
               ),
               _isFamilyInfoExpanded
@@ -717,22 +1111,27 @@ class _AboutTabState extends State<AboutTab> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _getContactInfoData(
-                    contactType: AppTexts.PROFILE_VIEW,
-                    details: 'Public',
-                  ),
-                ],
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                        children:[
+                          _getContactInfoData(
+                              contactType: AppTexts.PROFILE_VIEW, details: widget.userProfile[0].profile_privacy),
+                        ]
+                    ),
+                  ]
               ),
-              _isFaithInfoExpanded
+              _isPrivacyInfoExpanded
                   ? Padding(
-                      padding: EdgeInsets.only(right: 25, top: 15),
-                      child: _getEditDetails(
-                          callBack: _navigateToEditEducationScreen),
-                    )
+                padding: EdgeInsets.only(right: 25, top: 15),
+                child: _getEditDetails(callBack: (){
+                  _navigateToEditEducationScreen(route: AppRoutes.PROFILE_PRIVACY);
+                }),
+              )
                   : Container(),
+
             ],
+
           ),
         ],
       ),
@@ -753,5 +1152,90 @@ class _AboutTabState extends State<AboutTab> {
     } else if (relationShip == "Father") {
       return ImageConstants.FAMILY_ONE;
     }
+  }
+
+  gettingLanguages() {
+    try {
+      //userProfile = await Amplify.DataStore.query(UserProfile.classType,where: UserProfile.ID.eq("0263d01c-1250-4541-826d-8d63f96cf8c0"));
+      String language=widget.userProfile[0].languages_spoken;
+      var splitting= language.split(",");
+      listOfLanguages=splitting;
+      print(listOfLanguages);
+      print(widget.userProfile);
+      print("inside the user profile");
+    }catch(e)
+    {
+      print("Could not query DataStore: " + e);
+    }
+  }
+
+  Future<List<Users>> userList() async{
+
+    try {
+      user= await Amplify.DataStore.query(Users.classType,where: Users.ID.eq(userid));
+      print(user);
+      print("inside the user");
+      return user;
+    }catch(e)
+    {
+      print("Could not query DataStore: " + e);
+    }
+  }
+
+  Future<List<UserFamily>> userFamilyList() async{
+    try {
+      userFamily= await Amplify.DataStore.query(UserFamily.classType);
+      print("user family list");
+      print(userFamily.length);
+      return userFamily;
+    }catch(e)
+    {
+      print("Could not query DataStore: " + e);
+    }
+
+  }
+
+  getUserFamily() {
+    if(userFamily.isNotEmpty) {
+      for (int i = 0; i < user.length; i++) {
+        print(userFamily[i].name);
+        if (userid == userFamily[i].user_id) {
+          print("hiiii");
+          FAMILY_MEMBER.addAll({
+            userFamily[i].name: userFamily[i].relationship,
+          });
+        }
+      }
+    }else
+      {
+        print("User Family List is Empty");
+      }
+  }
+
+  Future<List<UserEducation>> education() async {
+    try {
+      userEducation= await Amplify.DataStore.query(UserEducation.classType);
+      print(userEducation);
+      print("inside the user");
+      return userEducation;
+    }catch(e)
+    {
+      print("Could not query DataStore: " + e);
+    }
+  }
+
+  _navigatetoIslamScreen() {
+    print("inside navigation");
+    Navigation.intent(context, AppRoutes.ISLAM_INTREST);
+  }
+
+  Widget _buildLoadingScreen() {
+    return Center(
+      child: Container(
+        width: 50,
+        height: 50,
+        child: CircularProgressIndicator(),
+      ),
+    );
   }
 }

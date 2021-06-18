@@ -1,3 +1,4 @@
+import 'package:amplify_flutter/amplify.dart';
 import 'package:flutter/material.dart';
 import 'package:mus_greet/core/utils/constants.dart';
 import 'package:mus_greet/core/widgets/asset_image_widget.dart';
@@ -5,6 +6,8 @@ import 'package:mus_greet/core/widgets/custom_spacer_widget.dart';
 import 'package:mus_greet/core/widgets/dot_indicator.dart';
 import 'package:mus_greet/core/widgets/following_mosque_list_grid.dart';
 import 'package:mus_greet/core/widgets/tab_style_widget.dart';
+import 'package:mus_greet/models/Facilitiesmaster.dart';
+import 'package:mus_greet/models/ModelProvider.dart';
 import 'package:mus_greet/pages/mosque_screen/mosque_details/contact_tab/contect_tab.dart';
 import 'package:mus_greet/pages/mosque_screen/mosque_details/facilities_tab/facilities_tab.dart';
 import 'package:mus_greet/pages/mosque_screen/mosque_details/home_tab/home_tab.dart';
@@ -24,16 +27,17 @@ class MosquesDetailsScreen extends StatefulWidget {
 
 class _MosquesDetailsScreenState extends State<MosquesDetailsScreen>
     with SingleTickerProviderStateMixin {
+
   final _controller = PageController();
 
   static const _kDuration = const Duration(milliseconds: 300);
 
   static const _kCurve = Curves.ease;
 
-
-
   TabController _tabController;
 
+  List<Mosque> mosque = [];
+  String mosqueID = "9de478b5-04c7-4074-baf4-2cadf902f594";
   @override
   void initState() {
     _tabController = TabController(length: 4, vsync: this);
@@ -51,13 +55,22 @@ class _MosquesDetailsScreenState extends State<MosquesDetailsScreen>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.GREY_KIND,
-      body: _getBody(),
+    return FutureBuilder<List<Mosque>>(
+      future: getMosque(),
+      builder: (ctx, snapshot) {
+        switch (snapshot.connectionState) {
+          case ConnectionState.done:
+            mosque = snapshot.data;
+            return buildUI(mosque);
+          default:
+            return _buildLoadingScreen();
+        }
+      },
     );
   }
 
   _getBody() {
+    print("inside the body of main");
     return SingleChildScrollView(
       child: Column(
         children: [
@@ -65,10 +78,10 @@ class _MosquesDetailsScreenState extends State<MosquesDetailsScreen>
           _getTabBar(),
           Center(
             child: [
-              HomeTab(),
-              ContactTab(),
-              MosqueAboutTab(),
-              FacilitiesTab(),
+              HomeTab(mosque: mosque),
+              ContactTab(mosque: mosque),
+              MosqueAboutTab(mosque: mosque),
+              FacilitiesTab(mosque: mosque),
             ][_tabController.index],
           )
         ],
@@ -253,7 +266,6 @@ class _MosquesDetailsScreenState extends State<MosquesDetailsScreen>
     );
   }
 
-
   _getMemberImage() {
     return ClipRRect(
       borderRadius: BorderRadius.circular(40),
@@ -265,8 +277,6 @@ class _MosquesDetailsScreenState extends State<MosquesDetailsScreen>
       ),
     );
   }
-
-
 
   _getNameAndRelationShip() {
     return Padding(
@@ -317,4 +327,34 @@ class _MosquesDetailsScreenState extends State<MosquesDetailsScreen>
       ),
     );
   }
+
+  Future<List<Mosque>> getMosque() async {
+    try {
+      mosque = await Amplify.DataStore.query(Mosque.classType , where:Mosque.ID.eq(mosqueID));
+      print("Before the details of mosque");
+      print(mosque);
+      print("inside the main page");
+      return mosque;
+    } catch (e) {
+      print("Could not query DataStore: " + e.StackTrace);
+    }
+  }
+
+  Widget buildUI(List<Mosque> mosque) {
+    return Scaffold(
+      backgroundColor: AppColors.GREY_KIND,
+      body: _getBody(),
+    );
+  }
+  Widget _buildLoadingScreen() {
+    return Center(
+      child: Container(
+        width: 50,
+        height: 50,
+        child: CircularProgressIndicator(),
+      ),
+    );
+  }
+
 }
+

@@ -7,6 +7,11 @@ import 'package:mus_greet/core/widgets/custom_spacer_widget.dart';
 import 'package:mus_greet/core/widgets/drop_down_text_field.dart';
 import 'package:mus_greet/core/widgets/family_member_card_widget.dart';
 import 'package:mus_greet/core/widgets/my_family_text_field_heading_widget.dart';
+import 'package:mus_greet/main.dart';
+import 'package:mus_greet/models/UserFamily.dart';
+import 'package:mus_greet/models/UserProfile.dart';
+import 'package:mus_greet/models/Users.dart';
+import 'package:amplify_flutter/amplify.dart';
 
 class MyFamilyScreen extends StatefulWidget {
   @override
@@ -16,14 +21,20 @@ class MyFamilyScreen extends StatefulWidget {
 class _MyFamilyScreenState extends State<MyFamilyScreen> {
   final TextEditingController _controller = TextEditingController();
   var _relationShip;
+  List<UserProfile> userProfile;
+  List<Users> user;
+  List<UserFamily> userFamily;
+  List<String> name;
+  List<String> relationship;
+  String userid;
 
-  final List<RelationShipData> members = List.empty(growable: true);
+  final List<RelationShipData> members = [];
 
   @override
   void initState() {
-    members.add(RelationShipData(name: "Ali Akbar Khan",relationShip: "Father"),);
-    members.add(RelationShipData(name: "Asifa Ansari",relationShip: "Mother"),);
-    super.initState();
+    //members.add(RelationShipData(name: "Ali Akbar Khan",relationShip: "Father"),);
+    //members.add(RelationShipData(name: _controller.text,relationShip: _relationShip),);
+   // super.initState();
   }
 
   @override
@@ -166,7 +177,7 @@ class _MyFamilyScreenState extends State<MyFamilyScreen> {
       child: MyFamilyTextFieldHeadingWidget(
         fieldName: AppTexts.FAMILY_MEMBER_NAME,
         controller: _controller,
-        hintText: AppTexts.WRITE_NAME,
+        hintText: "write the text here",
       ),
     );
   }
@@ -204,7 +215,11 @@ class _MyFamilyScreenState extends State<MyFamilyScreen> {
       children: [
         Expanded(
           child: ActionButtonWidget(
-            callBack: () {},
+            callBack: () {
+              Navigation.back(context);
+              print("updating the database");
+              updatingFamilyDataBase();
+            },
             text: AppTexts.SAVE,
             isFilled: true,
           ),
@@ -230,6 +245,47 @@ class _MyFamilyScreenState extends State<MyFamilyScreen> {
       width: 35,
     );
   }
+
+  Future<void> userList() async{
+    try {
+      user= await Amplify.DataStore.query(Users.classType,where: Users.ID.eq("315eca04-ab0d-46f7-b063-d8707d607a18"));
+    }catch(e)
+    {
+      print("Could not query DataStore: " + e);
+    }
+  }
+
+  Future<void> userFamilyList() async{
+    try {
+      userFamily= await Amplify.DataStore.query(UserFamily.classType );
+      print(userFamily[0]);
+      for(int i=0;i<user.length;i++) {
+        if (user[i].id == userFamily[i].user_id)
+        {
+          userid=userFamily[i].user_id;
+          name.add(userFamily[i].name);
+          relationship.add(userFamily[i].relationship);
+        }
+      }
+
+    }catch(e)
+    {
+      print("Could not query DataStore: " + e);
+    }
+
+  }
+
+  updatingFamilyDataBase() async{
+    for(int i=0;i<members.length;i++) {
+      final item = UserFamily(
+          user_id: userid,
+          relationship: members[i].relationShip,
+          name: members[i].name);
+      await Amplify.DataStore.save(item);
+    }
+
+  }
+
 }
 
 class RelationShipData {

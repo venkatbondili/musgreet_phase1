@@ -5,6 +5,9 @@ import 'package:mus_greet/core/widgets/advance_friend_search_context_widget.dart
 import 'package:mus_greet/core/widgets/asset_image_widget.dart';
 import 'package:mus_greet/core/widgets/custom_spacer_widget.dart';
 import 'package:mus_greet/core/widgets/interests_list_widget.dart';
+import 'package:mus_greet/models/MasterIntrests.dart';
+import 'package:amplify_flutter/amplify.dart';
+import 'package:mus_greet/models/ModelProvider.dart';
 
 class AddSkillsImagesScreen extends StatefulWidget {
   @override
@@ -12,26 +15,11 @@ class AddSkillsImagesScreen extends StatefulWidget {
 }
 
 class _AddSkillsImagesScreenState extends State<AddSkillsImagesScreen> {
-  final List<String> iconList = [
-    ImageConstants.IC_BUSINESS_AND_OFFICE,
-    ImageConstants.IC_CHILDCARE,
-    ImageConstants.IC_CLOTHING,
-    ImageConstants.IC_COMPUTER_AND_MARKETING,
-    ImageConstants.IC_ENTERTAINMENT,
-    ImageConstants.IC_FINANCE_AND_LEGAL,
-    ImageConstants.IC_GOODS_SUPPLIERS,
-    ImageConstants.IC_HEALTH_AND_BEAUTY,
-    ImageConstants.IC_MOTORING,
-    ImageConstants.IC_PETS,
-    ImageConstants.IC_ONLINE_SHOPPING,
-    ImageConstants.IC_PROPERTY_AND_MAINTENANCE,
-    ImageConstants.IC_TRADESMAN_AND_CONSTRUCTION,
-    ImageConstants.IC_PUBLIC,
-    ImageConstants.IC_TRANSPORT,
-    ImageConstants.IC_TRAVEL_AND_TOURISM,
-    ImageConstants.IC_TUITION_AND_CLASSES,
-    ImageConstants.IC_WEDDINGS,
-  ];
+  List<MasterIntrests> masterIntrest;
+  List<UserProfile> userProfile;
+  Map<String,String> SKILLS_CATEGORIES={};
+  List<String> skills;
+
 
   @override
   Widget build(BuildContext context) {
@@ -67,40 +55,8 @@ class _AddSkillsImagesScreenState extends State<AddSkillsImagesScreen> {
                   //physics: NeverScrollableScrollPhysics(),
                   children: <Widget>[
                       InterestsListWidget(
-                      contextName: AppTexts.SKILLS_CATEGORIES[0],
-                      contextImage: iconList[0],
-                    ),
-                      InterestsListWidget(
-                      contextName: AppTexts.SKILLS_CATEGORIES[0],
-                      contextImage: iconList[0],
-                    ),
-                      InterestsListWidget(
-                      contextName: AppTexts.SKILLS_CATEGORIES[0],
-                      contextImage: iconList[0],
-                    ),
-                      InterestsListWidget(
-                      contextName: AppTexts.SKILLS_CATEGORIES[0],
-                      contextImage: iconList[0],
-                    ),
-                      InterestsListWidget(
-                      contextName: AppTexts.SKILLS_CATEGORIES[0],
-                      contextImage: iconList[0],
-                    ),
-                    InterestsListWidget(
-                      contextName: AppTexts.SKILLS_CATEGORIES[0],
-                      contextImage: iconList[0],
-                    ),
-                    InterestsListWidget(
-                      contextName: AppTexts.SKILLS_CATEGORIES[0],
-                      contextImage: iconList[0],
-                    ),
-                    InterestsListWidget(
-                      contextName: AppTexts.SKILLS_CATEGORIES[0],
-                      contextImage: iconList[0],
-                    ),
-                    InterestsListWidget(
-                      contextName: AppTexts.SKILLS_CATEGORIES[0],
-                      contextImage: iconList[0],
+                      contextName: "",
+                      contextImage: "",
                     ),
                     //getInterestChild(),
                     //getInterestChild(),
@@ -113,8 +69,8 @@ class _AddSkillsImagesScreenState extends State<AddSkillsImagesScreen> {
               shrinkWrap: true,
               itemBuilder: (context, index) {
                 return InterestsListWidget(
-                  contextName: AppTexts.SKILLS_CATEGORIES[index],
-                  contextImage: iconList[index],
+                  contextName: SKILLS_CATEGORIES.keys.elementAt(index),
+                  contextImage: SKILLS_CATEGORIES.values.elementAt(index),
                 );
               },
               separatorBuilder: (context, index) {
@@ -123,7 +79,7 @@ class _AddSkillsImagesScreenState extends State<AddSkillsImagesScreen> {
                   color: Colors.transparent,
                 );
               },
-              itemCount: AppTexts.SKILLS_CATEGORIES.length,
+              itemCount: SKILLS_CATEGORIES.length,
             ),
           ],
         ),
@@ -177,6 +133,41 @@ class _AddSkillsImagesScreenState extends State<AddSkillsImagesScreen> {
         ),
       ],
     );
+  }
+
+
+  Future<void> _userProfile() async
+  {
+    userProfile=await Amplify.DataStore.query(UserProfile.classType , where :UserProfile.ID.eq("ecced20a-90cc-4ef3-af2c-aa1fe9598f89"));
+    print(userProfile[0].skills);
+    print("Inside the User Profile data store skills");
+    var a=userProfile[0].skills;
+    var ab = (a.split(','));
+    skills=ab;
+    for(int i=0;i<skills.length;i++) {
+      String skillList=skills[i];
+      print("Inside the For loop skills");
+      for(int i=0;i<masterIntrest.length;i++) {
+        print(skillList);
+        if (skillList == masterIntrest[i].id) {
+          print("inside the master skilss");
+          SKILLS_CATEGORIES.addAll({
+            masterIntrest[i].intrest_name :masterIntrest[i].photo_path,
+          });
+        }
+      }
+    }
+
+  }
+  Future<void> _getSkills() async
+  {
+    try {
+      masterIntrest = await Amplify.DataStore.query(MasterIntrests.classType);
+      print(masterIntrest);
+    }
+    catch (e) {
+      print("Could not query DataStore: " + e.stacktrace);
+    }
   }
 
 }

@@ -1,7 +1,9 @@
+import 'package:amplify_flutter/amplify.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mus_greet/core/utils/constants.dart';
 import 'package:mus_greet/core/utils/size_config.dart';
+import 'package:mus_greet/models/Users.dart';
 //import 'package:musgreet/constants.dart';
 //import 'package:musgreet/size_config.dart';
 //import 'package:international_phone_input/international_phone_input.dart';
@@ -13,10 +15,12 @@ class PhoneVerificationView extends StatefulWidget {
 }
 
 class _PhoneVerificationViewState extends State<PhoneVerificationView> {
+  List<Users> users;
   String phoneNumber;
   String phoneIsoCode;
   bool visible = false;
   String confirmedNumber = '';
+  TextEditingController controller_phone=new TextEditingController();
 
   void onPhoneNumberChange(
       String number, String internationalizedPhoneNumber, String isoCode) {
@@ -114,6 +118,7 @@ class _PhoneVerificationViewState extends State<PhoneVerificationView> {
                 alignment: Alignment.centerLeft,
                 padding: EdgeInsets.symmetric(horizontal: 25, vertical: 5),
                 child: TextFormField(
+                  controller:controller_phone,
                   keyboardType: TextInputType.name,
                   decoration: InputDecoration(
                     enabledBorder: OutlineInputBorder(
@@ -185,6 +190,10 @@ class _PhoneVerificationViewState extends State<PhoneVerificationView> {
                             Radius.circular(8.0),
                           )),
                       onPressed: () {
+                        updatePhoneNumber();
+                        print(controller_phone.text);
+                        print("enter the phone number");
+
                         _navigateToNextScreen(context);
                       },
                     ),
@@ -214,5 +223,26 @@ class _PhoneVerificationViewState extends State<PhoneVerificationView> {
         ),
       ],
     );
+  }
+
+
+  Future<void> userDetailsData() async
+  {
+    print("getting the data from the users");
+    try {
+      users = await Amplify.DataStore.query(Users.classType , where:Users.ID.eq("315eca04-ab0d-46f7-b063-d8707d607a18"));
+      print(users);
+    }
+    catch(e)
+    {
+
+    }
+  }
+
+  void updatePhoneNumber()  async{
+
+    final updatedItem = users[0].copyWith(
+        phone: controller_phone.text);
+    await Amplify.DataStore.save(updatedItem);
   }
 }

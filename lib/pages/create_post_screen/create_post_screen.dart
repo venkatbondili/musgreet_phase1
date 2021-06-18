@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:amplify_flutter/amplify.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -9,38 +10,80 @@ import 'package:mus_greet/core/utils/routes.dart';
 import 'package:mus_greet/core/widgets/action_button_widget.dart';
 import 'package:mus_greet/core/widgets/asset_image_widget.dart';
 import 'package:mus_greet/core/widgets/custom_spacer_widget.dart';
+import 'package:mus_greet/core/widgets/drop_down_text_field.dart';
 import 'package:mus_greet/core/widgets/media_source_widget.dart';
+import 'package:amplify_storage_s3/amplify_storage_s3.dart';
 import 'package:mus_greet/core/widgets/rounded_button_widget.dart';
+import 'package:mus_greet/core/widgets/s3_bucket_image_widget.dart';
+import 'package:mus_greet/models/ModelProvider.dart';
+import 'package:path_provider/path_provider.dart';
+
 
 class CreatePostScreen extends StatefulWidget {
+  ///unComment these lines when we are passing the User details from other classes
+  //final Users UserObject;
+  //final String UserProfileImage;
+  //final String UserName;
+  //CreatePostScreen({this.UserProfileImage, this.UserName});
   @override
   _CreatePostScreenState createState() => _CreatePostScreenState();
 }
 
 class _CreatePostScreenState extends State<CreatePostScreen> {
   final TextEditingController _thoughtsController = TextEditingController();
-
+  /// remove the below two lines when we are passing the user details from other classes
+  String UserName = "Sindhuja";
+  String UserProfileImage = "https://musgreetphase1images184452-staging.s3.eu-west-2.amazonaws.com/public/public.png";
   var pickedFile;
   var filepath = '';
-  File _image;
+  String S3ImageURL = "";
+  String postVisibility = "";
+  //bool isCamera = false;
+  File _image ;
+  //print("inside create post");
 
   Future getImage(bool isCamera) async {
-
+    print("inside getImage");
     final picker = ImagePicker();
-
+    print(pickedFile);
     if (isCamera) {
-      final pickedFile = await picker.getImage(source: ImageSource.camera);
+      pickedFile = await picker.getImage(source: ImageSource.camera);
+      print("camera");
+      print(pickedFile);
     }
     else {
-      final pickedFile = await picker.getImage(source: ImageSource.gallery);
+      pickedFile = await picker.getImage(source: ImageSource.gallery);
+      print("gallery");
+      print(pickedFile);
     }
 
     setState(() {
+      print("inside set state");
+      //print(pickedFile);
       if (pickedFile != null) {
         _image = File(pickedFile.path);
+        //print("image");
+        //print(_image);
+        //print("File");
         filepath = pickedFile.path;
+        //print(filepath);
+        //print(filepath.split('/').last);
+        //uploadFile(_image, filepath);
+        print("calling upload file");
+        uploadFile(_image, filepath).then((result) {
+          setState(() {
+            if (result is String)
+              S3ImageURL = result.toString(); //use toString to convert as String
+          });
+        });
+        print("After upload function");
+        print("S3 URL");
+        print(S3ImageURL);
+        print("After S3");
+        //uploadFile(filepath);
       } else {
         filepath = 'assets/images/google.png';
+        print(filepath);
         print('No image selected.');
       }
     });
@@ -74,7 +117,8 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
             CustomSpacerWidget(
               height: 30,
             ),
-            _getPrivacyOfUser(),
+            //_getPrivacyOfUser(),
+            _getPostVisibilityDropDown(),
             CustomSpacerWidget(
               height: 80,
             ),
@@ -154,8 +198,9 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
 
   /// This will return profile image.
   _getProfileImage() {
-    return AssetImageWidget(
-      image: ImageConstants.IC_HOME_USER1,
+    return S3BucketImageWidget(
+      //image: widget.UserProfileImage,
+      image: UserProfileImage,
       height: 50,
       width: 50,
     );
@@ -163,7 +208,10 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
 
   _getUserName() {
     return Text(
-      AppTexts.TEMP_USER_NAME,
+      //AppTexts.TEMP_USER_NAME,
+      /// un comment this when userName is passed
+      //widget.UserName,
+      UserName,
       style: TextStyle(
         fontFamily: FontConstants.FONT,
         fontSize: 13,
@@ -195,6 +243,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
   }
 
   _getMediaPickerSection() {
+    print("Inside media picker");
     return Container(
       padding: EdgeInsets.all(8),
       decoration: BoxDecoration(
@@ -207,6 +256,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
             child: MediaSourceWidget(
               image: ImageConstants.IC_CAMERA,
               text: AppTexts.CAMERA_TEXT,
+              callBack:(){ _handleOpenCamera();},
             ),
           ),
           CustomSpacerWidget(
@@ -216,6 +266,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
             child: MediaSourceWidget(
               image: ImageConstants.IC_CAMERA,
               text: AppTexts.GALLERY_TEXT,
+              callBack:(){ _handleOpenGallery();},
             ),
           ),
         ],
@@ -290,6 +341,20 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
     );
   }
 
+  _getPostVisibilityDropDown() {
+    return Container(
+      padding: EdgeInsets.only(left: 5, right: 5),
+      child: DropDownTextField(
+        fieldName: AppTexts.POST_VISIBILITY,
+        data: AppTexts.POST_VISIBILITY_CATEGORIES,
+        callBack: (val) {
+          postVisibility = val;
+          print(val);
+        },
+      ),
+    );
+  }
+
   _getChangeText() {
     return Text(
       AppTexts.CHANGE_TEXT,
@@ -318,7 +383,8 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
             text: AppTexts.CANCEL,
             isFilled: false,
             callBack: () {
-              Navigation.back(context);
+              _navigateToHome();
+              //Navigation.back(context);
             },
           ),
           CustomSpacerWidget(width: 20,),
@@ -327,8 +393,9 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
               text: AppTexts.SAVE,
               isFilled: true,
               callBack: () {
-                Navigation.back(context);
-                print("Cancel");
+                _SavePost();
+                //Navigation.back(context);
+                //print("Save");
               },
             ),
           ),
@@ -336,6 +403,107 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
       ),
     );
   }
+
+
+/// Method to upload image file to S3 bucket
+  Future<String> uploadFile(File _image, String filepath) async {
+    try {
+      final fileName = filepath.split('/').last;
+      //final fileName = DateTime.now().toIso8601String();
+      var dir = await getApplicationDocumentsDirectory();
+      //File file = File(await getFilePath()); // 1
+      File file = _image;
+      file.writeAsString("This is my demo text that will be saved to : demoTextFile.txt");
+      final result = await Amplify.Storage.uploadFile(
+        //local: file,
+        local: file,
+        //local: File(await getFilePath()),
+        //local: File('C:/Venkat/Sriram/Projects/MusGreet/Code/musgreet_phase1/musgreet/assets/images/logo.png'),
+        //key: fileName + '.png',
+        key:fileName,
+      );
+      //final x = Amplify.Storage.put('text.txt', 'Hello');
+      print('image uploaded to S3 successfully!');
+      print(result.key);
+      //String url = getUrlForFile(result.key);
+      String url = "";
+      getUrlForFile(result.key).then((result) {
+        setState(() {
+          print("inside set state");
+          if (result is String)
+            url = result.toString(); //use toString to convert as String
+        });
+      });
+      await Future.delayed(Duration(milliseconds: 1000));
+      //return result.key;
+      print("inside upload file");
+      print(url.split('?')[0]);
+      return url;
+    } catch (e) {
+      print('Error in uploading image to S3');
+      throw e;
+    }
+  }
+/// Method to get Image URL of the file
+  Future<String> getUrlForFile(String fileKey) async {
+    try {
+      final result = await Amplify.Storage.getUrl(key: fileKey);
+      print("inside get url");
+      print(result.url.toString());
+      //UrlString = result.url.toString();
+      //s3://musgreetphase1images184452-staging/public/2021-05-26T22:07:56.979371.txt
+      //await Future.delayed(Duration(seconds: 2));
+      return result.url;
+      //return UrlString;
+    } catch (e) {
+      print('Error in getUrl method');
+      throw e;
+    }
+  }
+
+
+  _SavePosts() {
+    print("inside save ");
+    print(postVisibility);
+    print(_thoughtsController.text);
+    print(S3ImageURL.split('?')[0]);
+    //print(S3ImageURL.toString());
+    _thoughtsController.clear();
+    print(postVisibility);
+
+  }
+/// This Method is to save post in Database
+  Future<void> _SavePost() async{
+    print(_thoughtsController.text);
+    print(S3ImageURL);
+    print(postVisibility);
+    print("inside Save Posts");
+    try {
+    final item = Posts(
+        post: _thoughtsController.text,
+        post_image_path: S3ImageURL.split('?')[0],
+        description: "Keep Smiling",
+        visibility: postVisibility,
+        usersID: "40d605ff-0ce4-4b4f-ae43-9e97d37c6cfc",
+        //usersID: UserObject.ID,
+        //usersID: "49e213cb-2849-4164-b5c6-4e6ab971c4c7",
+        mosquesID: "",
+        Post_Comments: [],
+        Post_Likes: []);
+    await Amplify.DataStore.save(item);
+    print("saved post Successfully by sindhuja");
+    _thoughtsController.clear();
+    _navigateToHome();
+    } catch (e) {
+      print("Could not query DataStore: " + e);
+    }
+  }
+
+  ///This method will navigate back to Home
+  _navigateToHome() {
+    Navigation.intent(context, AppRoutes.HOME);
+  }
+
 }
 
 /// this will render text field on the screen
@@ -350,8 +518,11 @@ class CreatePostTextFieldWidget extends StatefulWidget {
 }
 
 class _TextFieldWidgetState extends State<CreatePostTextFieldWidget> {
+  //final ctrlText = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
+    print(widget.controller.text);
     return Container(
       padding: EdgeInsets.only(left: 5, right: 5, top: 5),
       child: TextField(
@@ -377,6 +548,10 @@ class _TextFieldWidgetState extends State<CreatePostTextFieldWidget> {
             enabledBorder: InputBorder.none,
             errorBorder: InputBorder.none,
             contentPadding: EdgeInsets.only(bottom: 10)),
+        onSubmitted: (String str){
+          print("inside on submitted");
+          print(str);
+        },
       ),
     );
   }

@@ -1,18 +1,40 @@
 import 'package:flutter/material.dart';
+import 'package:mus_greet/core/config/navigation.dart';
 import 'package:mus_greet/core/utils/constants.dart';
+import 'package:mus_greet/core/utils/routes.dart';
 import 'package:mus_greet/core/widgets/action_button_widget.dart';
 import 'package:mus_greet/core/widgets/asset_image_widget.dart';
 import 'package:mus_greet/core/widgets/custom_spacer_widget.dart';
+import 'package:mus_greet/models/ModelProvider.dart';
+import 'package:mus_greet/pages/advanced_search/search_skills_screen.dart';
 import 'package:mus_greet/pages/profile/view_profile_screen/view_profile_screen.dart';
+import 'package:amplify_flutter/amplify.dart';
 
 class LanguagesScreen extends StatefulWidget {
+  final String callingScreen;
+  final List<String> skillsList;
+  final String gender;
+  final String age;
+  //final List<Users> genderFilteredUsers;
+  //final List<Users> ageFilteredUsers;
+  LanguagesScreen({this.callingScreen,
+    this.skillsList,
+    this.gender,
+    this.age
+    //this.genderFilteredUsers,
+    //this.ageFilteredUsers
+  });
   @override
   _LanguagesScreenState createState() => _LanguagesScreenState();
 }
 class _LanguagesScreenState extends State<LanguagesScreen> {
-  final List<String> _selectedItems = List.empty(growable: true);
+   String languages;
+   List<UserProfile> userProfile;
+   List<String> _selectedItems = [];
+   List<String> _list;
   @override
   Widget build(BuildContext context) {
+    userDetails();
     return SafeArea(
       child: Scaffold(
         backgroundColor: AppColors.white,
@@ -95,11 +117,13 @@ class _LanguagesScreenState extends State<LanguagesScreen> {
     return MultiSelectChip(
       AppTexts.LANGUAGES_CATEGORIES,
       onSelectionChanged: (val) {
-        // print(val);
+        print("selecting the value");
+         print(val);
         setState(() {
           _selectedItems.clear();
           _selectedItems.addAll(val);
         });
+        print(_selectedItems);
       },
     );
   }
@@ -123,8 +147,21 @@ class _LanguagesScreenState extends State<LanguagesScreen> {
               text: AppTexts.ADD,
               isFilled: true,
               callBack: (){
-                print("Add");
-                Navigator.pop(context);
+                if(widget.callingScreen == "AdvancedSearch"){
+                  print("Calling from advanced Search");
+                  print(_selectedItems);
+                  _navigateToAdvancedSearchScreen(_selectedItems);
+                  //_selectedItems.clear();
+                }else{
+                  print(_selectedItems);
+                  languages =_selectedItems.join(",");
+                  print(languages);
+                  print("Add");
+                  updateUserProfile(languages);
+                  Navigation.back(context);
+                }
+
+                //Navigator.pop(context);
               },
             ),
           ),
@@ -133,6 +170,31 @@ class _LanguagesScreenState extends State<LanguagesScreen> {
     );
   }
 
+   _navigateToAdvancedSearchScreen(List<String> selectedItems) {
+     List<String> selectedLanguagesList =_selectedItems;
+     // Navigation.intentWithData(context, AppRoutes.SEARCH_SKILLS_SCREEN ,ArgumentLanguageClass(_selectedItems,"Languages"));
+     Navigation.intentWithData(context, AppRoutes.SEARCH_SKILLS_SCREEN ,ArgumentClass(widget.skillsList,selectedLanguagesList, widget.gender,widget.age,
+         //widget.genderFilteredUsers,
+         //widget.ageFilteredUsers,
+         "Languages"));
+   }
+
+  Future<void> userDetails() async{
+    userProfile = await Amplify.DataStore.query(UserProfile.classType,where: UserProfile.ID.eq("0263d01c-1250-4541-826d-8d63f96cf8c0"));
+     String link=userProfile[0].languages_spoken;
+     var a=link.split(",");
+    _list=a;
+     //print(languages);
+     print("print the languages");
+  }
+
+  updateUserProfile(String languages) async{
+    final updatedItem = userProfile[0].copyWith(
+
+        languages_spoken:languages);
+
+    await Amplify.DataStore.save(updatedItem);
+  }
 }
 class MultiSelectChip extends StatefulWidget {
   final List<String> reportList;

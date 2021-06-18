@@ -1,5 +1,7 @@
+import 'package:amplify_flutter/amplify.dart';
 import 'package:flutter/material.dart';
 import 'package:mus_greet/core/utils/size_config.dart';
+import 'package:mus_greet/models/Users.dart';
 import 'package:mus_greet/pages/address-verification/address_verification_screen.dart';
 
 import 'otp_form.dart';
@@ -10,6 +12,7 @@ class ParentEmailVerificationView extends StatefulWidget {
 }
 
 class _ParentEmailVerificationViewState extends State<ParentEmailVerificationView> {
+
   @override
   Widget build(BuildContext context) {
     /*var height = SizeConfig.getHeight(context);
@@ -25,8 +28,9 @@ class _ParentEmailVerificationViewState extends State<ParentEmailVerificationVie
     );
   }
 }
-
+List<Users> users;
 Widget _buildContent(context) {
+  userDetailsData();
 //class ParentEmailVerificationView extends StatelessWidget {
   bool checked = false;
 
@@ -53,7 +57,7 @@ Widget _buildContent(context) {
               ),
               SizedBox(height: SizeConfig.screenHeight * 0.03),
               Text(
-                'Please enter the 6 digit code sent to r1*********@gmail.com',
+                'Please enter the 6 digit code sent to ' ,
                 textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
               ),
@@ -179,7 +183,8 @@ Widget _buildContent(context) {
                             Radius.circular(8.0),
                           )),
                       onPressed: () {
-                        _navigateToNextScreen(context);
+                        verifyParentVerification(context);
+                        //_navigateToNextScreen(context);
                       },
                     ),
                 ),
@@ -191,18 +196,47 @@ Widget _buildContent(context) {
     );
   }
 
-  void _navigateToNextScreen(BuildContext context) {
-    Navigator.of(context).push(
-        MaterialPageRoute(builder: (context) => AddressVerificationScreen()));
-  }
+void verifyParentVerification(BuildContext context) {
 
-  Row buildTimer() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        SizedBox(height: SizeConfig.screenHeight * 0.07),
-        Text("This code will expire in 10 minutes"),
-        /*      TweenAnimationBuilder(
+  print("inside the verify button");
+  //print('In verify function : ${_codeController.text}');
+  //print(_codeController.text);
+  try {
+    //  SignUpResult res = await Amplify.Auth.confirmSignUp(
+    //  username: email,
+    //confirmationCode: _codeController.text,
+    //);
+
+    if (true) {
+      print('Email code verification successful');
+      updateParentVerification();
+      //Navigator.of(context)
+      //  .push(MaterialPageRoute(builder: (context) => OtpSuccessScreen()));
+      // builder:(BuildContext context) =>_buildContent(context);
+      _showDialog(context);
+    }
+    else
+    {
+      _showDialogFailed();
+    }
+    // setState(() {
+    //   //isSignUpComplete = res.isSignUpComplete;
+    // }
+    //);
+  } catch (e) {
+    print(e.message);
+}
+
+
+}
+
+Row buildTimer() {
+  return Row(
+    mainAxisAlignment: MainAxisAlignment.center,
+    children: [
+      SizedBox(height: SizeConfig.screenHeight * 0.07),
+      Text("This code will expire in 10 minutes"),
+      /*      TweenAnimationBuilder(
           tween: Tween(begin: 30.0, end: 0.0),
           duration: Duration(seconds: 1800),
           builder: (_, value, child) => Text(
@@ -211,7 +245,190 @@ Widget _buildContent(context) {
           ),
         ),
         Text(" mins."),*/
-      ],
-    );
-  }
+    ],
+  );
+}
 
+
+Future<void> updateParentVerification() async {
+
+  final updatedItem = users[0].copyWith(
+    parent_consent_form_agree: true,
+      parent_verification: true);
+  await Amplify.DataStore.save(updatedItem);
+}
+
+_showDialog(BuildContext context)
+{
+  print("inside the show Dialog");
+  return showDialog(
+    context :context,
+    builder:(context) =>AlertDialog
+      (
+      title: MaterialButton(
+        onPressed: () {},
+        color: Colors.green[800],
+        textColor: Colors.white,
+        child: Image.asset(
+          'assets/images/mail.png',
+          //width: 100,
+          //height: 100,
+        ),
+        /*child: Icon(
+            Icons.email,
+            size: 40,
+          ),*/
+        padding: EdgeInsets.all(16),
+        shape: CircleBorder(),
+      ),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        // wrap content in flutter
+        children: <Widget>[
+          Text(
+            '  You have successfully verified your email',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 20.0,
+              fontWeight: FontWeight.w600,
+              color: Colors.black,
+            ),
+          ),
+          SizedBox(
+            height: 5.0,
+          ),
+          FlatButton(
+            onPressed: () {
+              //Navigator.of(ctx).pop();
+            },
+            child: SizedBox(
+              width: double.infinity, // <-- match_parent
+              child:  RaisedButton(
+                padding: EdgeInsets.symmetric(horizontal: 50, vertical: 7),
+                child: Text(
+                  'Continue',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16.0,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                color: Colors.green[800],
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.all(
+                      Radius.circular(8.0),
+                    )),
+                onPressed: () {
+                  print("inside the on press ");
+                  updatePhoneVerfication();
+                  Navigator.of(context).push(
+                      MaterialPageRoute(builder: (context) => AddressVerificationScreen()));
+                },
+              ),
+            ),
+
+          ),
+        ],
+      ),
+      actions: <Widget>[],
+    ),
+  );
+}
+
+_showDialogFailed()
+{
+  print("inside the show Dialog");
+  return showDialog(
+   // context :context,
+    builder:(context) =>AlertDialog
+      (
+      title: MaterialButton(
+        onPressed: () {},
+        color: Colors.green[800],
+        textColor: Colors.white,
+        child: Image.asset(
+          'assets/images/mail.png',
+          //width: 100,
+          //height: 100,
+        ),
+        /*child: Icon(
+            Icons.email,
+            size: 40,
+          ),*/
+        padding: EdgeInsets.all(16),
+        shape: CircleBorder(),
+      ),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        // wrap content in flutter
+        children: <Widget>[
+          Text(
+            '  Your Email Verfication has Failed.',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 20.0,
+              fontWeight: FontWeight.w600,
+              color: Colors.black,
+            ),
+          ),
+          SizedBox(
+            height: 5.0,
+          ),
+          FlatButton(
+            onPressed: () {
+              //Navigator.of(ctx).pop();
+            },
+            child: SizedBox(
+              width: double.infinity, // <-- match_parent
+              child:  RaisedButton(
+                padding: EdgeInsets.symmetric(horizontal: 50, vertical: 7),
+                child: Text(
+                  'Continue',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16.0,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                color: Colors.green[800],
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.all(
+                      Radius.circular(8.0),
+                    )),
+                onPressed: () {
+                  updatePhoneVerfication();
+                  Navigator.of(context).push(
+                      MaterialPageRoute(builder: (context) => AddressVerificationScreen()));
+                },
+              ),
+            ),
+
+          ),
+        ],
+      ),
+      actions: <Widget>[],
+    ),
+  );
+}
+
+void updatePhoneVerfication()  async{
+  final updatedItem = users[0].copyWith(
+      parent_verification: true,
+      parent_consent_form_agree: true);
+  await Amplify.DataStore.save(updatedItem);
+}
+
+Future<void> userDetailsData() async
+{
+  print("getting the data from the users");
+  try {
+    users = await Amplify.DataStore.query(Users.classType , where:Users.ID.eq("315eca04-ab0d-46f7-b063-d8707d607a18"));
+    print(users);
+  }
+  catch(e)
+  {
+
+  }
+}

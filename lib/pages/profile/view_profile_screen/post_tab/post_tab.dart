@@ -7,6 +7,11 @@ import 'package:mus_greet/core/widgets/custom_spacer_widget.dart';
 import 'package:mus_greet/core/widgets/post_card_widget.dart';
 import 'package:mus_greet/core/widgets/rounded_button_widget.dart';
 import 'package:mus_greet/core/widgets/text_field_widget.dart';
+import 'package:mus_greet/models/ModelProvider.dart';
+import 'package:mus_greet/models/Posts.dart';
+import 'package:mus_greet/models/Users.dart';
+import 'package:amplify_flutter/amplify.dart';
+import 'package:mus_greet/pages/home_screen/comment_screen/comment_screen.dart';
 
 
 class PostTab extends StatefulWidget {
@@ -17,45 +22,27 @@ class PostTab extends StatefulWidget {
 class _PostTabState extends State<PostTab> {
 
   final TextEditingController _controller = TextEditingController();
+  List<Users> Userss =[];
+  List<Posts> Postss =[];
+  List<Users> UserObjectList = [];
+  Users UserObject;
+  //int   CommentsCount = 0;
+  int  LikesCount = 0;
+  String UserID = "6e433507-a211-42f2-a7f4-f2b5583a7ed1";
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: MediaQuery.of(context).size.width,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          _getTextField(),
-          PostCardWidget(
-            profileImage: ImageConstants.IC_HOME_USER1,
-            name: AppTexts.TEMP_NAME1,
-            isSponsored: false,
-            timeAgo: AppTexts.TEMP_TIME_AGO_1,
-            image: ImageConstants.IMG_POST1,
-          ),
-          PostCardWidget(
-            profileImage: ImageConstants.IC_HOME_USER1,
-            name: AppTexts.TEMP_NAME2,
-            isSponsored: true,
-            timeAgo: AppTexts.TEMP_TIME_AGO_2,
-            image: ImageConstants.IMG_POST1,
-          ),
-          PostCardWidget(
-            profileImage: ImageConstants.IC_HOME_USER1,
-            name: AppTexts.TEMP_NAME1,
-            isSponsored: false,
-            timeAgo: AppTexts.TEMP_TIME_AGO_1,
-            image: ImageConstants.IMG_POST1,
-          ),
-          PostCardWidget(
-            profileImage: ImageConstants.IC_HOME_USER1,
-            name: AppTexts.TEMP_NAME2,
-            isSponsored: true,
-            timeAgo: AppTexts.TEMP_TIME_AGO_2,
-            image: ImageConstants.IMG_POST1,
-          ),
-        ],
-      ),
+    return FutureBuilder<Users>(
+      future: _getUser(UserID),
+      builder: (ctx, snapshot) {
+        switch (snapshot.connectionState) {
+          case ConnectionState.done:
+            UserObject = snapshot.data;
+            return _buildUI(UserObject);
+          default:
+            return _buildLoadingScreen();
+        }
+      },
     );
   }
 
@@ -111,4 +98,213 @@ class _PostTabState extends State<PostTab> {
       },
     );
   }
+  _buildUI(Users UserObject) {
+    return FutureBuilder<List<Posts>>(
+      future: _getPosts(UserObject),
+      builder: (ctx, snapshot) {
+        switch (snapshot.connectionState) {
+          case ConnectionState.done:
+            Postss = snapshot.data;
+            return _buildPosts(UserObject, Postss);
+          default:
+            return _buildLoadingScreen();
+        }
+      },
+    );
+  }
+
+  _buildPosts(Users UserObject, List<Posts> posts){
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          Container(
+            width: MediaQuery.of(context).size.width,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _getTextField(),
+                ListView.separated(
+                  //physics: NeverScrollableScrollPhysics(),
+                  shrinkWrap: true,
+                  itemBuilder: (context, index){
+                    print(index);
+                    return getpostcardWidget(posts[index],UserObject);
+                  },
+                  separatorBuilder: (context, index) {
+                    return Divider(
+                      height: 1,
+                      color: Colors.transparent,
+                    );
+                  },
+                  itemCount: posts.length,
+                ),
+              ],
+            ),
+          ),
+          Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: Column(
+              children:[
+                Container(
+                  child: Image.asset(
+                    ImageConstants.TEMP_IMG_ADD,
+                    fit: BoxFit.fitWidth,
+                  ),
+                ),
+              ],
+
+            ),
+          ),
+        ],
+      ),
+    );
+    return Container(
+      width: MediaQuery.of(context).size.width,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _getTextField(),
+          ListView.separated(
+            //physics: NeverScrollableScrollPhysics(),
+            shrinkWrap: true,
+            itemBuilder: (context, index){
+              print(index);
+              return getpostcardWidget(posts[index],UserObject);
+            },
+            separatorBuilder: (context, index) {
+              return Divider(
+                height: 1,
+                color: Colors.transparent,
+              );
+            },
+            itemCount: posts.length,
+          ),
+          Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: Column(
+              children:[
+                Container(
+                  child: Image.asset(
+                    ImageConstants.TEMP_IMG_ADD,
+                    fit: BoxFit.fitWidth,
+                  ),
+                ),
+              ],
+
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+  Widget _buildLoadingScreen() {
+    return Center(
+      child: Container(
+        width: 50,
+        height: 50,
+        child: CircularProgressIndicator(),
+      ),
+    );
+  }
+
+  Future<Users>_getUser(String UserID) async {
+    try {
+      List<Users> Userss = await Amplify.DataStore.query(Users.classType, where: Users.ID.eq(UserID));
+      print(Userss);
+      return Userss[0];
+    } catch (e) {
+      print("Could not query DataStore: " + e);
+    }
+
+  }
+
+  Future<List<Posts>> _getPosts(Users userObject) async {
+    try {
+      //List<Posts>
+      Postss = await Amplify.DataStore.query(Posts.classType, where: Posts.USERSID.eq(userObject.id));
+      print(Postss);
+      print("inside posts");
+      return Postss;
+    } catch (e) {
+      print("Could not query DataStore: " + e);
+    }
+  }
+
+  _loadCommentScreen(Posts PostObject, Users UserObject, String CommentsCount) {
+    //Navigation.intent(context, CommentScreen(PostID: PostID,UserName: UserName, Post: Post, Post_image_path: Post_Image_path));
+    print(CommentsCount);
+    Navigator.push(context,
+        MaterialPageRoute(
+          builder: (context) => CommentScreen(PostObject: PostObject, UserObject: UserObject, CommentsCount: CommentsCount),
+        )
+    );
+    //CommentScreen(PostID: PostID,UserName: UserName, Post: Post, Post_image_path: Post_Image_path,);
+    //print("Hello inside load comment screen");
+    // print(PostID+ UserName+ Post+ Post_Image_path );
+    setState(() {
+      //_navigateToComment = true;
+    });
+  }
+
+  Future<int> _countComments(String PostID) async {
+    int CommentsCount = 0;
+    print(CommentsCount);
+    try {
+      List<PostComments> Comments = await Amplify.DataStore.query(PostComments.classType, where: PostComments.POSTSID.eq(PostID));
+      print("Comments Length" + Comments.length.toString());
+      if(Comments.isNotEmpty){
+        for(var i in Comments){
+          if(i.parent_id == ""){
+            CommentsCount ++;
+          }
+        }
+      }
+      print("Comments Count" + CommentsCount.toString());
+      //await Future.delayed(Duration(seconds: 2));
+      return CommentsCount;
+    } catch (e) {
+      print("Could not query DataStore: " + e);
+    }
+  }
+
+  Widget getpostcardWidget(Posts postData, Users UserData) {
+    return FutureBuilder<int>(
+      future: _countComments(postData.id),
+      builder: (ctx, snapshot) {
+        switch (snapshot.connectionState) {
+          case ConnectionState.done:
+            int CommentsCount = snapshot.data;
+            return PostCardWidget(
+              //profileImage: ImageConstants.IC_HOME_USER1,
+              //profileImage: Image.network('https://picsum.photos/250?image=9'),
+              profileImage: "https://musgreetphase1images184452-staging.s3.eu-west-2.amazonaws.com/public/public.png",
+              //name: AppTexts.TEMP_NAME1,
+              //name: Postss[index].usersID,
+              //name: UserObject.first_name,
+              //name: UserObjectList[0].first_name,
+              name: UserData.first_name + " "+ UserData.last_name,
+              isSponsored: false,
+              //timeAgo: AppTexts.TEMP_TIME_AGO_1,
+              timeAgo: UserData.postcode,
+              //image: ImageConstants.IMG_POST1,
+              post:postData.post,
+              image: postData.post_image_path,
+              //image: "https://musgreetphase1images184452-staging.s3.eu-west-2.amazonaws.com/public/image_picker5824495182282881133.jpg",
+              //image: "https://musgreetphase1images184452-staging.s3.eu-west-2.amazonaws.com/public/post_img_2.png",
+              //callBack: () => _loadCommentScreen(),
+              //callBack: () => _loadCommentScreen(Postss[index].id, User[0], Postss[index].post, Postss[index].post_image_path),
+              callBack: () => _loadCommentScreen(postData, UserData, CommentsCount.toString()),
+              commentsCount:CommentsCount.toString(),
+            );
+          default:
+            return _buildLoadingScreen();
+        }
+      },
+    );
+  }
+
 }

@@ -2,15 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:mus_greet/core/utils/constants.dart';
 import 'package:mus_greet/core/widgets/custom_spacer_widget.dart';
 import 'package:mus_greet/core/widgets/following_mosque_list_grid.dart';
+import 'package:mus_greet/core/widgets/s3_bucket_image_widget.dart';
 import 'package:mus_greet/core/widgets/send_request_dialog_widget.dart';
+import 'package:mus_greet/models/ModelProvider.dart';
 
 import 'asset_image_widget.dart';
 
 
 class FriendSearchListWidget extends StatefulWidget {
   final int index;
+  final Users UserObject;
 
-  const FriendSearchListWidget({Key key, this.index}) : super(key: key);
+  const FriendSearchListWidget({Key key, this.index, this.UserObject}) : super(key: key);
   @override
   _FriendSearchListWidgetState createState() => _FriendSearchListWidgetState();
 }
@@ -31,7 +34,7 @@ class _FriendSearchListWidgetState extends State<FriendSearchListWidget> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            _getMemberDetails(),
+            _getUserDetails(),
             CustomSpacerWidget(
               width: 5,
             ),
@@ -45,19 +48,34 @@ class _FriendSearchListWidgetState extends State<FriendSearchListWidget> {
   }
 
 
-  _getMemberDetails() {
+  _getUserDetails() {
     return Row(
       children: [
-        _getMemberImage(),
+        _getUserImage(),
         CustomSpacerWidget(
           width: 10,
         ),
-        _getNameAndRelationShip(),
+        _getNameAndLocation(),
       ],
     );
   }
 
-  _getMemberImage() {
+  ///method to get profile image from s3 bucket
+  _getUserImage() {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(40),
+      child: S3BucketImageWidget(
+        image: "https://musgreetphase1images184452-staging.s3.eu-west-2.amazonaws.com/public/public.png",
+        height: 70,
+        width: 70,
+        //fit: BoxFit.cover,
+      ),
+        //Image.network(widget.UserObject.User_Photos[0].photo_path),
+    );
+  }
+
+  /// old function to get profile image from assets folder
+  getUserImage() {
     return ClipRRect(
       borderRadius: BorderRadius.circular(40),
       child: Image.asset(
@@ -69,13 +87,14 @@ class _FriendSearchListWidgetState extends State<FriendSearchListWidget> {
     );
   }
 
-  _getNameAndRelationShip() {
+  _getNameAndLocation() {
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          AppTexts.FRIEND_NAME,
+          widget.UserObject.first_name + " " + widget.UserObject.last_name,
+          //AppTexts.FRIEND_NAME,
           style: TextStyle(
             fontFamily: FontConstants.FONT,
             fontSize: 12,
@@ -99,7 +118,8 @@ class _FriendSearchListWidgetState extends State<FriendSearchListWidget> {
               width: 4,
             ),
             Text(
-              AppTexts.MOSQUE_LOCATION,
+              widget.UserObject.city +" , "+ widget.UserObject.country,
+              //AppTexts.MOSQUE_LOCATION,
               style: TextStyle(
                 fontFamily: FontConstants.FONT,
                 fontSize: 13,

@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:mus_greet/pages/login/login_page.dart';
 import 'package:mus_greet/pages/login/login_screen.dart';
 //import 'package:musgreet/constants.dart';
 //import 'package:musgreet/size_config.dart';
-//import 'package:musgreet/pages/login_screen.dart';
+//import 'package:musgreet/pages/login_page.dart';
 
 class SplashScreenThird extends StatefulWidget {
   @override

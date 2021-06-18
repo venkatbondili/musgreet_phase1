@@ -4,6 +4,7 @@ import 'package:mus_greet/core/config/navigation.dart';
 import 'package:mus_greet/core/utils/constants.dart';
 import 'package:mus_greet/core/utils/routes.dart';
 import 'package:mus_greet/core/widgets/add_comment_text_field_widget.dart';
+import 'package:mus_greet/core/widgets/add_mosque_comment_text_feild_widget.dart';
 import 'package:mus_greet/core/widgets/asset_image_widget.dart';
 import 'package:mus_greet/core/widgets/comment_box_widget.dart';
 import 'package:mus_greet/core/widgets/custom_spacer_widget.dart';
@@ -11,18 +12,20 @@ import 'package:mus_greet/core/widgets/drawer_widget.dart';
 import 'package:mus_greet/core/widgets/post_card_widget.dart';
 import 'package:mus_greet/models/ModelProvider.dart';
 
-class CommentScreen extends StatefulWidget {
+class MosqueCommentScreen extends StatefulWidget {
   final Posts PostObject;
-  final Users UserObject;
+  //final Users UserObject;
   final Mosque MosqueObject;
   final String CommentsCount;
 
-  CommentScreen({this.PostObject, this.UserObject, this.CommentsCount, this.MosqueObject});
+  MosqueCommentScreen({this.PostObject,
+    //this.UserObject,
+    this.CommentsCount, this.MosqueObject});
   @override
-  _CommentScreenState createState() => _CommentScreenState();
+  _MosqueCommentScreenState createState() => _MosqueCommentScreenState();
 }
 
-class _CommentScreenState extends State<CommentScreen> {
+class _MosqueCommentScreenState extends State<MosqueCommentScreen> {
   GlobalKey<ScaffoldState> _drawerKey = GlobalKey();
   List<PostComments> PostCommentss;
   List<PostComments> Comments;
@@ -62,10 +65,12 @@ class _CommentScreenState extends State<CommentScreen> {
               //profileImage: ImageConstants.IC_HOME_USER1,
               //name: AppTexts.TEMP_NAME1,
               //name: widget.UserName,
-              name: widget.UserObject.first_name +" "+ widget.UserObject.last_name,
+              //name: widget.UserObject.first_name +" "+ widget.UserObject.last_name,
+              name: widget.MosqueObject.mosque_name,
               isSponsored: false,
               //timeAgo: AppTexts.TEMP_TIME_AGO_1,
-              timeAgo: widget.UserObject.postcode,
+              //timeAgo: widget.UserObject.postcode,
+              timeAgo: widget.MosqueObject.postcode,
               post: widget.PostObject.post,
               //image: ImageConstants.IMG_POST_2,
               image: widget.PostObject.post_image_path,
@@ -119,7 +124,7 @@ class _CommentScreenState extends State<CommentScreen> {
           CustomSpacerWidget(
             height: 10,
           ),
-          _getUsersComment(postCommentss),
+          _getMosqueComment(postCommentss),
           CustomSpacerWidget(
             height: 20,
           ),
@@ -128,25 +133,6 @@ class _CommentScreenState extends State<CommentScreen> {
             height: 10,
           ),
         ],
-      ),
-    );
-  }
-
-  _getViewAllCommentButton() {
-    return Container(
-      width: double.maxFinite,
-      padding: EdgeInsets.only(left: 10),
-      height: 20,
-      alignment: Alignment.centerLeft,
-      child: Text(
-        AppTexts.VIEW_ALL_COMMENT,
-        style: TextStyle(
-          fontFamily: FontConstants.FONT,
-          fontSize: 12,
-          fontWeight: FontWeight.w700,
-          decoration: TextDecoration.underline,
-          shadows: [Shadow(color: AppColors.black)],
-        ),
       ),
     );
   }
@@ -174,7 +160,7 @@ class _CommentScreenState extends State<CommentScreen> {
     );
   }
 
-  _getUsersComment(List<PostComments> postCommentss) {
+  _getMosqueComment(List<PostComments> postCommentss) {
     print(postCommentss.length);
     return ListView.separated(
       //physics: NeverScrollableScrollPhysics(),
@@ -189,7 +175,7 @@ class _CommentScreenState extends State<CommentScreen> {
                     //userComment: AppTexts.COMMENT_SCREEN_TEXT,
                     userComment: postCommentss[index].comment,
                     //userName: AppTexts.COMMENT_USER_NAME,
-                    userName: widget.UserObject.first_name + " " + widget.UserObject.last_name,
+                    userName: widget.MosqueObject.mosque_name,
                   ),
                   CustomSpacerWidget(
                     height: 15,
@@ -272,7 +258,7 @@ class _CommentScreenState extends State<CommentScreen> {
 
   _addCommentTextField(List<PostComments> postCommentss) {
     _CommentsCounter();
-    return AppCommentTextFieldWidget(hintText: "Write your Comment", ScreenType: "Comment",PostObject: widget.PostObject, UserObject: widget.UserObject, ParentID: "", commentsCount: widget.CommentsCount);
+    return MosqueCommentTextFieldWidget(hintText: "Write your Comment", ScreenType: "Comment",PostObject: widget.PostObject, MosqueObject: widget.MosqueObject, ParentID: "", commentsCount: widget.CommentsCount);
   }
 
   Future<List<PostComments>> queryComments() async {
@@ -384,10 +370,3 @@ class _CommentScreenState extends State<CommentScreen> {
   }
 
 }
-
-
-
-
-
-
-

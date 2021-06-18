@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mus_greet/core/utils/constants.dart';
 import 'package:mus_greet/core/widgets/custom_spacer_widget.dart';
+import 'package:mus_greet/models/ModelProvider.dart';
 
 class CommentBoxWidget extends StatefulWidget {
   final String userComment;

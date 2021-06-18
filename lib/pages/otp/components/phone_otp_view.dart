@@ -1,41 +1,20 @@
+
 import 'package:flutter/material.dart';
 import 'package:mus_greet/core/utils/constants.dart';
 import 'package:mus_greet/core/utils/size_config.dart';
+import 'package:mus_greet/models/Users.dart';
 import 'package:mus_greet/pages/age/age_registration_page.dart';
+import 'package:mus_greet/pages/final/nearly_finished_page.dart';
 import 'package:mus_greet/pages/login/login_page.dart';
+import '../../../main.dart';
 import 'otp_form.dart';
 
 import 'package:amplify_flutter/amplify.dart';
-import 'package:amplify_auth_cognito/amplify_auth_cognito.dart';
+//import 'package:amplify_auth_cognito/amplify_auth_cognito.dart';
 
 class PhoneOtpView extends StatelessWidget {
 
-  Future<void> verify(BuildContext context) async {
-    try {
-      SignUpResult res = await Amplify.Auth.confirmSignUp(
-          username: 'ithubda@gmail.com',
-          confirmationCode: '777777',
-        //confirmationCode: ctrlPin1.text + ctrlPin2.text + ctrlPin3.text + ctrlPin4.text + ctrlPin5.text + ctrlPin6.text,
-      );
-
-      if (res.isSignUpComplete) {
-        print('Phone code verification successful');
-        Navigator.of(context)
-            .push(MaterialPageRoute(builder: (context) => LoginPage()));
-      }
-      else {
-        print('Email code verification failed');
-      }
-      // setState(() {
-      //   //isSignUpComplete = res.isSignUpComplete;
-      // }
-      //);
-    } on AuthException catch (e) {
-      print('error in phone verification');
-      print(e.message);
-    }
-
-  }
+List<Users> users;
 
   void _navigateToNextScreen(BuildContext context) {
     Navigator.of(context)
@@ -44,6 +23,7 @@ class PhoneOtpView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    userDetailsData();
     return SizedBox(
       width: double.infinity,
       child: Padding(
@@ -83,7 +63,7 @@ class PhoneOtpView extends StatelessWidget {
               ),
               SizedBox(height: SizeConfig.screenHeight * 0.02),
               Text(
-                'Please enter the 6 digit code',
+                'Please enter the 6 digit code' ,
                 textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
               ),
@@ -123,8 +103,9 @@ class PhoneOtpView extends StatelessWidget {
                           Radius.circular(8.0),
                         )),
                     onPressed: () {
+                      verifyPhoneNumber(context);
                       //_navigateToNextScreen(context);
-                      verify(context);
+                      //verify(context);
                     },
                   ),
                 ),
@@ -135,6 +116,7 @@ class PhoneOtpView extends StatelessWidget {
       ),
     );
   }
+
 
   Row buildTimer() {
     return Row(
@@ -156,5 +138,206 @@ class PhoneOtpView extends StatelessWidget {
         ),*/
       ],
     );
+  }
+
+  _showDialog(BuildContext context)
+  {
+    print("inside the show Dialog");
+    return showDialog(
+      context :context,
+      builder:(context) =>AlertDialog
+        (
+        title: MaterialButton(
+          onPressed: () {},
+          color: Colors.green[800],
+          textColor: Colors.white,
+          child: Image.asset(
+            'assets/images/mail.png',
+            //width: 100,
+            //height: 100,
+          ),
+          /*child: Icon(
+            Icons.email,
+            size: 40,
+          ),*/
+          padding: EdgeInsets.all(16),
+          shape: CircleBorder(),
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          // wrap content in flutter
+          children: <Widget>[
+            Text(
+              '  You have successfully verified your email',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 20.0,
+                fontWeight: FontWeight.w600,
+                color: Colors.black,
+              ),
+            ),
+            SizedBox(
+              height: 5.0,
+            ),
+            FlatButton(
+              onPressed: () {
+                //Navigator.of(ctx).pop();
+              },
+              child: SizedBox(
+                width: double.infinity, // <-- match_parent
+                child:  RaisedButton(
+                  padding: EdgeInsets.symmetric(horizontal: 50, vertical: 7),
+                  child: Text(
+                    'Continue',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16.0,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  color: Colors.green[800],
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.all(
+                        Radius.circular(8.0),
+                      )),
+                  onPressed: () {
+                    _navigateToNextScreen(context);
+                  },
+                ),
+              ),
+
+            ),
+          ],
+        ),
+        actions: <Widget>[],
+      ),
+    );
+  }
+
+  _showDialogFailed(BuildContext context)
+  {
+    print("inside the show Dialog");
+    return showDialog(
+      context :context,
+      builder:(context) =>AlertDialog
+        (
+        title: MaterialButton(
+          onPressed: () {},
+          color: Colors.green[800],
+          textColor: Colors.white,
+          child: Image.asset(
+            'assets/images/mail.png',
+            //width: 100,
+            //height: 100,
+          ),
+          /*child: Icon(
+            Icons.email,
+            size: 40,
+          ),*/
+          padding: EdgeInsets.all(16),
+          shape: CircleBorder(),
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          // wrap content in flutter
+          children: <Widget>[
+            Text(
+              '  Your Email Verfication has Failed.',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 20.0,
+                fontWeight: FontWeight.w600,
+                color: Colors.black,
+              ),
+            ),
+            SizedBox(
+              height: 5.0,
+            ),
+            FlatButton(
+              onPressed: () {
+                //Navigator.of(ctx).pop();
+              },
+              child: SizedBox(
+                width: double.infinity, // <-- match_parent
+                child:  RaisedButton(
+                  padding: EdgeInsets.symmetric(horizontal: 50, vertical: 7),
+                  child: Text(
+                    'Continue',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16.0,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  color: Colors.green[800],
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.all(
+                        Radius.circular(8.0),
+                      )),
+                  onPressed: () {
+                    _navigateToNextScreen(context);
+                  },
+                ),
+              ),
+
+            ),
+          ],
+        ),
+        actions: <Widget>[],
+      ),
+    );
+  }
+
+  void verifyPhoneNumber(BuildContext context) {
+
+    print("inside the verify button");
+   // print('In verify function : ${_codeController.text}');
+    //print(_codeController.text);
+    try {
+      //  SignUpResult res = await Amplify.Auth.confirmSignUp(
+      //  username: email,
+      //confirmationCode: _codeController.text,
+      //);
+
+      if (true) {
+        print('Email code verification successful');
+        updatePhoneUser();
+        //Navigator.of(context)
+        //  .push(MaterialPageRoute(builder: (context) => OtpSuccessScreen()));
+        // builder:(BuildContext context) =>_buildContent(context);
+        _showDialog(context);
+      }
+      else
+      {
+        _showDialogFailed(context);
+      }
+      // setState(() {
+      //   //isSignUpComplete = res.isSignUpComplete;
+      // }
+      //);
+    } catch (e) {
+      print(e.message);
+    }
+  }
+
+  void updatePhoneUser()  async{
+    final updatedItem = users[0].copyWith(
+        phone_verification: true);
+    await Amplify.DataStore.save(updatedItem);
+  }
+
+  Future<void> userDetailsData() async
+  {
+    print("getting the data from the users");
+    try {
+      users = await Amplify.DataStore.query(Users.classType , where:Users.ID.eq("315eca04-ab0d-46f7-b063-d8707d607a18"));
+      print(users);
+    }
+    catch(e)
+    {
+
+    }
   }
 }

@@ -1,8 +1,13 @@
+import 'package:amplify_flutter/amplify.dart';
 import 'package:flutter/material.dart';
+import 'package:mus_greet/core/utils/constants.dart';
 import 'package:mus_greet/core/utils/size_config.dart';
+import 'package:mus_greet/models/Users.dart';
 import 'package:mus_greet/pages/address-verification/confirm_address_2_screen.dart';
+import 'package:mus_greet/pages/final/nearly_finished_page.dart';
 
 class ConfirmAddressView extends StatelessWidget {
+  List<Users> users;
   @override
   Widget build(BuildContext context) {
     return SizedBox(
@@ -43,57 +48,6 @@ class ConfirmAddressView extends StatelessWidget {
                 style: TextStyle(fontSize: 24.0, fontWeight: FontWeight.bold),
               ),
               SizedBox(height: SizeConfig.screenHeight * 0.04),
-              Container(
-                alignment: Alignment.centerLeft,
-                padding: EdgeInsets.symmetric(horizontal: 25, vertical: 2),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: <Widget>[
-                    Text(
-                      'Enter your post code',
-                      //textAlign: TextAlign.center,
-                      style: TextStyle(
-                          fontSize: 15.0, fontWeight: FontWeight.bold),
-                    ),
-                  ],
-                ),
-              ),
-              Container(
-                alignment: Alignment.centerLeft,
-                padding: EdgeInsets.symmetric(horizontal: 25, vertical: 5),
-                child: TextFormField(
-                  keyboardType: TextInputType.name,
-                  decoration: InputDecoration(
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                      borderSide: BorderSide(color: Colors.grey),
-                    ),
-                    prefixIcon: Icon(
-                      Icons.location_on,
-                      color: Colors.grey,
-                    ),
-                    labelText: 'Postcode',
-                  ),
-                ),
-              ),
-              Container(
-                alignment: Alignment.centerLeft,
-                padding: EdgeInsets.symmetric(horizontal: 25, vertical: 0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: <Widget>[
-                    Text(
-                      'Select your address above button',
-                      //textAlign: TextAlign.center,
-                      style: TextStyle(
-                          fontSize: 12.0,
-                          fontWeight: FontWeight.normal,
-                          color: Colors.grey),
-                    ),
-                  ],
-                ),
-              ),
-              SizedBox(height: SizeConfig.screenHeight * 0.03),
               RaisedButton(
                 padding: EdgeInsets.symmetric(horizontal: 110, vertical: 22),
                 child: Text(
@@ -112,7 +66,130 @@ class ConfirmAddressView extends StatelessWidget {
                     )),
                 onPressed: () {},
               ),
-              SizedBox(height: SizeConfig.screenHeight * 0.05),
+              SizedBox(height: SizeConfig.screenHeight * 0.04),
+              Container(
+                alignment: Alignment.centerLeft,
+                padding: EdgeInsets.symmetric(horizontal: 25, vertical: 0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: <Widget>[
+                    Text(
+                      'Select your address above button',
+                      //textAlign: TextAlign.center,
+                      style: TextStyle(
+                          fontSize: 14.0,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black),
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                alignment: Alignment.centerLeft,
+                padding: EdgeInsets.symmetric(horizontal: 25, vertical: 5),
+                child: TextFormField(
+                  keyboardType: TextInputType.name,
+                  decoration: InputDecoration(
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                      borderSide: BorderSide(color: Colors.grey),
+                    ),
+                    prefixIcon: Icon(
+                      Icons.location_on,
+                      color: Colors.grey,
+                    ),
+                    labelText: 'Enter your PostCode',
+                  ),
+                ),
+              ),
+              Container(
+                //padding: EdgeInsets.all(20.0),
+                padding: const EdgeInsets.only(top: 30.0, right: 220.0),
+                child: Text(
+                  "House no",
+                  style: TextStyle(
+                      fontSize: 14,
+                      fontFamily: FontConstants.FONT,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.black),
+                ),
+              ),
+              Container(
+                //padding: EdgeInsets.all(20.0),
+                padding: const EdgeInsets.only(top: 10.0, right: 220.0),
+                child: Text(
+                  "Street no",
+                  style: TextStyle(
+                      fontSize: 14,
+                      fontFamily: FontConstants.FONT,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.black),
+                ),
+              ),
+              Container(
+                //padding: EdgeInsets.all(20.0),
+                padding: const EdgeInsets.only(top: 10.0, right: 220.0),
+                child: Text(
+                  "City",
+                  style: TextStyle(
+                      fontSize: 14,
+                      fontFamily: FontConstants.FONT,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.black),
+                ),
+              ),
+              Container(
+                //padding: EdgeInsets.all(20.0),
+                padding: const EdgeInsets.only(top: 10.0, right: 220.0),
+                child: Text(
+                  "Postcode",
+                  style: TextStyle(
+                      fontSize: 14,
+                      fontFamily: FontConstants.FONT,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.black),
+                ),
+              ),
+              Container(
+                //padding: EdgeInsets.all(20.0),
+                padding: const EdgeInsets.only(top: 10.0, right: 220.0),
+                child: Text(
+                  "Country",
+                  style: TextStyle(
+                      fontSize: 14,
+                      fontFamily: FontConstants.FONT,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.black),
+                ),
+              ),
+              Container(
+                padding: EdgeInsets.all(20.0),
+                child: SizedBox(
+                  width: double.infinity, // <-- match_parent
+                  child:  RaisedButton(
+                    padding: EdgeInsets.symmetric(horizontal: 60, vertical: 15),
+                    child: Text(
+                      'Send code to any Address',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16.0,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    color: Colors.green[800],
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.all(
+                          Radius.circular(8.0),
+                        )),
+                    onPressed: () {
+                      updateUserDetails();
+                      Navigator.of(context)
+                          .push(MaterialPageRoute(builder: (context) => NearlyFinishedPage()));;
+                    },
+                  ),
+                ),
+              ),
+              SizedBox(height: SizeConfig.screenHeight * 0.01),
               Container(
                 alignment: Alignment.centerLeft,
                 padding: EdgeInsets.symmetric(horizontal: 25, vertical: 2),
@@ -151,7 +228,7 @@ class ConfirmAddressView extends StatelessWidget {
                   ),
                 ),
               ),
-              SizedBox(height: SizeConfig.screenHeight * 0.02),
+              SizedBox(height: SizeConfig.screenHeight * 0.01),
               Container(
                 padding: EdgeInsets.all(20.0),
                 child: SizedBox(
@@ -187,5 +264,33 @@ class ConfirmAddressView extends StatelessWidget {
   void _navigateToNextScreen(BuildContext context) {
     Navigator.of(context)
         .push(MaterialPageRoute(builder: (context) => ConfirmAddress2Screen()));
+  }
+
+  void updateUserDetails()  async{
+    final updatedItem = users[0].copyWith(
+        house_number: "Flat 12",
+        street: "Federick Street",
+        country: "United Kingodm",
+        city: "England",
+        postcode: "LU2 7QU",
+        address_verification_mode: "Manual",
+        manul_address_code:123355,
+        //manual_address_code_sent_date:"",
+        //manual_address_taken_date:,
+        address_verification: false);
+    await Amplify.DataStore.save(updatedItem);
+  }
+
+  Future<void> userDetailsData() async
+  {
+    print("getting the data from the users");
+    try {
+      users = await Amplify.DataStore.query(Users.classType , where:Users.ID.eq("315eca04-ab0d-46f7-b063-d8707d607a18"));
+      print(users);
+    }
+    catch(e)
+    {
+
+    }
   }
 }

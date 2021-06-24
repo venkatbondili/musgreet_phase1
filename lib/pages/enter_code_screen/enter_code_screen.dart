@@ -228,7 +228,7 @@ class _EnterCodeScreenState extends State<EnterCodeScreen> {
 
   _getTextWidgetForCheckBox(){
     return Text(
-      "My Parent/Guardian and my self agree to the parent consent form",
+      AppTexts.PARENT_AGREE,
       style: TextStyle(
         fontWeight: FontWeight.w600,
         fontFamily: FontConstants.FONT,

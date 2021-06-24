@@ -1,122 +1,161 @@
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:mus_greet/core/config/navigation.dart';
+import 'package:mus_greet/core/utils/arguments.dart';
 import 'package:mus_greet/core/utils/constants.dart';
+import 'package:mus_greet/core/utils/routes.dart';
 import 'package:mus_greet/core/utils/size_config.dart';
 import 'package:mus_greet/models/Users.dart';
 import 'package:mus_greet/pages/age/age_registration_page.dart';
 import 'package:mus_greet/pages/final/nearly_finished_page.dart';
 import 'package:mus_greet/pages/login/login_page.dart';
+import 'package:mus_greet/pages/otp/components/phone_verification_view.dart';
 import '../../../main.dart';
 import 'otp_form.dart';
+import 'package:mus_greet/core/widgets/otp_field_widget.dart';
 
 import 'package:amplify_flutter/amplify.dart';
 //import 'package:amplify_auth_cognito/amplify_auth_cognito.dart';
 
-class PhoneOtpView extends StatelessWidget {
+class PhoneOtpView extends StatefulWidget {
+  @override
+  _PhoneOtpViewState createState() => _PhoneOtpViewState();
+}
 
-List<Users> users;
-
-  void _navigateToNextScreen(BuildContext context) {
-    Navigator.of(context)
-        .push(MaterialPageRoute(builder: (context) => AgeRegistrationPage()));
-  }
+class _PhoneOtpViewState extends State<PhoneOtpView> {
+  List<Users> users;
+  PhoneVerificationArgumentClass args;
+  Users sessionUser;
+  final TextEditingController _codeController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
-    userDetailsData();
-    return SizedBox(
-      width: double.infinity,
-      child: Padding(
-        padding:
-            EdgeInsets.symmetric(horizontal: getProportionateScreenWidth(20)),
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              SizedBox(height: SizeConfig.screenHeight * 0.05),
-              SafeArea(
-                child: Container(
-                  padding: EdgeInsets.all(10.0),
-                  child: Image.asset(
-                    'assets/images/logo.png',
-                    width: 100,
-                    height: 100,
-                  ),
+    print('Inside phone otp build');
+    SizeConfig().init(context);
+    args = ModalRoute.of(context).settings.arguments as PhoneVerificationArgumentClass;
+    sessionUser = args.sessionUser;
+    print(sessionUser);
+    return SafeArea(
+      child: Scaffold(
+        backgroundColor: AppColors.white,
+        body: _getBody(),
+      ),
+    );
+  }
+
+  _getBody() {
+    return SingleChildScrollView(
+      child: Container(
+        width: MediaQuery.of(context).size.width,
+        padding: EdgeInsets.only(left: 30, right: 30),
+        child: Column(
+          children: [
+            SizedBox(height: SizeConfig.screenHeight * 0.05),
+            SafeArea(
+              child: Container(
+                padding: EdgeInsets.all(10.0),
+                child: Image.asset(
+                  'assets/images/logo.png',
+                  width: 100,
+                  height: 100,
                 ),
               ),
-              SizedBox(height: SizeConfig.screenHeight * 0.07),
-              MaterialButton(
-                onPressed: () {},
-                color: Colors.green[800],
-                textColor: Colors.white,
-                child: Icon(
-                  Icons.mobile_friendly,
-                  size: 40,
-                ),
-                padding: EdgeInsets.all(16),
-                shape: CircleBorder(),
+            ),
+            SizedBox(height: SizeConfig.screenHeight * 0.07),
+            MaterialButton(
+              onPressed: () {},
+              color: Colors.green[800],
+              textColor: Colors.white,
+              child: Icon(
+                Icons.mobile_friendly,
+                size: 40,
               ),
-              SizedBox(height: SizeConfig.screenHeight * 0.04),
-              Text(
-                'Confirm',
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 24.0, fontWeight: FontWeight.bold),
+              padding: EdgeInsets.all(16),
+              shape: CircleBorder(),
+            ),
+            SizedBox(height: SizeConfig.screenHeight * 0.04),
+            Text(
+              'Confirm',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 24.0, fontWeight: FontWeight.bold),
+            ),
+            SizedBox(height: SizeConfig.screenHeight * 0.02),
+            Text(
+              'Please enter the 6 digit code' ,
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
+            ),
+            //OtpForm(),
+            _getOTPTextField(),
+            buildTimer(),
+            SizedBox(height: SizeConfig.screenHeight * 0.07),
+            GestureDetector(
+              onTap: () {
+                // OTP code resend
+              },
+              child: Text(
+                "Resend code",
+                style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black),
               ),
-              SizedBox(height: SizeConfig.screenHeight * 0.02),
-              Text(
-                'Please enter the 6 digit code' ,
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
-              ),
-              OtpForm(),
-              buildTimer(),
-              SizedBox(height: SizeConfig.screenHeight * 0.07),
-              GestureDetector(
-                onTap: () {
-                  // OTP code resend
-                },
-                child: Text(
-                  "Resend code",
-                  style: TextStyle(
-                      fontSize: 18,
+            ),
+            SizedBox(height: SizeConfig.screenHeight * 0.07),
+            Container(
+              padding: EdgeInsets.all(20.0),
+              child:SizedBox(
+                width: double.infinity, // <-- match_parent
+                child:  RaisedButton(
+                  padding: EdgeInsets.symmetric(horizontal: 50, vertical: 7),
+                  child: Text(
+                    'Verify and Continue',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16.0,
                       fontWeight: FontWeight.bold,
-                      color: Colors.black),
-                ),
-              ),
-              SizedBox(height: SizeConfig.screenHeight * 0.07),
-              Container(
-                padding: EdgeInsets.all(20.0),
-                child:SizedBox(
-                  width: double.infinity, // <-- match_parent
-                  child:  RaisedButton(
-                    padding: EdgeInsets.symmetric(horizontal: 50, vertical: 7),
-                    child: Text(
-                      'Verify and Continue',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16.0,
-                        fontWeight: FontWeight.bold,
-                      ),
                     ),
-                    color: Colors.green[800],
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.all(
-                          Radius.circular(8.0),
-                        )),
-                    onPressed: () {
-                      verifyPhoneNumber(context);
-                      //_navigateToNextScreen(context);
-                      //verify(context);
-                    },
                   ),
+                  color: Colors.green[800],
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.all(
+                        Radius.circular(8.0),
+                      )),
+                  onPressed: () {
+                    verifyPhoneNumber(context);
+                    //_navigateToNextScreen(context);
+                    //verify(context);
+                  },
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
   }
 
+  _getOTPTextField() {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        _getOTPField(),
+        //_getCodeExpiredText(),
+      ],
+    );
+  }
+
+  _getOTPField() {
+    return Container(
+      padding: EdgeInsets.only(left: 40, right: 40),
+      child: OTPFieldWidget(
+        callBack: () {},
+        controller: _codeController,
+      ),
+    );
+  }
 
   Row buildTimer() {
     return Row(
@@ -140,8 +179,7 @@ List<Users> users;
     );
   }
 
-  _showDialog(BuildContext context)
-  {
+  _showDialog(BuildContext context) {
     print("inside the show Dialog");
     return showDialog(
       context :context,
@@ -168,7 +206,7 @@ List<Users> users;
           // wrap content in flutter
           children: <Widget>[
             Text(
-              '  You have successfully verified your email',
+              'You have successfully verified your phone',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 20.0,
@@ -202,7 +240,8 @@ List<Users> users;
                         Radius.circular(8.0),
                       )),
                   onPressed: () {
-                    _navigateToNextScreen(context);
+                    Timer(Duration(seconds: 2),() => _navigateToNextScreen(context));
+                    //_navigateToNextScreen(context);
                   },
                 ),
               ),
@@ -215,8 +254,7 @@ List<Users> users;
     );
   }
 
-  _showDialogFailed(BuildContext context)
-  {
+  _showDialogFailed(BuildContext context) {
     print("inside the show Dialog");
     return showDialog(
       context :context,
@@ -243,7 +281,7 @@ List<Users> users;
           // wrap content in flutter
           children: <Widget>[
             Text(
-              '  Your Email Verfication has Failed.',
+              'Your phone verfication has failed.',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 20.0,
@@ -263,7 +301,7 @@ List<Users> users;
                 child:  RaisedButton(
                   padding: EdgeInsets.symmetric(horizontal: 50, vertical: 7),
                   child: Text(
-                    'Continue',
+                    'Resend code',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       color: Colors.white,
@@ -277,7 +315,8 @@ List<Users> users;
                         Radius.circular(8.0),
                       )),
                   onPressed: () {
-                    _navigateToNextScreen(context);
+                    Navigator.pop(context);
+                    //_navigateToNextScreen(context);
                   },
                 ),
               ),
@@ -301,16 +340,18 @@ List<Users> users;
       //confirmationCode: _codeController.text,
       //);
 
-      if (true) {
+      String phoneCode = '123456';
+
+      //if (true) {
+      if (_codeController.text == phoneCode) {
         print('Email code verification successful');
-        updatePhoneUser();
+        updatePhoneVerification();
         //Navigator.of(context)
         //  .push(MaterialPageRoute(builder: (context) => OtpSuccessScreen()));
         // builder:(BuildContext context) =>_buildContent(context);
         _showDialog(context);
       }
-      else
-      {
+      else {
         _showDialogFailed(context);
       }
       // setState(() {
@@ -322,22 +363,29 @@ List<Users> users;
     }
   }
 
-  void updatePhoneUser()  async{
-    final updatedItem = users[0].copyWith(
-        phone_verification: true);
-    await Amplify.DataStore.save(updatedItem);
-  }
-
-  Future<void> userDetailsData() async
-  {
-    print("getting the data from the users");
+  void updatePhoneVerification()  async{
     try {
-      users = await Amplify.DataStore.query(Users.classType , where:Users.ID.eq("315eca04-ab0d-46f7-b063-d8707d607a18"));
-      print(users);
+      if (sessionUser != null) {
+        final updatedItem = sessionUser.copyWith(
+            phone_verification: true);
+        await Amplify.DataStore.save(updatedItem);
+        sessionUser = updatedItem;
+      }
     }
-    catch(e)
-    {
-
+    catch(e) {
+      print(e.message);
     }
   }
+
+  void _navigateToNextScreen(BuildContext context) {
+    // Navigator.of(context)
+    //     .push(MaterialPageRoute(builder: (context) => AgeRegistrationPage()));
+    Navigation.intentWithData(context, AppRoutes.AGEREGISTER,PhoneOTPArgumentClass(sessionUser));
+  }
+
+}
+
+class PhoneOTPArgumentClass {
+  final Users sessionUser;
+  PhoneOTPArgumentClass(this.sessionUser);
 }

@@ -1,9 +1,13 @@
+import 'dart:async';
+import 'dart:io';
+
 import 'package:amplify_auth_cognito/amplify_auth_cognito.dart';
 import 'package:amplify_flutter/amplify.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:mus_greet/core/config/navigation.dart';
+//import 'package:mus_greet/core/utils/arguments.dart';
 import 'package:mus_greet/core/utils/constants.dart';
 import 'package:mus_greet/core/utils/routes.dart';
 import 'package:mus_greet/core/widgets/asset_image_widget.dart';
@@ -27,105 +31,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _reTypePasswordController = TextEditingController();
-
-  Future<void> _registerUser() async {
-    try {
-      Map<String, String> userAttributes = {
-
-        'email': _emailController.text,
-        'phone_number': '+447448479715',
-        // additional attributes as needed
-      };
-      SignUpResult res = await Amplify.Auth.signUp(
-          username: _emailController.text,
-          password: _passwordController.text,
-          options: CognitoSignUpOptions(
-              userAttributes: userAttributes
-          )
-      );
-
-      if (res.isSignUpComplete) {
-        print('User registration successful');
-
-        //Add user to DB
-        insertUser();
-
-        //Navigation.intentWithClearAllRoutes(context, AppRoutes.VERIFYEMAIL);
-        Navigation.intentWithData(context, AppRoutes.VERIFYEMAIL,ArgumentClass(_emailController.text));
-
-        // Navigator.push(context,
-        //     MaterialPageRoute(
-        //       builder: (context) => VerifyEmailScreen(email: _emailController.text),
-        //     ));
-
-        // Navigator.of(context)
-        //     .push(MaterialPageRoute(builder: (context) => OtpScreen()));
-      }
-      else {
-        print('User registration failed');
-      }
-      // setState(() {
-      //   //isSignUpComplete = res.isSignUpComplete;
-      // }
-      //);
-    } on AuthException catch (e) {
-      print(e.message);
-    }
-
-  }
-
-  Future<void> insertUser() async {
-    try{
-
-      final item = Users(
-        first_name: _firstNameController.text,
-        last_name: _lastNameController.text,
-        email: _emailController.text,
-        password: _passwordController.text,
-        // phone: "",
-        // age: "25",
-        // gender: "male",
-        // parent_email: "",
-        // house_number: "117111",
-        // street: "NewHam",
-        // city: "EastHam",
-        // postcode: "E126NA",
-        // country: "UK",
-        // latitude: "60N",
-        // longitude: "40W",
-        // parent_consent_form_agree: true,
-        // terms_privacy_policy_agree: true,
-        // community_promise_agree: true,
-        // email_verification: true,
-        // phone_verification: true,
-        // parent_verification: true,
-        // address_verification: true,
-        // photo_verification: true,
-        // joined_date: TemporalDate.fromString("1970-01-01Z"),
-        // active_status: true,
-        // User_Posts: [],
-        // User_Comments: [],
-        // User_PostLikes: [],
-        // User_MosqueFollowers: [],
-        // User_Friends: [],
-        // User_Photos: [],
-        // User_Educations: [],
-        //User_Profiles: []
-      );
-      await Amplify.DataStore.save(item);
-
-      print('User added to DB successfully');
-
-    } on UsernameExistsException catch (e) {
-      print('User already exists');
-      //print(e);
-    }
-    catch (e) {
-      print('Exception occurred while adding user to DB, error: ' + e);
-      //print(e);
-    }
-
-  }
+  List<Users> users = [];
 
   @override
   Widget build(BuildContext context) {
@@ -440,6 +346,11 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
       text: AppTexts.CONTINUE,
       isFilled: true,
       callBack: () {
+        // FutureBuilder(
+        //     future: _registerUser(),
+        //     builder: (context, snapshot) {
+        //       return Text("You will not see this");
+        //     });
         _registerUser();
         //Navigation.intentWithClearAllRoutes(context, AppRoutes.VERIFYEMAIL);
       },
@@ -478,5 +389,122 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   _loginUser() {
     ///register user
   }
+
+  Future<void> _registerUser() async {
+    try {
+      Map<String, String> userAttributes = {
+        'email': _emailController.text,
+        'phone_number': '+447448479715',
+        // additional attributes as needed
+      };
+      SignUpResult res = await Amplify.Auth.signUp(
+          username: _emailController.text,
+          password: _passwordController.text,
+          options: CognitoSignUpOptions(
+              userAttributes: userAttributes
+          )
+      );
+
+      if (res.isSignUpComplete) {
+      //if (true) {
+        print('User registration successful');
+
+        //Add user to DB
+        insertUser();
+
+        if (users != null) {
+          Navigation.intentWithData(context, AppRoutes.VERIFYEMAIL,RegistrationArgumentClass(users[0]));
+        }
+      }
+      else {
+        print('User registration failed');
+      }
+      // setState(() {
+      //   //isSignUpComplete = res.isSignUpComplete;
+      // }
+      //);
+    } on AuthException catch (e) {
+      print(e.message);
+    }
+
+  }
+
+  Future<void> insertUser() async {
+    try{
+      final item = Users(
+        first_name: _firstNameController.text,
+        last_name: _lastNameController.text,
+        email: _emailController.text,
+        password: _passwordController.text,
+        // phone: "",
+        // age: "25",
+        // gender: "male",
+        // parent_email: "",
+        // house_number: "117111",
+        // street: "NewHam",
+        // city: "EastHam",
+        // postcode: "E126NA",
+        // country: "UK",
+        // latitude: "60N",
+        // longitude: "40W",
+        // parent_consent_form_agree: true,
+        // terms_privacy_policy_agree: true,
+        // community_promise_agree: true,
+        // email_verification: true,
+        // phone_verification: true,
+        // parent_verification: true,
+        // address_verification: true,
+        // photo_verification: true,
+        // joined_date: TemporalDate.fromString("1970-01-01Z"),
+        // active_status: true,
+        // User_Posts: [],
+        // User_Comments: [],
+        // User_PostLikes: [],
+        // User_MosqueFollowers: [],
+        // User_Friends: [],
+        // User_Photos: [],
+        // User_Educations: [],
+        //User_Profiles: []
+      );
+      await Amplify.DataStore.save(item);
+      Timer(Duration(seconds: 2),() => _getUserDetails());
+
+    } on UsernameExistsException catch (e) {
+      print('User already exists');
+      print(e);
+    }
+    catch (e) {
+      print('Exception occurred while adding user to DB, error: ' + e);
+      //print(e);
+    }
+
+  }
+
+  Future<void>_getUserDetails() async{
+    try {
+      print('Before querying user');
+      users = await Amplify.DataStore.query(Users.classType, where:Users.EMAIL.eq(_emailController.text));
+      await Future.delayed(Duration(seconds: 2));
+
+      if (users != null) {
+        print(users);
+        Timer(Duration(seconds: 2),() => _navigateToNextScreen());
+        //Navigation.intentWithData(context, AppRoutes.VERIFYEMAIL,RegistrationArgumentClass(users[0]));
+      }
+    } catch (e) {
+      print("Could not query DataStore: " + e);
+    }
+  }
+
+  void _navigateToNextScreen() {
+    // Navigator.of(context)
+    //     .push(MaterialPageRoute(builder: (context) => NearlyFinishedPage()));
+
+    Navigation.intentWithData(context, AppRoutes.VERIFYEMAIL,RegistrationArgumentClass(users[0]));
+  }
 }
 
+class RegistrationArgumentClass {
+  final Users sessionUser;
+  RegistrationArgumentClass(this.sessionUser);
+}

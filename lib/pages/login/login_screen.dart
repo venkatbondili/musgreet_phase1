@@ -9,6 +9,8 @@ import 'package:mus_greet/core/widgets/login_screen_text_field_widget.dart';
 import 'package:mus_greet/core/widgets/password_field_widget.dart';
 import 'package:mus_greet/core/widgets/social_media_button_widget.dart';
 import 'package:mus_greet/core/config/navigation.dart';
+import 'package:amplify_auth_cognito/amplify_auth_cognito.dart';
+import 'package:amplify_flutter/amplify.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -196,7 +198,7 @@ class _LoginScreenState extends State<LoginScreen> {
         text: AppTexts.LOGIN_TEXT,
         isFilled: true,
         callBack: () {
-          Navigation.intentWithClearAllRoutes(context, AppRoutes.HOME);
+          _loginUser();
         },
       ),
     );
@@ -236,6 +238,30 @@ class _LoginScreenState extends State<LoginScreen> {
     print('register link clicked');
     Navigation.intentWithClearAllRoutes(context, AppRoutes.REGISTER);
   }
+
+  _loginUser() async {
+    try {
+      Navigation.intentWithClearAllRoutes(context, AppRoutes.HOME);
+
+      SignInResult res = await Amplify.Auth.signIn(
+        username: _emailController.text,
+        password: _passwordController.text,
+      );
+
+      if (res.isSignedIn) {
+        print("Sign in succeeded");
+      }
+      else {
+        print("Sign in failed");
+
+      }
+    }
+    catch (e) {
+      print("Error in Sign in function");
+      print(e.message);
+    }
+  }
+
 }
 
 class LoginAndRegisterScreenButton extends StatefulWidget {

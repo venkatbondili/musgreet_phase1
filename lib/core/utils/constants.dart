@@ -231,6 +231,10 @@ class AppTexts {
   static const String VERIFY_TEXT="Verify";
   static const String VERIFY_EMAIL_TEXT="Verify your Email";
   static const String ENTER_CODE_HINT="Please enter the 6 digit code sent to";
+  static const String TIME_LIMIT_CODE="This code will expire in 5 minutes";
+  static const String PARENTAL_CONSENT_FORM="Parental consent form";
+  static const String VERIFY_AND_CONTINUE="Verify and continue";
+  static const String PARENT_AGREE="My Parent/Guardian and my self agree to the parent consent form";
 
   static const List<String> INTEREST_BASED_SEARCH=[
     "Interests...",
@@ -621,7 +625,7 @@ class ImageConstants{
   static const String IC_LOGIN_LOGO = "assets/images/ic_login_logo.png";
   //static const String IC_LOCK = "assets/images/ic_lock.png";
   static const String IC_LOGIN_EMAIL = "assets/images/ic_login_email.png";
-  static const String IC_LOCK="assets/images/IC_LOCK.png";
+  static const String IC_LOCK="assets/images/ic_lock.png";
   static const String IC_VERIFY_EMAIL = "assets/images/ic_verify_email.png";
   static const String IC_FACEBOOK = "assets/images/ic_facebook.png";
   static const String IC_GOOGLE = "assets/images/ic_google.png";

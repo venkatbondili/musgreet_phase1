@@ -1,21 +1,39 @@
+import 'dart:async';
+
 import 'package:amplify_datastore/amplify_datastore.dart';
 import 'package:amplify_flutter/amplify.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:mus_greet/core/config/navigation.dart';
+import 'package:mus_greet/core/utils/routes.dart';
 import 'package:mus_greet/core/utils/size_config.dart';
 import 'package:mus_greet/models/Users.dart';
 import 'package:mus_greet/pages/address-verification/confirm_address_2_screen.dart';
 import 'package:mus_greet/pages/home/home.dart';
 
 import '../../main.dart';
+import 'account_verification_success.dart';
 
-class CommunityPromisePage extends StatelessWidget {
+class CommunityPromisePage extends StatefulWidget {
+  @override
+  _CommunityPromisePageState createState() => _CommunityPromisePageState();
+}
+
+class _CommunityPromisePageState extends State<CommunityPromisePage> {
+
   bool checked = false;
-List<Users> users;
+  AccountSuccessArgumentClass args;
+  Users sessionUser;
+  List<Users> users;
 
   TemporalDate date=new TemporalDate(DateTime.now());
+
   @override
   Widget build(BuildContext context) {
+
+    args = ModalRoute.of(context).settings.arguments as AccountSuccessArgumentClass;
+    sessionUser = args.sessionUser;
+
     return Scaffold(
       body: _buildContent(context),
       backgroundColor: Colors.white,
@@ -24,8 +42,8 @@ List<Users> users;
 
   Widget _buildContent(BuildContext context) {
   bool checked = false;
-      return Center(
-          child: SingleChildScrollView(
+      return SingleChildScrollView(
+          child: Center(
             child: Column(
               //crossAxisAlignment: CrossAxisAlignment.stretch,
               //mainAxisAlignment: MainAxisAlignment.start,
@@ -228,7 +246,8 @@ List<Users> users;
                               )),
                           onPressed: () {
                             updateUserDetails();
-                            _navigateToNextScreen(context);
+                            Timer(Duration(seconds: 2),() => _navigateToNextScreen(context));
+                            //_navigateToNextScreen(context);
                           },
                         ),
                     ),
@@ -239,28 +258,45 @@ List<Users> users;
       );
     }
 
-  void _navigateToNextScreen(BuildContext context) {
-    Navigator.of(context)
-        .push(MaterialPageRoute(builder: (context) => Home()));
-  }
-
-  void updateUserDetails()  async{
-    final updatedItem = users[0].copyWith(
-        active_status: true,
-         joined_date: date);
-    await Amplify.DataStore.save(updatedItem);
-  }
-
-  Future<void> userDetailsData() async
-  {
-    print("getting the data from the users");
+  void updateUserDetails()  async {
     try {
-      users = await Amplify.DataStore.query(Users.classType , where:Users.ID.eq("315eca04-ab0d-46f7-b063-d8707d607a18"));
-      print(users);
-    }
-    catch(e)
-    {
+      bool joinFlag = false;
 
+
+
+      if (sessionUser != null) {
+        joinFlag = sessionUser.address_verification;
+
+        if (joinFlag) {
+          final updatedItem = sessionUser.copyWith(
+              community_promise_agree: true,
+              active_status: true,
+              joined_date: date);
+          await Amplify.DataStore.save(updatedItem);
+          sessionUser = updatedItem;
+
+        }else {
+          final updatedItem = sessionUser.copyWith(
+              community_promise_agree: true);
+          await Amplify.DataStore.save(updatedItem);
+          sessionUser = updatedItem;
+        }
+      }
+    }
+    catch(e) {
+      print(e.message);
     }
   }
+
+  void _navigateToNextScreen(BuildContext context) {
+    // Navigator.of(context)
+    //     .push(MaterialPageRoute(builder: (context) => Home()));
+    Navigation.intentWithData(context, AppRoutes.HOME,CommunityPromiseArgumentClass(sessionUser));
+  }
+
+}
+
+class CommunityPromiseArgumentClass {
+  final Users sessionUser;
+  CommunityPromiseArgumentClass(this.sessionUser);
 }

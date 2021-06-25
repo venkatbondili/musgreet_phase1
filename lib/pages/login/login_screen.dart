@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -11,6 +13,8 @@ import 'package:mus_greet/core/widgets/social_media_button_widget.dart';
 import 'package:mus_greet/core/config/navigation.dart';
 import 'package:amplify_auth_cognito/amplify_auth_cognito.dart';
 import 'package:amplify_flutter/amplify.dart';
+import 'package:mus_greet/models/ModelProvider.dart';
+import 'package:mus_greet/pages/home_screen/home_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -240,28 +244,57 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   _loginUser() async {
+    _getUser();
+    // try {
+    //   Navigation.intentWithClearAllRoutes(context, AppRoutes.HOME);
+    //
+    //   SignInResult res = await Amplify.Auth.signIn(
+    //     username: _emailController.text,
+    //     password: _passwordController.text,
+    //   );
+    //
+    //   if (res.isSignedIn) {
+    //     print("Sign in succeeded");
+    //   }
+    //   else {
+    //     print("Sign in failed");
+    //
+    //   }
+    // }
+    // catch (e) {
+    //   print("Error in Sign in function");
+    //   print(e.message);
+    // }
+  }
+
+
+  Future<void> _getUser() async {
+    print("User");
+    print("inside login get user");
+    //print(usersID);
     try {
-      Navigation.intentWithClearAllRoutes(context, AppRoutes.HOME);
+      List<Users> UserObjectList = await Amplify.DataStore.query(Users.classType);
+      //print(User[0].first_name);
+      print(UserObjectList.length);
+      //print(UserObjectList[0].first_name);
+      //await Future.delayed(Duration(seconds: 1));
+      Timer(
+          Duration(seconds: 2),
+              () => _navigateToHomeScreen(UserObjectList));
+      // Navigator.of(context)
+      //     .push(MaterialPageRoute(builder: (context) => HomeScreen()));
 
-      SignInResult res = await Amplify.Auth.signIn(
-        username: _emailController.text,
-        password: _passwordController.text,
-      );
-
-      if (res.isSignedIn) {
-        print("Sign in succeeded");
-      }
-      else {
-        print("Sign in failed");
-
-      }
-    }
-    catch (e) {
-      print("Error in Sign in function");
-      print(e.message);
+    } catch (e) {
+      print("Could not query DataStore: " + e);
     }
   }
 
+  _navigateToHomeScreen(List<Users>UserObjectList){
+    print("inside navigate to home screen");
+    print(UserObjectList.length);
+    Navigator.of(context)
+        .push(MaterialPageRoute(builder: (context) => HomeScreen(sessionUser: UserObjectList[1])));
+  }
 }
 
 class LoginAndRegisterScreenButton extends StatefulWidget {

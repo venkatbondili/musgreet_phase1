@@ -12,6 +12,8 @@ import 'package:mus_greet/core/widgets/sponsored_widget.dart';
 import 'package:mus_greet/models/ModelProvider.dart';
 
 class FriendSearch extends StatefulWidget {
+  final Users sessionUser;
+  FriendSearch({this.sessionUser});
   @override
   _FriendSearchState createState() => _FriendSearchState();
 }
@@ -86,7 +88,8 @@ class _FriendSearchState extends State<FriendSearch> {
               itemBuilder: (BuildContext context, int index) {
                 if(index == 3){
                   return _getSponsoredWidget(index);
-                }else{
+                }
+                else{
                   return FriendSearchListWidget(
                     index: index, UserObject: Userss[index],
                   );

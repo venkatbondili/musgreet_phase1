@@ -11,10 +11,13 @@ import 'package:mus_greet/models/ModelProvider.dart';
 import 'package:mus_greet/models/Posts.dart';
 import 'package:mus_greet/models/Users.dart';
 import 'package:amplify_flutter/amplify.dart';
+import 'package:mus_greet/pages/create_post_screen/create_post_screen.dart';
 import 'package:mus_greet/pages/home_screen/comment_screen/comment_screen.dart';
 
 
 class PostTab extends StatefulWidget {
+  final Users sessionUser;
+  PostTab({this.sessionUser});
   @override
   _PostTabState createState() => _PostTabState();
 }
@@ -32,6 +35,7 @@ class _PostTabState extends State<PostTab> {
 
   @override
   Widget build(BuildContext context) {
+    UserID = widget.sessionUser.id;
     return FutureBuilder<Users>(
       future: _getUser(UserID),
       builder: (ctx, snapshot) {
@@ -66,7 +70,8 @@ class _PostTabState extends State<PostTab> {
           ),
           GestureDetector(
             onTap: (){
-              Navigation.intent(context, AppRoutes.CREATE_POST_SCREEN);
+              _navigatetoCreatePost();
+              //Navigation.intent(context, AppRoutes.CREATE_POST_SCREEN);
             },//=> widget.callBack(),
             child: Container(
               padding: EdgeInsets.only(left: 15,right: 15,top: 8,bottom: 8),
@@ -88,6 +93,15 @@ class _PostTabState extends State<PostTab> {
         ],
       ),
     );
+  }
+
+  _navigatetoCreatePost(){
+    print("inside navigate to create post");
+    print(widget.sessionUser.first_name);
+
+    Navigator.of(context)
+        .push(MaterialPageRoute(builder: (context) => CreatePostScreen(sessionUser:widget.sessionUser)));
+
   }
 
   _getEditButton() {

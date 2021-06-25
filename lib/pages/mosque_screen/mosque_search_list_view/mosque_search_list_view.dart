@@ -5,21 +5,32 @@ import 'package:mus_greet/core/utils/constants.dart';
 import 'package:mus_greet/core/utils/routes.dart';
 import 'package:mus_greet/core/widgets/advance_search_widget.dart';
 import 'package:mus_greet/core/widgets/asset_image_widget.dart';
+import 'package:mus_greet/core/widgets/bottom_navigation_bar_widget.dart';
 import 'package:mus_greet/core/widgets/custom_spacer_widget.dart';
 import 'package:mus_greet/core/widgets/mosque_list_card_widget.dart';
 import 'package:mus_greet/core/widgets/search_text_field_widget.dart';
+import 'package:mus_greet/models/Facilitiesmaster.dart';
 import 'package:mus_greet/models/ModelProvider.dart';
 import 'package:mus_greet/models/Mosque.dart';
+import 'package:mus_greet/pages/home_screen/home_screen.dart';
+import 'package:mus_greet/pages/mosque_screen/mosque_screen.dart';
+import 'package:mus_greet/core/widgets/bottom_navigation_widget.dart';
+
 
 class MosqueSearchListView extends StatefulWidget {
   final Function callBack;
-  const MosqueSearchListView({Key key, this.callBack}) : super(key: key);
+  final String CallingScreen;
+  final Users sessionUser;
+  const MosqueSearchListView({Key key, this.callBack,this.CallingScreen, this.sessionUser}) : super(key: key);
+  //const MosqueSearchListView({this.CallingScreen});
 
   @override
   _MosqueSearchListViewState createState() => _MosqueSearchListViewState();
 }
 
 class _MosqueSearchListViewState extends State<MosqueSearchListView> {
+  //PageController _pageController = PageController();
+  String UserID ;
   ArgumentClass args;
   List<String> advancedSearchSectList = [];
   List<String> advancedSearchFacilitiesList =[];
@@ -29,8 +40,10 @@ class _MosqueSearchListViewState extends State<MosqueSearchListView> {
   List<Facilitiesmaster> Facilitiesmasters = [];
   List<Mosque> sectFilteredMosques = [];
   List<Mosque> facilityFilteredMosques = [];
+  List<MosqueFollowers> MosqueFollowerss =[];
   @override
   Widget build1(BuildContext context) {
+    UserID = widget.sessionUser.id;
     print("printing args");
     args = ModalRoute.of(context).settings.arguments as ArgumentClass;
     print(args);
@@ -56,11 +69,13 @@ class _MosqueSearchListViewState extends State<MosqueSearchListView> {
         backgroundColor: AppColors.white,
         appBar: _getAppBar(context),
         body: _getBody(),
+        bottomNavigationBar: _getBottomNavigation(),
       ),
     );
   }
-  
+
   Widget build(BuildContext context){
+    UserID = widget.sessionUser.id;
     return FutureBuilder<List<Mosque>>(
       future: _getMosque(),
       builder: (ctx, snapshot) {
@@ -107,7 +122,7 @@ class _MosqueSearchListViewState extends State<MosqueSearchListView> {
 
   _getRowHeader() {
     print("inside row header");
-    print(widget.callBack);
+    //print(widget.callBack);
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       mainAxisSize: MainAxisSize.max,
@@ -115,6 +130,7 @@ class _MosqueSearchListViewState extends State<MosqueSearchListView> {
         GestureDetector(
           onTap: () {
             _navigateback();
+            //_navigateback();
             //widget.callBack();
             },
           child: AssetImageWidget(
@@ -160,6 +176,7 @@ class _MosqueSearchListViewState extends State<MosqueSearchListView> {
   }
 
   _getBody() {
+    print(MosqueFollowerss);
     return Container(
       //padding: EdgeInsets.only(top: 20,left: 15,right: 15),
       color: AppColors.white_shade,
@@ -167,7 +184,9 @@ class _MosqueSearchListViewState extends State<MosqueSearchListView> {
         padding: EdgeInsets.only(top: 20, left: 15, right: 15, bottom: 20),
         itemBuilder: (context, index) {
           return MosqueListCardWidget(
-              index: index, mosqueObject: ResultMosques[index]);
+              index: index, mosqueObject: ResultMosques[index],UserID: UserID,sessionUser: widget.sessionUser,
+             // MosqueFollowersList: MosqueFollowerss
+              );
         },
         separatorBuilder: (context, index) {
           return Divider(
@@ -368,13 +387,68 @@ class _MosqueSearchListViewState extends State<MosqueSearchListView> {
   }
 
   _navigateback() {
-    if(widget.callBack == null){
-      Navigation.intent(context, AppRoutes.HOME);
-    }else {
-      print(widget.callBack);
-      Navigation.intent(context, AppRoutes.HOME);
-      //widget.callBack;
+    print("Calling screen in search list view");
+    print(widget.CallingScreen);
+    switch (widget.CallingScreen) {
+      case 'MosqueScreen':
+        if(MosqueFollowerss.isNotEmpty){
+          Navigator.push(context,
+              MaterialPageRoute(
+                builder: (context) => MosqueScreen(loginUser: widget.sessionUser,),
+              )
+          );
+        }
+        else
+         // Navigation.intent(context, AppRoutes.HOME);
+          Navigator.of(context)
+              .push(MaterialPageRoute(builder: (context) => HomeScreen(sessionUser:widget.sessionUser)));
+        break;
+        // Navigator.push(context,
+        //     MaterialPageRoute(
+        //       builder: (context) => MosqueScreen(),
+        //     )
+        // );
+        // break;
+      case 'MosqueDetails':
+        if(MosqueFollowerss.isNotEmpty){
+          Navigator.push(context,
+              MaterialPageRoute(
+                builder: (context) => MosqueScreen(loginUser: widget.sessionUser),
+              )
+          );
+        }
+        else
+          //Navigation.intent(context, AppRoutes.HOME);
+          Navigator.of(context)
+              .push(MaterialPageRoute(builder: (context) => HomeScreen(sessionUser:widget.sessionUser)));
+        //executePending();
+        break;
+      case 'Home':
+        if(MosqueFollowerss.isNotEmpty){
+          Navigator.push(context,
+              MaterialPageRoute(
+                builder: (context) => MosqueScreen(loginUser: widget.sessionUser,),
+              )
+          );
+        }
+        else{
+          //Navigation.intent(context, AppRoutes.HOME);
+          Navigator.of(context)
+              .push(MaterialPageRoute(builder: (context) => HomeScreen(sessionUser:widget.sessionUser)));
+        }
+        break;
+      default:
+        //Navigation.back(context);
+        Navigator.of(context)
+            .push(MaterialPageRoute(builder: (context) => HomeScreen(sessionUser:widget.sessionUser)));
     }
+    //if(widget.callBack == null){
+      //Navigation.intent(context, AppRoutes.HOME);
+    //}else {
+      //print(widget.callBack);
+      //Navigation.intent(context, AppRoutes.HOME);
+      //widget.callBack;
+    //}
   }
 
  Future<List<Mosque>> _getMosque() async {
@@ -393,13 +467,28 @@ class _MosqueSearchListViewState extends State<MosqueSearchListView> {
         switch (snapshot.connectionState) {
           case ConnectionState.done:
               Facilitiesmasters = snapshot.data;
-            return _getFacilitiesAndMosque(Mosques,Facilitiesmasters);
+            return _getMosqueFollowersUI(Mosques,Facilitiesmasters);
           default:
             return _buildLoadingScreen();
         }
       },
     );
 
+  }
+
+  Widget _getMosqueFollowersUI(List<Mosque> Mosques,List<Facilitiesmaster> Facilitiesmasters){
+    return FutureBuilder<List<MosqueFollowers>>(
+      future: listMosqueFollowers(),
+      builder: (ctx, snapshot) {
+        switch (snapshot.connectionState) {
+          case ConnectionState.done:
+            MosqueFollowerss = snapshot.data;
+            return _getFacilitiesAndMosque(Mosques,Facilitiesmasters,MosqueFollowerss);
+          default:
+            return _buildLoadingScreen();
+        }
+      },
+    );
   }
 
   Future<List<Facilitiesmaster>> _getFacilitiesMaster() async {
@@ -412,7 +501,7 @@ class _MosqueSearchListViewState extends State<MosqueSearchListView> {
 
   }
 
-  Widget _getFacilitiesAndMosque(List<Mosque> mosques, List<Facilitiesmaster> facilitiesmasters,) {
+  Widget _getFacilitiesAndMosque(List<Mosque> mosques, List<Facilitiesmaster> facilitiesmasters, List<MosqueFollowers> MosqueFollowerss) {
     print("printing args");
     args = ModalRoute.of(context).settings.arguments as ArgumentClass;
     print(args);
@@ -438,6 +527,7 @@ class _MosqueSearchListViewState extends State<MosqueSearchListView> {
         backgroundColor: AppColors.white,
         appBar: _getAppBar(context),
         body: _getBody(),
+        bottomNavigationBar: _getBottomNavigation(),
       ),
     );
   }
@@ -469,6 +559,16 @@ class _MosqueSearchListViewState extends State<MosqueSearchListView> {
 
   }
 
+  Future<List<MosqueFollowers>> listMosqueFollowers() async{
+    try {
+      MosqueFollowerss = await Amplify.DataStore.query(MosqueFollowers.classType,where: MosqueFollowers.USERSID.eq(widget.sessionUser.id));
+      print(MosqueFollowerss);
+      return MosqueFollowerss;
+    } catch (e) {
+      print("Could not query DataStore: " + e);
+    }
+  }
+
   Widget _buildLoadingScreen() {
     return Center(
       child: Container(
@@ -476,6 +576,24 @@ class _MosqueSearchListViewState extends State<MosqueSearchListView> {
         height: 50,
         child: CircularProgressIndicator(),
       ),
+    );
+  }
+
+  _getBottomNavigation() {
+    // if(widget.CallingScreen != "Home") {
+    //   return BottomNavigationWidget(
+    //     MosqueFollowersList: MosqueFollowerss,
+    //     //CallingFunction: _navigateback(),
+    //     CallingScreen: "MosqueSearch",
+    //     index: 1,
+    //   );
+    // }
+    return BottomNavigationWidget(
+      //MosqueFollowersList: MosqueFollowerss,
+      //CallingFunction: _navigateback(),
+      sessionUser: widget.sessionUser,
+      CallingScreen: "MosqueSearch",
+      index: 1,
     );
   }
 

@@ -37,5 +37,6 @@ class AppRoutes {
   static const String COMMUNITYPROMISE = "/final/community_promise_page.dart";
   static const String MANUALADDRESS1 = "/address-verification/confirm_address_view.dart";
   static const String MANUALADDRESS2 = "/address-verification/confirm_address_2_view.dart";
+  static const String VIEW_PROFILE_SCREEN = "/view_profile_screen/view_profile_screen.dart";
 
 }

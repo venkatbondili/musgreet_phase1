@@ -397,16 +397,16 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
         'phone_number': '+447448479715',
         // additional attributes as needed
       };
-      SignUpResult res = await Amplify.Auth.signUp(
-          username: _emailController.text,
-          password: _passwordController.text,
-          options: CognitoSignUpOptions(
-              userAttributes: userAttributes
-          )
-      );
+      // SignUpResult res = await Amplify.Auth.signUp(
+      //     username: _emailController.text,
+      //     password: _passwordController.text,
+      //     options: CognitoSignUpOptions(
+      //         userAttributes: userAttributes
+      //     )
+      // );
 
-      if (res.isSignUpComplete) {
-      //if (true) {
+      //if (res.isSignUpComplete) {
+      if (true) {
         print('User registration successful');
 
         //Add user to DB

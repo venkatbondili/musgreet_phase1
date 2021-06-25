@@ -9,6 +9,7 @@ import 'package:mus_greet/core/utils/constants.dart';
 import 'package:mus_greet/core/utils/routes.dart';
 import 'package:mus_greet/core/widgets/action_button_widget.dart';
 import 'package:mus_greet/core/widgets/asset_image_widget.dart';
+import 'package:mus_greet/core/widgets/bottom_navigation_widget.dart';
 import 'package:mus_greet/core/widgets/custom_spacer_widget.dart';
 import 'package:mus_greet/core/widgets/drop_down_text_field.dart';
 import 'package:mus_greet/core/widgets/media_source_widget.dart';
@@ -16,15 +17,17 @@ import 'package:amplify_storage_s3/amplify_storage_s3.dart';
 import 'package:mus_greet/core/widgets/rounded_button_widget.dart';
 import 'package:mus_greet/core/widgets/s3_bucket_image_widget.dart';
 import 'package:mus_greet/models/ModelProvider.dart';
+import 'package:mus_greet/pages/home_screen/home_screen.dart';
 import 'package:path_provider/path_provider.dart';
 
 
 class CreatePostScreen extends StatefulWidget {
   ///unComment these lines when we are passing the User details from other classes
-  //final Users UserObject;
+  final Users sessionUser;
   //final String UserProfileImage;
   //final String UserName;
   //CreatePostScreen({this.UserProfileImage, this.UserName});
+  CreatePostScreen({this.sessionUser});
   @override
   _CreatePostScreenState createState() => _CreatePostScreenState();
 }
@@ -41,6 +44,13 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
   //bool isCamera = false;
   File _image ;
   //print("inside create post");
+  Users UserObject;
+  //String LogedInUserID = "61b35418-9426-4652-9e59-a65ad173117c";
+  String LogedInUserID;
+
+  BottomNavigationWidgetArgumentClass args;
+  Users sessionUser;
+
 
   Future getImage(bool isCamera) async {
     print("inside getImage");
@@ -92,12 +102,73 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
 
   @override
   Widget build(BuildContext context) {
+    args = ModalRoute.of(context).settings.arguments as BottomNavigationWidgetArgumentClass;
+    if(args == null){
+      sessionUser = widget.sessionUser;
+    }else{
+      sessionUser = args.sessionUser;
+    }
+    LogedInUserID = sessionUser.id;
+    return FutureBuilder<Users>(
+      future: _getUser(LogedInUserID),
+      builder: (ctx, snapshot) {
+        //List<Posts> PostsData = snapshot.data;
+        switch (snapshot.connectionState) {
+          case ConnectionState.done:
+            UserObject = snapshot.data;
+            return _buildUI(UserObject,sessionUser);
+          default:
+            return _buildLoadingScreen();
+        }
+      },
+    );
+  }
+
+  Widget _buildLoadingScreen() {
+    return Center(
+      child: Container(
+        width: 50,
+        height: 50,
+        child: CircularProgressIndicator(),
+      ),
+    );
+  }
+
+  Widget _buildUI(Users UserObject, Users sessionUser) {
     return SafeArea(
       child: Scaffold(
         backgroundColor: AppColors.white,
         appBar: _getAppBar(),
         body: _getBody(),
+        bottomNavigationBar: _getBottomNavigation(sessionUser),
       ),
+    );
+  }
+
+
+  Future<Users> _getUser(String usersID) async {
+    print("User");
+    print(usersID);
+    try {
+      List<Users>UserObjectList = await Amplify.DataStore.query(Users.classType ,where :Users.ID.eq(usersID));
+      //print(User[0].first_name);
+      print(UserObjectList.length);
+      print(UserObjectList[0].first_name);
+      //await Future.delayed(Duration(seconds: 1));
+      return UserObjectList[0];
+    } catch (e) {
+      print("Could not query DataStore: " + e);
+    }
+  }
+
+
+  _getBottomNavigation(Users sessionUser) {
+    return BottomNavigationWidget(
+      //MosqueFollowersList: UserMosqueFollowingList,
+      //CallingFunction: _navigateback(),
+      sessionUser: sessionUser,
+      CallingScreen: "CreatePost",
+      index: 2,
     );
   }
 
@@ -149,7 +220,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
       leading: Container(
         padding: EdgeInsets.only(top: 15, left: 20, right: 20),
         child:GestureDetector(
-          onTap: ()=> Navigation.intent(context, AppRoutes.HOME),
+          onTap: ()=> _navigateback(),
           child: AssetImageWidget(
             image: ImageConstants.IC_BACK,
             height: 10,
@@ -158,6 +229,18 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
         ),
       ),
     );
+  }
+
+  _navigateback(){
+    //Navigation.intent(context, AppRoutes.HOME);
+    print("inside create post navigate back");
+    print(sessionUser);
+    //print(widget.sessionUser.first_name);
+    // Navigator.of(context)
+    //     .push(MaterialPageRoute(builder: (context) => HomeScreen(sessionUser:widget.sessionUser)));
+    Navigator.of(context)
+        .push(MaterialPageRoute(builder: (context) => HomeScreen(sessionUser: sessionUser)));
+
   }
 
   _getUserDataAndPost() {
@@ -211,7 +294,8 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
       //AppTexts.TEMP_USER_NAME,
       /// un comment this when userName is passed
       //widget.UserName,
-      UserName,
+      //UserName,
+      UserObject.first_name + " " + UserObject.last_name,
       style: TextStyle(
         fontFamily: FontConstants.FONT,
         fontSize: 13,
@@ -220,6 +304,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
       ),
     );
   }
+
 
   _getTextSection() {
     return Container(
@@ -484,7 +569,8 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
         post_image_path: S3ImageURL.split('?')[0],
         description: "Keep Smiling",
         visibility: postVisibility,
-        usersID: "40d605ff-0ce4-4b4f-ae43-9e97d37c6cfc",
+        usersID: widget.sessionUser.id,
+        //usersID: "40d605ff-0ce4-4b4f-ae43-9e97d37c6cfc",
         //usersID: UserObject.ID,
         //usersID: "49e213cb-2849-4164-b5c6-4e6ab971c4c7",
         mosquesID: "",
@@ -501,8 +587,14 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
 
   ///This method will navigate back to Home
   _navigateToHome() {
-    Navigation.intent(context, AppRoutes.HOME);
+    // Navigation.intent(context, AppRoutes.HOME);
+    print(sessionUser.first_name);
+    //print(widget.sessionUser);
+    Navigator.of(context)
+        .push(MaterialPageRoute(builder: (context) => HomeScreen(sessionUser:sessionUser)));
+
   }
+
 
 }
 

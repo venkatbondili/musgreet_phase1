@@ -123,8 +123,12 @@ class _FacilitiesTabState extends State<FacilitiesTab> {
   _getList()
   {
     var a=widget.mosque[0].mosque_facility_list;
-    var ab = (a.split(','));
-    idStringString=ab;
+    print("mosque facility list");
+    print(a);
+    List<dynamic> mosqueFacilitiesList = jsonDecode(a);
+    var jsonDecodeMosqueList = mosqueFacilitiesList.join(",");
+    var idStringString = (jsonDecodeMosqueList.split(','));
+    //idStringString=ab;
     for(int i=0;i<idStringString.length;i++) {
       if (idStringString[i] == facilities[i].id) {
         print(idStringString[i]);

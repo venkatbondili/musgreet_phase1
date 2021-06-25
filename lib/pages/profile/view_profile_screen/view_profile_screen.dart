@@ -11,6 +11,7 @@ import 'package:mus_greet/core/widgets/s3_bucket_image_widget.dart';
 import 'package:mus_greet/core/widgets/tab_style_widget.dart';
 import 'package:mus_greet/core/widgets/upload_image_bottom_sheet_widget.dart';
 import 'package:mus_greet/models/UserProfile.dart';
+import 'package:mus_greet/models/Users.dart';
 import 'package:mus_greet/pages/profile/view_profile_screen/about_tab/about_tab.dart';
 import 'package:mus_greet/pages/profile/view_profile_screen/friend_tab/friend_tab.dart';
 import 'package:mus_greet/pages/profile/view_profile_screen/interest_tab/interest_tab.dart';
@@ -20,6 +21,8 @@ import '../../../core/utils/constants.dart';
 
 ///This will render the current user profile on screen
 class ViewProfileScreen extends StatefulWidget {
+   final Users sessionUser;
+  ViewProfileScreen({this.sessionUser});
   @override
   _ViewProfileScreenState createState() => _ViewProfileScreenState();
 }
@@ -30,7 +33,6 @@ class _ViewProfileScreenState extends State<ViewProfileScreen>
 
   TextEditingController _controller = TextEditingController();
   bool _isInEditMode = true;
-  String UserID = "61b35418-9426-4652-9e59-a65ad173117c";
   List<UserProfile> userProfile;
 
   @override
@@ -67,7 +69,7 @@ class _ViewProfileScreenState extends State<ViewProfileScreen>
             child: [
               PostTab(),
               AboutTab(userProfile:userProfile),
-              InterestTab(userProfile :userProfile),
+              InterestTab(),
               FriendTab(),
             ][_tabController.index],
           ),
@@ -223,7 +225,8 @@ class _ViewProfileScreenState extends State<ViewProfileScreen>
   ///This will return name of the user
   _getUserName() {
     return Text(
-      AppTexts.TEMP_USER_NAME,
+      widget.sessionUser.first_name + "" +widget.sessionUser.last_name,
+      //'',
       style: TextStyle(
           fontFamily: FontConstants.FONT,
           fontSize: 17,
@@ -246,7 +249,7 @@ class _ViewProfileScreenState extends State<ViewProfileScreen>
           width: 4,
         ),
         Text(
-          AppTexts.TEMP_LOCATION,
+          widget.sessionUser.city + " " +widget.sessionUser.country,
           style: TextStyle(
             fontFamily: FontConstants.FONT,
             fontSize: 13,
@@ -320,7 +323,7 @@ class _ViewProfileScreenState extends State<ViewProfileScreen>
   {
     try {
       userProfile = await Amplify.DataStore.query(UserProfile.classType,
-          where: UserProfile.ID.eq("96860140-afa9-47b6-a578-01d30043507c"));
+          where: UserProfile.USERSID.eq(widget.sessionUser.id));
       print(userProfile);
       print("In the main page");
     }catch(e)

@@ -1,8 +1,13 @@
+import 'package:amplify_datastore/amplify_datastore.dart';
+import 'package:amplify_flutter/amplify.dart';
 import 'package:flutter/material.dart';
 import 'package:mus_greet/core/utils/constants.dart';
 import 'package:mus_greet/core/widgets/asset_image_widget.dart';
 import 'package:mus_greet/core/widgets/rounded_button_widget.dart';
 import 'package:mus_greet/core/widgets/tab_style_widget.dart';
+import 'package:mus_greet/models/FriendRequest.dart';
+import 'package:mus_greet/models/Friends.dart';
+import 'package:mus_greet/models/Users.dart';
 
 
 class FriendTab extends StatefulWidget {
@@ -13,7 +18,20 @@ class FriendTab extends StatefulWidget {
 class _FriendTabState extends State<FriendTab> with SingleTickerProviderStateMixin {
 
   TabController _tabFriendsController;
-
+  List<FriendRequest> friendRequest;
+  List<Users> users=[];
+  List<Friends> friends=[];
+  List<FriendRequest> SentUsersList = [];
+  List<FriendRequest> RequestUsersList = [];
+  Users sentUserObject;
+  Users requestUserObject;
+  List<Users> userFriendObject;
+  List<String> intoFriendsList;
+ // List<Friends> acceptedFriendsList;
+  DateTime date=DateTime.now();
+  TemporalDate temporalDate=new TemporalDate(DateTime.now());
+  // String tabSelection="";
+  String loginUserId="19d1eb65-ae18-4619-b94b-4670abfd5196";
   @override
   void initState() {
     _tabFriendsController = TabController(length: 3, vsync: this);
@@ -33,6 +51,45 @@ class _FriendTabState extends State<FriendTab> with SingleTickerProviderStateMix
 
   @override
   Widget build(BuildContext context) {
+    //friendRequestList();
+    //getListOfFriends();
+    return FutureBuilder<List<FriendRequest>>(
+      future: friendRequestList(),
+      builder: (ctx, snapshot) {
+        switch (snapshot.connectionState) {
+          case ConnectionState.done:
+            friendRequest = snapshot.data;
+            return buildUi(friendRequest);
+          default:
+            return _buildLoadingScreen();
+        }
+      },
+    );
+
+
+  }
+
+  buildUi(List<FriendRequest> friendRequest)
+  {
+    //getListOfUsers
+    return FutureBuilder<List<Users>>(
+      future: getListOfUsers(),
+      builder: (ctx, snapshot) {
+        switch (snapshot.connectionState) {
+          case ConnectionState.done:
+            users = snapshot.data;
+            return buildUserList(users);
+          default:
+            return _buildLoadingScreen();
+        }
+      },
+    );
+  }
+
+  buildUserList(List<Users> users)
+  {
+    //friendList();
+   //getRequestMessages();
     return Container(
       margin: EdgeInsets.only(top: 4),
       color: Colors.white,
@@ -64,12 +121,23 @@ class _FriendTabState extends State<FriendTab> with SingleTickerProviderStateMix
     );
   }
 
+  Widget _buildLoadingScreen() {
+    return Center(
+      child: Container(
+        width: 50,
+        height: 50,
+        child: CircularProgressIndicator(),
+      ),
+    );
+  }
+
   /// This will render all the friends data
   _getFriendsList() {
     return Container(
       child: Column(
         children: [
           _getFriendSearchBar(),
+          SizedBox(height: 10.0),
           _getFriendsDataList(),
         ],
       ),
@@ -82,6 +150,7 @@ class _FriendTabState extends State<FriendTab> with SingleTickerProviderStateMix
       child: Column(
         children: [
           _getFriendSearchBar(),
+          SizedBox(height: 10.0),
           _getFriendsRequestDataList(),
         ],
       ),
@@ -94,86 +163,575 @@ class _FriendTabState extends State<FriendTab> with SingleTickerProviderStateMix
       child: Column(
         children: [
           _getFriendSearchBar(),
+          SizedBox(height: 10.0),
           _getFriendsSentDataList(),
         ],
       ),
     );
   }
+  _getSentUsersList(){
+    SentUsersList = [];
+    for(var fr in friendRequest){
+      if(fr.request_from_id == loginUserId){
+        SentUsersList.add(fr);
+      }
+    }
+
+  }
 
   /// This will render all the friends request list
-  _getFriendsRequestDataList() {
+  // _getFriendsSentDataList() {
+  //   return Container(
+  //     width: MediaQuery.of(context).size.width,
+  //     child: Column(
+  //       mainAxisSize: MainAxisSize.min,
+  //       crossAxisAlignment: CrossAxisAlignment.start,
+  //       children: [
+  //         Padding(padding: EdgeInsets.only(top: 30)),
+  //         _getFriendsRequestSentDataListItem(),
+  //         // Padding(padding: EdgeInsets.only(top: 30)),
+  //         // _getFriendsRequestSentDataListItem(),
+  //         // Padding(padding: EdgeInsets.only(top: 30)),
+  //         // _getFriendsRequestSentDataListItem(),
+  //         // Padding(padding: EdgeInsets.only(top: 30)),
+  //         // _getFriendsRequestSentDataListItem(),
+  //         // Padding(padding: EdgeInsets.only(top: 30)),
+  //         // _getFriendsRequestSentDataListItem(),
+  //         // Padding(padding: EdgeInsets.only(top: 30)),
+  //         // _getFriendsRequestSentDataListItem(),
+  //       ],
+  //     ),
+  //   );
+  // }
+
+  _getFriendsSentDataList() {
+    _getSentUsersList();
     return Container(
       width: MediaQuery.of(context).size.width,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(padding: EdgeInsets.only(top: 30)),
-          _getFriendsRequestDataListItem(),
-          Padding(padding: EdgeInsets.only(top: 30)),
-          _getFriendsRequestDataListItem(),
-          Padding(padding: EdgeInsets.only(top: 30)),
-          _getFriendsRequestDataListItem(),
-          Padding(padding: EdgeInsets.only(top: 30)),
-          _getFriendsRequestDataListItem(),
-          Padding(padding: EdgeInsets.only(top: 30)),
-          _getFriendsRequestDataListItem(),
-          Padding(padding: EdgeInsets.only(top: 30)),
-          _getFriendsRequestDataListItem(),
+        children:<Widget> [
+          ListView.builder(
+              shrinkWrap: true,
+              scrollDirection: Axis.vertical,
+              itemCount:SentUsersList.length,
+              itemBuilder: (context,index){
+                return _getSentFriendsUI(SentUsersList[index]);
+              }
+          ),
+
         ],
       ),
     );
   }
 
-  /// This will render all the friends request list
-  _getFriendsSentDataList() {
+  _getSentFriendsUI(FriendRequest sentFriendObject){
+    _getUserObject(sentFriendObject.request_to_id);
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.max,
+      children: [
+        Container(
+          alignment: Alignment.topLeft,
+          child: getCommonPadding(
+              48,
+              6,
+              0,
+              12,
+              AssetImageWidget(
+                image: ImageConstants.IC_FATHER,
+                height: 40,
+                width: 40,
+              )),
+        ),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              getCommonPadding(
+                0,
+                6,
+                0,
+                27,
+                Text(
+                  sentUserObject.first_name + " "+sentUserObject.last_name,
+                  style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.black),
+                ),
+              ),
+              getCommonPadding(
+                0,
+                3,
+                0,
+                27,
+                Text(
+                  // "",
+                  //REQUESTMESSAGE[index],
+                  sentFriendObject.request_message,
+                  style: TextStyle(fontSize: 12, color: AppColors.black_50),
+                  maxLines: 4,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
+        ),
+        Container(
+          alignment: Alignment.center,
+          child:GestureDetector(
+            onTap: () => sentRequestDeleted(sentFriendObject),
+            child: Padding(
+              padding: const EdgeInsets.only(top: 30.0),
+              child: AssetImageWidget(
+                image: ImageConstants.IC_PERSON_CLOSE_CIRCLE,
+                height: 25,
+                width: 25,
+              ),
+            ),
+          ),
+        ),
+        Padding(padding: EdgeInsets.only(right: 48))
+      ]);
+}
+
+///deleteing the friend from sent Tab
+
+  sentRequestDeleted(FriendRequest sentFriendObject) async {
+      print("Deleting the friend Request sent");
+      final updatedItem = sentFriendObject.copyWith(
+          request_status: "Reject",
+          request_status_date: temporalDate);
+      await Amplify.DataStore.save(updatedItem);
+
+      setState(() {
+
+      });
+
+  }
+
+///This will render the sent user Object
+  _getUserObject(String request_to_id){
+    for(var u in users){
+      if(request_to_id == u.id){
+        sentUserObject = u;
+      }
+    }
+  }
+
+
+  _getFriendsRequestDataList() {
+    //getRequestMessages();
+    getRequestFriendsList();
     return Container(
       width: MediaQuery.of(context).size.width,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(padding: EdgeInsets.only(top: 30)),
-          _getFriendsRequestSentDataListItem(),
-          Padding(padding: EdgeInsets.only(top: 30)),
-          _getFriendsRequestSentDataListItem(),
-          Padding(padding: EdgeInsets.only(top: 30)),
-          _getFriendsRequestSentDataListItem(),
-          Padding(padding: EdgeInsets.only(top: 30)),
-          _getFriendsRequestSentDataListItem(),
-          Padding(padding: EdgeInsets.only(top: 30)),
-          _getFriendsRequestSentDataListItem(),
-          Padding(padding: EdgeInsets.only(top: 30)),
-          _getFriendsRequestSentDataListItem(),
-        ],
-      ),
+        children: <Widget>[
+              new ListView.builder(
+                  shrinkWrap: true,
+                  scrollDirection: Axis.vertical,
+                  itemCount:RequestUsersList.length,
+                  itemBuilder: (context,index){
+                    return _getRequestUi(RequestUsersList[index]);
+
+                  }
+
+              ),
+            ],
+          )
     );
+  }
+
+  getRequestFriendsList()
+  {
+    RequestUsersList = [];
+    for(var fr in friendRequest){
+      if(fr.request_to_id == loginUserId){
+        RequestUsersList.add(fr);
+      }
+    }
+  }
+
+  _getRequestUi(FriendRequest requestUsers)
+  {
+    getRequestUserDetails(requestUsers.request_from_id);
+    return Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.max,
+        children: [
+          Container(
+            alignment: Alignment.topLeft,
+            child: getCommonPadding(
+                48,
+                6,
+                0,
+                12,
+                AssetImageWidget(
+                  image: ImageConstants.IC_FATHER,
+                  height: 40,
+                  width: 40,
+                )),
+          ),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                getCommonPadding(
+                  0,
+                  6,
+                  0,
+                  27,
+                  Text(
+                    requestUserObject.first_name + "" +requestUserObject.last_name,
+                    style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.black),
+                  ),
+                ),
+                getCommonPadding(
+                  0,
+                  3,
+                  0,
+                  27,
+                  Text(
+                    requestUsers.request_message,
+                    style: TextStyle(fontSize: 12, color: AppColors.black_50),
+                    maxLines: 4,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Container(
+            alignment: Alignment.center,
+            // child: Center(
+            //   child: Padding(
+            //     padding: const EdgeInsets.only(top: 30.0),
+            //     child: AssetImageWidget(
+            //       height: 25,
+            //       width: 25,
+            //       image: ImageConstants.IC_PERSON_CLOSE_CIRCLE,
+            //     ),
+            //   ),
+            // ),
+            child:GestureDetector(
+              onTap: () => requestRejected(requestUsers),
+              child: Padding(
+                padding: const EdgeInsets.only(top: 30.0),
+                child: AssetImageWidget(
+                  image: ImageConstants.IC_PERSON_CLOSE_CIRCLE,
+                  height: 25,
+                  width: 25,
+                ),
+              ),
+            ),
+          ),
+          Padding(padding: EdgeInsets.only(right: 10)),
+          // Center(
+          //
+          //   child: Padding(
+          //     padding: const EdgeInsets.only(top: 30.0),
+          //     child: AssetImageWidget(
+          //       height: 25,
+          //       width: 25,
+          //       image: ImageConstants.IC_PERSON_GREEN_CIRCLE,
+          //
+          //     ),
+          //   ),
+          // ),
+          GestureDetector(
+            onTap: () => requestAccepted(requestUsers),
+            child: Padding(
+              padding: const EdgeInsets.only(top: 30.0),
+              child: AssetImageWidget(
+                image: ImageConstants.IC_PERSON_GREEN_CIRCLE,
+                height: 25,
+                width: 25,
+              ),
+            ),
+          ),
+          Padding(padding: EdgeInsets.only(right: 48))
+        ]);
+  }
+
+  getRequestUserDetails(String request_from_id)
+  {
+    for(var u in users){
+      if(request_from_id == u.id){
+        requestUserObject = u;
+      }
+    }
+  }
+
+ Future<void> requestRejected(FriendRequest requestUser) async
+  {
+    final updatedItem = requestUser.copyWith(
+      //request_date: TemporalDate.fromString("1970-01-01Z"),
+      //request_from_id: "a3f4095e-39de-43d2-baf4-f8c16f0f6f4d",
+      //request_to_id: "a3f4095e-39de-43d2-baf4-f8c16f0f6f4d",
+      //request_message: "Lorem ipsum dolor sit amet",
+        request_status: "Reject",
+        request_status_date: temporalDate);
+    // unfriend_date: TemporalDate.fromString("1970-01-01Z"));
+    await Amplify.DataStore.save(updatedItem);
+  }
+
+  requestAccepted(FriendRequest requestUser) async {
+     friendsTable();
+     checkingUserIdInFriendsTable(requestUser);
+    final updatedItem = requestUser.copyWith(
+        //request_date: TemporalDate.fromString("1970-01-01Z"),
+        //request_from_id: "a3f4095e-39de-43d2-baf4-f8c16f0f6f4d",
+        //request_to_id: "a3f4095e-39de-43d2-baf4-f8c16f0f6f4d",
+        //request_message: "Lorem ipsum dolor sit amet",
+        request_status: "Accept",
+        request_status_date: temporalDate);
+       // unfriend_date: TemporalDate.fromString("1970-01-01Z"));
+    await Amplify.DataStore.save(updatedItem);
+    print("updating the Friends Request table");
+    print(requestUser);
+  }
+
+  Future<void> friendsTable() async
+  {
+    print("Getting the data from Friends table");
+    try {
+      friends = await Amplify.DataStore.query(Friends.classType);
+      print(friends);
+    } catch(e)
+    {
+      
+    }
+  }
+  
+  checkingUserIdInFriendsTable(FriendRequest requestUser)
+  {
+    print("checking the user id with friends user id");
+    if(friends.isEmpty)
+      {
+        insertLoginRowIntoFriendsTable(loginUserId ,requestUser.request_from_id);
+        insertLoginRowIntoFriendsTable(requestUser.request_from_id, loginUserId);
+      }
+    else {
+      for (int i = 0; i < friends.length; i++)
+        if (loginUserId == friends[i].usersID) {
+          updateLoginTable(requestUser,friends[i]);
+          for(int i=0 ;i<friends.length ;i++)
+            {
+              if(requestUser.request_from_id == friends[i].usersID)
+                {
+                  updateFriendsTable(loginUserId ,friends[i]);
+                }else
+                  {
+                    insertIntoFriendsTable(requestUser.request_from_id , loginUserId);
+                  }
+            }
+          print("updating the friends table");
+         // updateFriendsTable(requestUser, friends[i]);
+        } else {
+          insertIntoFriendsTable(loginUserId, requestUser.request_from_id);
+          for(int i=0 ;i<friends.length ;i++)
+          {
+            if(requestUser.request_from_id == friends[i].usersID)
+            {
+              updateFriendsTable(loginUserId ,friends[i]);
+            }else
+            {
+              insertIntoFriendsTable(requestUser.request_from_id , loginUserId);
+            }
+          }
+
+        }
+    }
+
+    print("checking the friends table");
+    print(friends);
+  }
+
+  insertLoginRowIntoFriendsTable(String userId, String friendId) async {
+    print("inside the login row");
+    final item = Friends(
+        usersID: userId,
+        friends_list: friendId );
+    await Amplify.DataStore.save(item);
+    print(item);
+  }
+
+  Future<void> updateLoginTable(FriendRequest request, Friends friend) async{
+    String friendsList;
+    if(friends.isEmpty)
+      {
+        friendsList = request.request_from_id;
+      }else{
+       friendsList =friend.friends_list+ "," +request.request_from_id;
+    }
+    final updatedItem = friend.copyWith(
+        friends_list: friendsList);
+    await Amplify.DataStore.save(updatedItem);
+    print("inside the updated Friend Table");
+    print(friend);
+  }
+
+  Future<void> insertIntoFriendsTable(String fromId, String loginuser) async{
+
+    final item = Friends(
+        usersID: fromId,
+        friends_list:  loginuser);
+    await Amplify.DataStore.save(item);
+  }
+
+ Future<void> updateFriendsTable(String loginUserId, Friends friend) async
+  {
+    String friendsList;
+    if(friends.isEmpty)
+    {
+      friendsList = loginUserId;
+    }else{
+      friendsList =friend.friends_list+ "," +loginUserId;
+    }
+    final updatedItem = friend.copyWith(
+        friends_list: friendsList);
+    await Amplify.DataStore.save(updatedItem);
+    print("inside the updated Friend Table");
+    print(friend);
+
   }
 
   /// This will render all the friends list
   _getFriendsDataList() {
+    print("inside the friends tab");
+    friendsTable();
+    //getFriendsList();
+    getAcceptedUserName();
+    print(users);
+    print("getting the user details");
     return Container(
       width: MediaQuery.of(context).size.width,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(padding: EdgeInsets.only(top: 30)),
-          _getFriendsDataListItem(),
-          Padding(padding: EdgeInsets.only(top: 30)),
-          _getFriendsDataListItem(),
-          Padding(padding: EdgeInsets.only(top: 30)),
-          _getFriendsDataListItem(),
-          Padding(padding: EdgeInsets.only(top: 30)),
-          _getFriendsDataListItem(),
-          Padding(padding: EdgeInsets.only(top: 30)),
-          _getFriendsDataListItem(),
-          Padding(padding: EdgeInsets.only(top: 30)),
-          _getFriendsDataListItem(),
+        children: <Widget> [
+          // Padding(padding: EdgeInsets.only(top: 30)),
+          // _getFriendsDataListItem(),
+          // Padding(padding: EdgeInsets.only(top: 30)),
+          // _getFriendsDataListItem(),
+          // Padding(padding: EdgeInsets.only(top: 30)),
+          // _getFriendsDataListItem(),
+          // Padding(padding: EdgeInsets.only(top: 30)),
+          // _getFriendsDataListItem(),
+          // Padding(padding: EdgeInsets.only(top: 30)),
+          // _getFriendsDataListItem(),
+          // Padding(padding: EdgeInsets.only(top: 30)),
+          // _getFriendsDataListItem(),
+          ListView.builder(
+              shrinkWrap: true,
+              scrollDirection: Axis.vertical,
+              itemCount:userFriendObject.length,
+              itemBuilder: (context,index){
+                return displayFriends(userFriendObject[index]);
+              }
+          ),
+
+
         ],
       ),
     );
   }
+
+
+
+  displayFriends(Users userFriendObject)
+  {
+    print("inside the display method");
+    print(userFriendObject.first_name);
+    return Row(mainAxisSize: MainAxisSize.max, children: [
+      getCommonPadding(
+          48,
+          6,
+          0,
+          12,
+          Center(
+            child: AssetImageWidget(
+              image: ImageConstants.IC_FATHER,
+              height: 40,
+              width: 40,
+            ),
+          )),
+      Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          getCommonPadding(
+            0,
+            6,
+            0,
+            27,
+            Text(
+             userFriendObject.first_name + "" + userFriendObject.last_name,
+              //"himaja",
+              style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.black),
+            ),
+          ),
+          getCommonPadding(
+            0,
+            3,
+            0,
+            27,
+            Text(
+              'London, UK',
+              style: TextStyle(fontSize: 12, color: AppColors.black_50),
+            ),
+          ),
+        ],
+      ),
+      Spacer(),
+      _getIUnFriendButton(),
+      Padding(padding: EdgeInsets.only(right: 30))
+    ]);
+  }
+
+  getAcceptedUserName()
+  { displayTheFriends();
+    print("inside the get accepted user name");
+         userFriendObject=[];
+         for(int i=0;i<intoFriendsList.length ;i++)
+         { print(users[i]);
+           String friendsId=intoFriendsList[i];
+           for(int i=0;i<users.length;i++) {
+             if (friendsId == users[i].id) {
+               print("inside the if condition method");
+               userFriendObject.add(users[i]);
+             }
+           }
+       }
+  }
+
+  displayTheFriends()
+  { print("Displaying the Friends");
+    intoFriendsList=[];
+    for(int i=0; i<friends.length;i++)
+      {
+        String friendid=friends[i].usersID;
+        if(friendid==loginUserId)
+          {
+            var splittingtheList=friends[i].friends_list;
+            intoFriendsList=splittingtheList.split(",");
+
+          }
+      }
+    print(intoFriendsList);
+  }
+
+
 
   /// This will render all the friends item
   _getFriendsDataListItem() {
@@ -225,83 +783,83 @@ class _FriendTabState extends State<FriendTab> with SingleTickerProviderStateMix
   }
 
   /// This will render all the friends item
-  _getFriendsRequestDataListItem() {
-    return Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.max,
-        children: [
-          Container(
-            alignment: Alignment.topLeft,
-            child: getCommonPadding(
-                48,
-                6,
-                0,
-                12,
-                AssetImageWidget(
-                  image: ImageConstants.IC_FATHER,
-                  height: 40,
-                  width: 40,
-                )),
-          ),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                getCommonPadding(
-                  0,
-                  6,
-                  0,
-                  27,
-                  Text(
-                    'Ali Akbar Khan',
-                    style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.black),
-                  ),
-                ),
-                getCommonPadding(
-                  0,
-                  3,
-                  0,
-                  27,
-                  Text(
-                    'Hello, I hope you are well. We are both in the same community and have similar interests. Let’s connect and grow the community…',
-                    style: TextStyle(fontSize: 12, color: AppColors.black_50),
-                    maxLines: 4,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Container(
-            alignment: Alignment.center,
-            child: Center(
-              child: Padding(
-                padding: const EdgeInsets.only(top: 30.0),
-                child: AssetImageWidget(
-                  height: 25,
-                  width: 25,
-                  image: ImageConstants.IC_PERSON_CLOSE_CIRCLE,
-                ),
-              ),
-            ),
-          ),
-          Padding(padding: EdgeInsets.only(right: 10)),
-          Center(
-            child: Padding(
-              padding: const EdgeInsets.only(top: 30.0),
-              child: AssetImageWidget(
-                height: 25,
-                width: 25,
-                image: ImageConstants.IC_PERSON_GREEN_CIRCLE,
-              ),
-            ),
-          ),
-          Padding(padding: EdgeInsets.only(right: 48))
-        ]);
-  }
+  // _getFriendsRequestDataListItem() {
+  //   return Row(
+  //       crossAxisAlignment: CrossAxisAlignment.start,
+  //       mainAxisSize: MainAxisSize.max,
+  //       children: [
+  //         Container(
+  //           alignment: Alignment.topLeft,
+  //           child: getCommonPadding(
+  //               48,
+  //               6,
+  //               0,
+  //               12,
+  //               AssetImageWidget(
+  //                 image: ImageConstants.IC_FATHER,
+  //                 height: 40,
+  //                 width: 40,
+  //               )),
+  //         ),
+  //         Expanded(
+  //           child: Column(
+  //             crossAxisAlignment: CrossAxisAlignment.start,
+  //             children: [
+  //               getCommonPadding(
+  //                 0,
+  //                 6,
+  //                 0,
+  //                 27,
+  //                 Text(
+  //                   'Ali Akbar Khan',
+  //                   style: TextStyle(
+  //                       fontSize: 14,
+  //                       fontWeight: FontWeight.bold,
+  //                       color: AppColors.black),
+  //                 ),
+  //               ),
+  //               getCommonPadding(
+  //                 0,
+  //                 3,
+  //                 0,
+  //                 27,
+  //                 Text(
+  //                   'Hello, I hope you are well. We are both in the same community and have similar interests. Let’s connect and grow the community…',
+  //                   style: TextStyle(fontSize: 12, color: AppColors.black_50),
+  //                   maxLines: 4,
+  //                   overflow: TextOverflow.ellipsis,
+  //                 ),
+  //               ),
+  //             ],
+  //           ),
+  //         ),
+  //         Container(
+  //           alignment: Alignment.center,
+  //           child: Center(
+  //             child: Padding(
+  //               padding: const EdgeInsets.only(top: 30.0),
+  //               child: AssetImageWidget(
+  //                 height: 25,
+  //                 width: 25,
+  //                 image: ImageConstants.IC_PERSON_CLOSE_CIRCLE,
+  //               ),
+  //             ),
+  //           ),
+  //         ),
+  //         Padding(padding: EdgeInsets.only(right: 10)),
+  //         Center(
+  //           child: Padding(
+  //             padding: const EdgeInsets.only(top: 30.0),
+  //             child: AssetImageWidget(
+  //               height: 25,
+  //               width: 25,
+  //               image: ImageConstants.IC_PERSON_GREEN_CIRCLE,
+  //             ),
+  //           ),
+  //         ),
+  //         Padding(padding: EdgeInsets.only(right: 48))
+  //       ]);
+  // }
 
   /// This will render all the friends item
   _getFriendsRequestSentDataListItem() {
@@ -332,7 +890,7 @@ class _FriendTabState extends State<FriendTab> with SingleTickerProviderStateMix
                   0,
                   27,
                   Text(
-                    'Ali Akbar Khan',
+                    "",
                     style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
@@ -370,6 +928,7 @@ class _FriendTabState extends State<FriendTab> with SingleTickerProviderStateMix
           Padding(padding: EdgeInsets.only(right: 48))
         ]);
   }
+
 
   /// This will render search bar
 
@@ -456,13 +1015,13 @@ class _FriendTabState extends State<FriendTab> with SingleTickerProviderStateMix
             ),
             tabs: [
               TabStyleWidget(
-                text: AppTexts.FRIENDS_TEXT_6,
+                text: "Friends -" + userFriendObject.length.toString(),
               ),
               TabStyleWidget(
-                text: AppTexts.REQUEST_4,
+                text: "Request -" + RequestUsersList.length.toString(),
               ),
               TabStyleWidget(
-                text: AppTexts.SENT_4,
+                text: "Sent -" + SentUsersList.length.toString(),
               ),
             ],
           ),
@@ -484,7 +1043,31 @@ class _FriendTabState extends State<FriendTab> with SingleTickerProviderStateMix
     );
   }
 
+  Future<List<FriendRequest>> friendRequestList() async{
+    try{
+      friendRequest = await Amplify.DataStore.query(FriendRequest.classType , where:FriendRequest.REQUEST_STATUS.eq("Sent"));
+     // print("////////////////");
+      print(friendRequest);
+      print("Inside the Friend Request in friends tab");
+     return friendRequest;
+    }catch(e)
+    {
 
+    }
+  }
+
+  Future<List<Users>> getListOfUsers() async
+  {
+    try {
+      users = await Amplify.DataStore.query(Users.classType);
+      print("list of users");
+      print(users);
+      return users;
+    }catch(e)
+    {
+
+    }
+  }
 
   ///Create a common padding widget for the About Us View
   Widget getCommonPadding(
@@ -495,4 +1078,45 @@ class _FriendTabState extends State<FriendTab> with SingleTickerProviderStateMix
       child: widget,
     );
   }
+
+  //  friendList() {
+  //   FRIENDLISTID.clear();
+  //   FRIEND.clear();
+  //   print("inside the friends list");
+  //   for(int i=0; i<friendRequest.length ;i++) {
+  //       if(loginUserId == friendRequest[i].request_from_id) {
+  //         String friendToId = friendRequest[i].request_to_id;
+  //         String requestMessaage = friendRequest[i].request_message;
+  //         for (int i = 0; i < users.length; i++) {
+  //           if (friendToId == users[i].id) {
+  //             FRIENDLISTID.add(friendToId);
+  //             FRIEND.add(users[i].first_name + "" + users[i].last_name);
+  //             // REQUESTMESSAGE.add(requestMessaage);
+  //           }
+  //         }
+  //       }
+  //     }
+  //   print(FRIENDLISTID);
+  //   print(FRIENDLISTID.length);
+  //   print("inside the FRiends List Method");
+  // }
+
+  // getRequestMessages() {
+  //   REQUESTMESSAGE.clear();
+  //   for(int i=0;i<FRIENDLISTID.length;i++)
+  //     {
+  //       String friendRequestId=FRIENDLISTID[i];
+  //       for(int i=0;i<friendRequest.length;i++)
+  //         {print("inside the friendRequest list");
+  //           if(friendRequestId == friendRequest[i].request_to_id)
+  //             {print("if condition in request message");
+  //               REQUESTMESSAGE.add(friendRequest[i].request_message);
+  //             }
+  //         }
+  //     }
+  //   print(REQUESTMESSAGE);
+  // }
+
+
+
 }

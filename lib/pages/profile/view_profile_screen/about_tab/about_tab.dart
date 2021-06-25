@@ -11,6 +11,7 @@ import 'package:mus_greet/models/UserFamily.dart';
 import 'package:mus_greet/models/UserProfile.dart';
 import 'package:amplify_flutter/amplify.dart';
 import 'package:mus_greet/models/Users.dart';
+import 'package:mus_greet/pages/profile/view_profile_screen/view_profile_screen.dart';
 
 class AboutTab extends StatefulWidget {
   List<UserProfile> userProfile;
@@ -21,25 +22,33 @@ class AboutTab extends StatefulWidget {
 
 class _AboutTabState extends State<AboutTab> {
   //List<UserProfile> userProfile;
-  List<Users> user;
-  List<UserFamily> userFamily;
+  List<Users> user=[];
+  List<UserFamily> userFamily=[];
   List<String> name=[];
   List<String> relationship=[];
   List<String> listOfLanguages;
   List<UserEducation> userEducation;
+  List<UserEducation> userEducationUsers=[];
   bool _isBioExpanded =false;
-   bool _isEducationExpanded = true;
+   bool _isEducationExpanded = false;
   bool _isContactInfoExpanded = false;
   bool _isGeneralInfoExpanded = false;
   bool _isFaithInfoExpanded = false;
   bool _isFamilyInfoExpanded = false;
   bool _isPrivacyInfoExpanded = false;
-  String userid="315eca04-ab0d-46f7-b063-d8707d607a18";
+  String userid="fb44a4d7-0a09-48fc-bd36-c407b9bbbfa3";
   Map<String,String> FAMILY_MEMBER={};
+
+  ViewProfileScreen args;
+  Users sessionUser;
 
   @override
   Widget build(BuildContext context) {
     //userList();
+
+    // args=ModelRoute.of(context).settings.arguments as ViewProfileScreen;
+    // sessionUser=args.sessionUser;
+    // userid=sessionUser.id;
     return FutureBuilder<List<Users>>(
       future: userList(),
       builder: (ctx, snapshot) {
@@ -57,6 +66,8 @@ class _AboutTabState extends State<AboutTab> {
   buildFamilyList(List<Users> user)
   {
     //userFamilyList();
+    print(user.length);
+    print("inside the user list method");
     return FutureBuilder<List<UserFamily>>(
       future: userFamilyList(),
       builder: (ctx, snapshot) {
@@ -75,6 +86,8 @@ class _AboutTabState extends State<AboutTab> {
   buildEducation(List<UserFamily> userFamily, List<Users> user)
   {
     //education();
+    print(userFamily.length);
+    print("inside the user family method");
     return FutureBuilder<List<UserEducation>>(
       future: education(),
       builder: (ctx, snapshot) {
@@ -93,7 +106,10 @@ class _AboutTabState extends State<AboutTab> {
   buildAbout(List<UserFamily> userFamily, List<Users> user, List<UserEducation> userEducation)
   {
     bool status = false;
-    gettingLanguages();
+    print("inside the build about");
+    print(userEducation);
+    gettingLanguages(widget.userProfile);
+    print("after getting the languages");
     if(userFamily.isNotEmpty && user.isNotEmpty && userEducation.isNotEmpty){
       status = true;
     }//
@@ -169,21 +185,22 @@ class _AboutTabState extends State<AboutTab> {
         CustomSpacerWidget(
           height: 5,
         ),
-        Container(
-          padding: EdgeInsets.only(left: 15, right: 15),
-          child: Text(
-            widget.userProfile[0].bio,
-            style: TextStyle(
-              fontFamily: FontConstants.FONT,
-              fontSize: 12,
-              fontWeight: FontWeight.w400,
-              color: AppColors.header_black,
-            ),
-          ),
-        ),
-        CustomSpacerWidget(
-          height: 30,
-        ),
+        // Container(
+        //   padding: EdgeInsets.only(left: 15, right: 15),
+        //   child: Text(
+        //     //widget.userProfile[0].bio,
+        //     "",
+        //     style: TextStyle(
+        //       fontFamily: FontConstants.FONT,
+        //       fontSize: 12,
+        //       fontWeight: FontWeight.w400,
+        //       color: AppColors.header_black,
+        //     ),
+        //   ),
+        // ),
+        // CustomSpacerWidget(
+        //   height: 30,
+        // ),
         Container(
           padding: EdgeInsets.only(left: 15, right: 15),
           child: DottedLine(
@@ -215,7 +232,6 @@ class _AboutTabState extends State<AboutTab> {
                 color: AppColors.header_black,
               ),
             ),
-
             _isBioExpanded
                 ? RotatedBox(
               quarterTurns: 2,
@@ -250,7 +266,7 @@ class _AboutTabState extends State<AboutTab> {
                     Row(
                         children:[
                           _getContactInfoData(
-                              contactType: "", details: widget.userProfile[0].bio),
+                              contactType: "", details: widget.userProfile[0].bio ),
                         ]
                     ),
                   ]
@@ -343,7 +359,7 @@ class _AboutTabState extends State<AboutTab> {
 
 
   _getEditDetails({Function callBack}) {
-     return GestureDetector(
+    return GestureDetector(
       onTap: () => callBack(),
       child: Padding(
         padding: const EdgeInsets.all(5.0),
@@ -370,6 +386,9 @@ class _AboutTabState extends State<AboutTab> {
   }
 
   _getEducationExpandedContainer() {
+    _getEducationList();
+    print("inside the user education");
+    print(userEducationUsers.length);
     return Container(
       padding: EdgeInsets.only(top: 10, bottom: 10),
       decoration: BoxDecoration(
@@ -378,19 +397,49 @@ class _AboutTabState extends State<AboutTab> {
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
-        children: [
+        children: <Widget>[
           _getEducationDetails(),
-          for(int i=0;i<userEducation.length ;i++)
-            if(userid ==userEducation[i].usersID)
-          _getEducationInfo(
-            institution: userEducation[i].institution,
-            dept: userEducation[i].course,
-            years: "2019-2021",
-            editIcon: true,
-          ),
+             Column(
+               children: <Widget>[
+                 //mainAxisAlignment: MainAxisAlignment.start,
+                 new ListView.builder(
+                   shrinkWrap: true,
+                   scrollDirection: Axis.vertical,
+                   itemCount: userEducationUsers.length,
+                   itemBuilder:(context ,index)
+                   {
+                     return  _getEducationInfo(
+                              institution: userEducationUsers[index].institution,
+                              dept: userEducationUsers[index].course,
+                              years: userEducationUsers[index].from + "," + userEducationUsers[index].to,
+                              editIcon: true,
+                            );
+                   }
+
+                 )
+               ],
+             ),
+
         ],
       ),
     );
+  }
+
+  _getEducationList()
+  { print("get educationlist");
+  userEducationUsers.clear();
+    for(int i=0;i<user.length;i++)
+      {print("for loop of education list");
+        String userId=user[i].id;
+        for(int i=0;i<userEducation.length;i++)
+          {print("for loop for length");
+            if(userId== userEducation[i].usersID)
+              {print("if condition is true");
+                userEducationUsers.add(userEducation[i]);
+              }
+          }
+      }
+    print(userEducationUsers.length);
   }
 
   _getEducationInfo(
@@ -573,7 +622,7 @@ class _AboutTabState extends State<AboutTab> {
               ),
               GestureDetector(
                 child: Padding(
-                  padding: EdgeInsets.only(left:210, top: 20),
+                  padding: EdgeInsets.only(left:130, top: 20),
                   child: AssetImageWidget(
                     image: ImageConstants.IC_EYE,
                     height: 20,
@@ -619,7 +668,10 @@ class _AboutTabState extends State<AboutTab> {
           ),
           Text(
             details,
+            maxLines: 3,
+            overflow: TextOverflow.ellipsis,
             style: TextStyle(
+
                 fontSize: 14,
                 fontWeight: FontWeight.bold,
                 fontFamily: FontConstants.FONT,
@@ -854,7 +906,7 @@ class _AboutTabState extends State<AboutTab> {
               ),
               GestureDetector(
                 child: Padding(
-                  padding: EdgeInsets.only(left:210, top: 20),
+                  padding: EdgeInsets.only(left:170, top: 20),
                   child: AssetImageWidget(
                     image: ImageConstants.IC_EYE,
                     height: 20,
@@ -986,6 +1038,7 @@ class _AboutTabState extends State<AboutTab> {
                     height: 10,
                   ),
                   for(int i=0;i<FAMILY_MEMBER.length;i++)
+                    if(userid == user[i].getId())
                   _getMemberDetails(
                       name: FAMILY_MEMBER.keys.elementAt(i), relationShip: FAMILY_MEMBER.values.elementAt(i)),
                 ],
@@ -1129,7 +1182,6 @@ class _AboutTabState extends State<AboutTab> {
                 }),
               )
                   : Container(),
-
             ],
 
           ),
@@ -1154,10 +1206,10 @@ class _AboutTabState extends State<AboutTab> {
     }
   }
 
-  gettingLanguages() {
-    try {
+  gettingLanguages(List<UserProfile> userProfile) {
       //userProfile = await Amplify.DataStore.query(UserProfile.classType,where: UserProfile.ID.eq("0263d01c-1250-4541-826d-8d63f96cf8c0"));
-      String language=widget.userProfile[0].languages_spoken;
+      try{
+    String language=userProfile[0].languages_spoken;
       var splitting= language.split(",");
       listOfLanguages=splitting;
       print(listOfLanguages);
@@ -1165,7 +1217,7 @@ class _AboutTabState extends State<AboutTab> {
       print("inside the user profile");
     }catch(e)
     {
-      print("Could not query DataStore: " + e);
+      //print("Could not query DataStore: " + e);
     }
   }
 
@@ -1196,6 +1248,7 @@ class _AboutTabState extends State<AboutTab> {
   }
 
   getUserFamily() {
+    FAMILY_MEMBER.clear();
     if(userFamily.isNotEmpty) {
       for (int i = 0; i < user.length; i++) {
         print(userFamily[i].name);
@@ -1216,7 +1269,7 @@ class _AboutTabState extends State<AboutTab> {
     try {
       userEducation= await Amplify.DataStore.query(UserEducation.classType);
       print(userEducation);
-      print("inside the user");
+      print("inside the user education");
       return userEducation;
     }catch(e)
     {

@@ -1,7 +1,9 @@
+import 'package:amplify_flutter/amplify.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mus_greet/core/utils/constants.dart';
 import 'package:mus_greet/core/widgets/bottom_navigation_bar_widget.dart';
+import 'package:mus_greet/models/Users.dart';
 import 'package:mus_greet/pages/create_post_screen/create_post_screen.dart';
 import 'package:mus_greet/pages/friend_search/friend_search.dart';
 import 'package:mus_greet/pages/home_screen/home_screen.dart';
@@ -24,6 +26,7 @@ class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin{
   PageController _pageController = PageController();
   bool shouldNavigateToSearch = false;
   bool shouldNavigateToMosqueSearch = false;
+
 
   _onWillPop() {
     if (shouldNavigateToSearch) {
@@ -64,11 +67,12 @@ class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin{
           //Container(),
           //FriendSearch(),
           HomeScreen(),
-          ViewProfileScreen(),
+          ViewProfileScreen(sessionUser: null,),
         ],
       ),
     );
   }
+
 
   ///This will return bottom navigation bar on screen
   _getBottomNavigationBar() {

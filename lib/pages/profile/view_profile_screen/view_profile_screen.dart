@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'dart:convert';
+import 'dart:core';
 import 'dart:ui';
 
 import 'package:amplify_flutter/amplify.dart';
@@ -21,7 +24,7 @@ import '../../../core/utils/constants.dart';
 
 ///This will render the current user profile on screen
 class ViewProfileScreen extends StatefulWidget {
-   final Users sessionUser;
+  final  Users sessionUser;
   ViewProfileScreen({this.sessionUser});
   @override
   _ViewProfileScreenState createState() => _ViewProfileScreenState();
@@ -34,7 +37,7 @@ class _ViewProfileScreenState extends State<ViewProfileScreen>
   TextEditingController _controller = TextEditingController();
   bool _isInEditMode = true;
   List<UserProfile> userProfile;
-
+  String userId;
   @override
   void initState() {
     _tabController = TabController(length: 4, vsync: this);
@@ -52,6 +55,10 @@ class _ViewProfileScreenState extends State<ViewProfileScreen>
 
   @override
   Widget build(BuildContext context) {
+    print("inside the build");
+    print(widget.sessionUser.id);
+    userId=widget.sessionUser.id;
+    print(userId);
     return Scaffold(
       backgroundColor: AppColors.GREY_KIND,
       body: _getBody(),
@@ -59,7 +66,10 @@ class _ViewProfileScreenState extends State<ViewProfileScreen>
   }
 
   _getBody() {
+    //print(widget.sessionUser.id);
+    print("inside the screen");
     getDetails();
+    //print(userProfile);
     return SingleChildScrollView(
       child: Column(
         children: [
@@ -68,8 +78,8 @@ class _ViewProfileScreenState extends State<ViewProfileScreen>
           Center(
             child: [
               PostTab(),
-              AboutTab(userProfile:userProfile),
-              InterestTab(),
+              AboutTab(sessionUser :widget.sessionUser),
+              InterestTab(sessionUser :widget.sessionUser),
               FriendTab(),
             ][_tabController.index],
           ),
@@ -321,14 +331,22 @@ class _ViewProfileScreenState extends State<ViewProfileScreen>
 
   getDetails() async
   {
+    //final userid=widget.sessionUser.id;
     try {
-      userProfile = await Amplify.DataStore.query(UserProfile.classType,
-          where: UserProfile.USERSID.eq(widget.sessionUser.id));
+      print("inside the get details method");
+      // userProfile = await Amplify.DataStore.query(UserProfile.classType,where: UserProfile.USERSID.eq(userId));
+      userProfile = await Amplify.DataStore.query(UserProfile.classType , where: UserProfile.USERSID.eq(userId));
       print(userProfile);
-      print("In the main page");
+     // Timer(
+     //     Duration(seconds: 5),
+     //     getUser());
+     // // getUser();
+
     }catch(e)
     {
 
     }
   }
+
+
 }

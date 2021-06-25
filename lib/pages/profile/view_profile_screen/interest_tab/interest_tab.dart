@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:mus_greet/core/config/navigation.dart';
 import 'package:mus_greet/core/utils/constants.dart';
@@ -5,6 +7,7 @@ import 'package:mus_greet/core/utils/routes.dart';
 import 'package:mus_greet/core/widgets/asset_image_widget.dart';
 import 'package:mus_greet/core/widgets/custom_spacer_widget.dart';
 import 'package:mus_greet/models/MasterIntrests.dart';
+import 'package:mus_greet/models/ModelProvider.dart';
 import 'package:mus_greet/models/UserProfile.dart';
 import 'package:mus_greet/pages/add_skills_screen/add_skills_screen.dart';
 import 'package:mus_greet/pages/final/nearly_finished_page.dart';
@@ -14,9 +17,8 @@ import 'package:mus_greet/pages/interest_screen/religious_interest_screen.dart';
 
 
 class InterestTab extends StatefulWidget {
-  //final List<UserProfile> userProfile;
-  //FacilitiesTab(List<Mosque> mosque);
-  //InterestTab({this.userProfile});
+  final Users sessionUser;
+  InterestTab({this.sessionUser});
   @override
   _InterestTabState createState() => _InterestTabState();
 }
@@ -520,7 +522,7 @@ class _InterestTabState extends State<InterestTab> {
 
       try {
         userProfile = await Amplify.DataStore.query(UserProfile.classType,
-            where: UserProfile.ID.eq("3dfb49d0-6dc7-43c3-92ac-697d3b855731"));
+            where: UserProfile.USERSID.eq(widget.sessionUser.id));
         print(userProfile);
         print("Inside the User Profile");
 
@@ -540,18 +542,41 @@ class _InterestTabState extends State<InterestTab> {
       SKILLS.clear();
       RELIGIOUS_LIST.clear();
       print("Inside the User Profile data store");
-      var  intrestId=userProfile[0].community_interests;
-      print(intrestId);
-      var skillsid=userProfile[0].skills;
-      var religiousid=userProfile[0].religious_interests;
-      print("In the main screen");
-      var intrestList = (intrestId.split(','));
-      var skilldList=(skillsid.split(','));
-      var religiousList=(religiousid.split(','));
-      IdSkill=skilldList;
+       var  intrestId=userProfile[0].community_interests;
+       print(intrestId);
+       print(intrestId.runtimeType);
+       List<dynamic> intrest=jsonDecode(intrestId);
+       print(intrest);
+       var intrestString=intrest.join(",");
+       var intrestList=intrestString.split(",");
+       print(intrestList);
+
+       print("------------Skills-------------");
+       var  skillsId=userProfile[0].skills;
+       print(skillsId);
+       print(skillsId.runtimeType);
+       List<dynamic> skills=jsonDecode(skillsId);
+       print(skills);
+       var SkillsString=skills.join(",");
+       var skilldList=SkillsString.split(",");
+       print(skilldList);
+
+       print("-----------------Religious -----------");
+
+        var  religious=userProfile[0].religious_interests;
+         print(religious);
+         print(religious.runtimeType);
+         List<dynamic> religiousDecode=jsonDecode(religious);
+          print(religiousDecode);
+          var religiousString=religiousDecode.join(",");
+         var religiousList=religiousString.split(",");
+        print(religiousList);
+
+
       idIntrest=intrestList;
+      IdSkill=skilldList;
       idReligious=religiousList;
-      //print(idIntrest[0]);
+      print(idIntrest[0]);
 
       for(int i=0;i<idIntrest.length;i++) {
         String hobbieList=idIntrest[i];

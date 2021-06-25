@@ -1,3 +1,6 @@
+import 'dart:convert';
+
+import 'package:amplify_datastore/amplify_datastore.dart';
 import 'package:dotted_line/dotted_line.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -11,18 +14,23 @@ import 'package:mus_greet/models/UserFamily.dart';
 import 'package:mus_greet/models/UserProfile.dart';
 import 'package:amplify_flutter/amplify.dart';
 import 'package:mus_greet/models/Users.dart';
+import 'package:mus_greet/pages/final/nearly_finished_page.dart';
+import 'package:mus_greet/pages/languages_screen/select_languages.dart';
 import 'package:mus_greet/pages/profile/view_profile_screen/view_profile_screen.dart';
 
+import '../../../../main.dart';
+
 class AboutTab extends StatefulWidget {
-  List<UserProfile> userProfile;
-  AboutTab({this.userProfile});
+  final Users sessionUser;
+  AboutTab({this.sessionUser});
+
   @override
   _AboutTabState createState() => _AboutTabState();
 }
 
 class _AboutTabState extends State<AboutTab> {
-  //List<UserProfile> userProfile;
-  List<Users> user=[];
+  List<UserProfile> userProfile;
+  //List<Users> user=[];
   List<UserFamily> userFamily=[];
   List<String> name=[];
   List<String> relationship=[];
@@ -36,7 +44,6 @@ class _AboutTabState extends State<AboutTab> {
   bool _isFaithInfoExpanded = false;
   bool _isFamilyInfoExpanded = false;
   bool _isPrivacyInfoExpanded = false;
-  String userid="fb44a4d7-0a09-48fc-bd36-c407b9bbbfa3";
   Map<String,String> FAMILY_MEMBER={};
 
   ViewProfileScreen args;
@@ -49,13 +56,13 @@ class _AboutTabState extends State<AboutTab> {
     // args=ModelRoute.of(context).settings.arguments as ViewProfileScreen;
     // sessionUser=args.sessionUser;
     // userid=sessionUser.id;
-    return FutureBuilder<List<Users>>(
+    return FutureBuilder<List<UserProfile>>(
       future: userList(),
       builder: (ctx, snapshot) {
         switch (snapshot.connectionState) {
           case ConnectionState.done:
-            user = snapshot.data;
-            return buildFamilyList(user);
+            userProfile = snapshot.data;
+            return buildFamilyList(userProfile);
           default:
             return _buildLoadingScreen();
         }
@@ -63,10 +70,10 @@ class _AboutTabState extends State<AboutTab> {
     );
   }
 
-  buildFamilyList(List<Users> user)
+  buildFamilyList(List<UserProfile> userProfile)
   {
     //userFamilyList();
-    print(user.length);
+    print(widget.sessionUser);
     print("inside the user list method");
     return FutureBuilder<List<UserFamily>>(
       future: userFamilyList(),
@@ -74,7 +81,7 @@ class _AboutTabState extends State<AboutTab> {
         switch (snapshot.connectionState) {
           case ConnectionState.done:
             userFamily = snapshot.data;
-            return buildEducation(userFamily,user);
+            return buildEducation(userFamily,widget.sessionUser);
           default:
             return _buildLoadingScreen();
         }
@@ -83,7 +90,7 @@ class _AboutTabState extends State<AboutTab> {
   }
 
 
-  buildEducation(List<UserFamily> userFamily, List<Users> user)
+  buildEducation(List<UserFamily> userFamily, Users user)
   {
     //education();
     print(userFamily.length);
@@ -103,14 +110,14 @@ class _AboutTabState extends State<AboutTab> {
   }
 
 
-  buildAbout(List<UserFamily> userFamily, List<Users> user, List<UserEducation> userEducation)
+  buildAbout(List<UserFamily> userFamily, Users user, List<UserEducation> userEducation)
   {
     bool status = false;
     print("inside the build about");
     print(userEducation);
-    gettingLanguages(widget.userProfile);
+    gettingLanguages(userProfile);
     print("after getting the languages");
-    if(userFamily.isNotEmpty && user.isNotEmpty && userEducation.isNotEmpty){
+    if(userFamily.isNotEmpty && userEducation.isNotEmpty){
       status = true;
     }//
     return status ? Container(
@@ -266,7 +273,7 @@ class _AboutTabState extends State<AboutTab> {
                     Row(
                         children:[
                           _getContactInfoData(
-                              contactType: "", details: widget.userProfile[0].bio ),
+                              contactType: "", details: userProfile[0].bio ),
                         ]
                     ),
                   ]
@@ -428,16 +435,15 @@ class _AboutTabState extends State<AboutTab> {
   _getEducationList()
   { print("get educationlist");
   userEducationUsers.clear();
-    for(int i=0;i<user.length;i++)
-      {print("for loop of education list");
-        String userId=user[i].id;
+      print("for loop of education list");
+        String userId=widget.sessionUser.id;
         for(int i=0;i<userEducation.length;i++)
           {print("for loop for length");
             if(userId== userEducation[i].usersID)
               {print("if condition is true");
                 userEducationUsers.add(userEducation[i]);
               }
-          }
+
       }
     print(userEducationUsers.length);
   }
@@ -591,7 +597,7 @@ class _AboutTabState extends State<AboutTab> {
                     children:[
                   _getContactInfoData(
                       contactType: AppTexts.EMAIL,
-                      details: user[0].email),
+                      details: widget.sessionUser.email),
                     ]
                   ),
                 ]
@@ -615,7 +621,7 @@ class _AboutTabState extends State<AboutTab> {
                         children:[
                           _getContactInfoData(
                               contactType: AppTexts.PHONE,
-                              details: user[0].phone),
+                              details: widget.sessionUser.phone),
                         ]
                     ),
                   ]
@@ -705,7 +711,7 @@ class _AboutTabState extends State<AboutTab> {
                     children: [
                   _getContactInfoData(
                       contactType: AppTexts.JOINED_MUSGREET,
-                      details: 'March 2021'),
+                      details: widget.sessionUser.joined_date.toString()),
                         ]
                      ),
                     ]
@@ -728,7 +734,7 @@ class _AboutTabState extends State<AboutTab> {
                       Row (
                           children: [
                             _getContactInfoData(
-                                contactType: AppTexts.GENDAR, details: 'Male'),
+                                contactType: AppTexts.GENDAR, details: widget.sessionUser.gender),
                           ]
                       ),
                     ]
@@ -752,7 +758,7 @@ class _AboutTabState extends State<AboutTab> {
                           children: [
                             _getContactInfoData(
                                 contactType: AppTexts.AGE,
-                                details: "27"),
+                                details: widget.sessionUser.age),
                           ]
                       ),
                     ]
@@ -776,7 +782,7 @@ class _AboutTabState extends State<AboutTab> {
                           children: [
                             _getContactInfoData(
                                 contactType: AppTexts.RELATION_SHIP,
-                                details: "27"),
+                                details: userProfile[0].relationship_status),
                           ]
                       ),
                     ]
@@ -809,7 +815,8 @@ class _AboutTabState extends State<AboutTab> {
                     ? Padding(
                   padding: EdgeInsets.only(right: 25, top: 15),
                   child: _getEditDetails(callBack: (){
-                    _navigateToEditEducationScreen(route: AppRoutes.LANGUAGES_SCREEN);
+                    //_navigateToEditEducationScreen(route: AppRoutes.LANGUAGES_SCREEN);
+                    Navigator.of(context).push(new MaterialPageRoute(builder: (_)=>new LanguagesScreen(sessionId: widget.sessionUser,)),).then((value) => value?build(context):null);
                   }),
                 )
                     : Container(),
@@ -826,7 +833,7 @@ class _AboutTabState extends State<AboutTab> {
                           children: [
                             _getContactInfoData(
                                 contactType: AppTexts.ADDRESS,
-                                details: "27"),
+                                details: widget.sessionUser.house_number + " " +widget.sessionUser.street + "\n " + widget.sessionUser.city + " " +widget.sessionUser.country + " " +widget.sessionUser.postcode),
                           ]
                       ),
                     ]
@@ -899,7 +906,7 @@ class _AboutTabState extends State<AboutTab> {
                     Row(
                         children:[
                           _getContactInfoData(
-                              contactType: AppTexts.SECT, details: widget.userProfile[0].sect),
+                              contactType: AppTexts.SECT, details: userProfile[0].sect),
                         ]
                     ),
                   ]
@@ -934,7 +941,7 @@ class _AboutTabState extends State<AboutTab> {
                     Row(
                         children:[
                           _getContactInfoData(
-                              contactType: AppTexts.ARE_YOU_A_REVERT, details: widget.userProfile[0].are_you_revert.toString()),
+                              contactType: AppTexts.ARE_YOU_A_REVERT, details:userProfile[0].are_you_revert.toString()),
                         ]
                     ),
                   ]
@@ -960,7 +967,7 @@ class _AboutTabState extends State<AboutTab> {
                         children:[
                           _getContactInfoData(
                               contactType: AppTexts.INTERESTED_IN_ISLAM,
-                              details: widget.userProfile[0].islam_interest.toString()),
+                              details: userProfile[0].islam_interest.toString()),
                         ]
                     ),
                   ]
@@ -1038,7 +1045,6 @@ class _AboutTabState extends State<AboutTab> {
                     height: 10,
                   ),
                   for(int i=0;i<FAMILY_MEMBER.length;i++)
-                    if(userid == user[i].getId())
                   _getMemberDetails(
                       name: FAMILY_MEMBER.keys.elementAt(i), relationShip: FAMILY_MEMBER.values.elementAt(i)),
                 ],
@@ -1169,7 +1175,7 @@ class _AboutTabState extends State<AboutTab> {
                     Row(
                         children:[
                           _getContactInfoData(
-                              contactType: AppTexts.PROFILE_VIEW, details: widget.userProfile[0].profile_privacy),
+                              contactType: AppTexts.PROFILE_VIEW, details: userProfile[0].profile_privacy),
                         ]
                     ),
                   ]
@@ -1206,14 +1212,19 @@ class _AboutTabState extends State<AboutTab> {
     }
   }
 
-  gettingLanguages(List<UserProfile> userProfile) {
-      //userProfile = await Amplify.DataStore.query(UserProfile.classType,where: UserProfile.ID.eq("0263d01c-1250-4541-826d-8d63f96cf8c0"));
+  gettingLanguages(List<UserProfile> userProfile) async {
+
       try{
     String language=userProfile[0].languages_spoken;
-      var splitting= language.split(",");
+    print("getting languages");
+    print(language);
+    List<dynamic> languageDecode=jsonDecode(language);
+    print(languageDecode);
+    var languageJoin=languageDecode.join(",");
+    var splitting= languageJoin.split(",");
       listOfLanguages=splitting;
       print(listOfLanguages);
-      print(widget.userProfile);
+      print(userProfile);
       print("inside the user profile");
     }catch(e)
     {
@@ -1221,16 +1232,14 @@ class _AboutTabState extends State<AboutTab> {
     }
   }
 
-  Future<List<Users>> userList() async{
-
-    try {
-      user= await Amplify.DataStore.query(Users.classType,where: Users.ID.eq(userid));
-      print(user);
-      print("inside the user");
-      return user;
+  Future<List<UserProfile>> userList() async{
+    try{
+      userProfile = await Amplify.DataStore.query(UserProfile.classType,where: UserProfile.USERSID.eq(widget.sessionUser.id));
+      print(userProfile);
+      return userProfile;
     }catch(e)
     {
-      print("Could not query DataStore: " + e);
+
     }
   }
 
@@ -1250,9 +1259,9 @@ class _AboutTabState extends State<AboutTab> {
   getUserFamily() {
     FAMILY_MEMBER.clear();
     if(userFamily.isNotEmpty) {
-      for (int i = 0; i < user.length; i++) {
+      for (int i = 0; i < userFamily.length; i++) {
         print(userFamily[i].name);
-        if (userid == userFamily[i].user_id) {
+        if (widget.sessionUser.id == userFamily[i].user_id) {
           print("hiiii");
           FAMILY_MEMBER.addAll({
             userFamily[i].name: userFamily[i].relationship,

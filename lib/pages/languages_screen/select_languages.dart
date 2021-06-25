@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:mus_greet/core/config/navigation.dart';
 import 'package:mus_greet/core/utils/constants.dart';
@@ -15,12 +17,14 @@ class LanguagesScreen extends StatefulWidget {
   final List<String> skillsList;
   final String gender;
   final String age;
+  final Users sessionId;
   //final List<Users> genderFilteredUsers;
   //final List<Users> ageFilteredUsers;
   LanguagesScreen({this.callingScreen,
     this.skillsList,
     this.gender,
-    this.age
+    this.age,
+    this.sessionId
     //this.genderFilteredUsers,
     //this.ageFilteredUsers
   });
@@ -29,12 +33,11 @@ class LanguagesScreen extends StatefulWidget {
 }
 class _LanguagesScreenState extends State<LanguagesScreen> {
    String languages;
-   List<UserProfile> userProfile;
+   List<UserProfile> userProfile=[];
    List<String> _selectedItems = [];
    List<String> _list;
   @override
   Widget build(BuildContext context) {
-    userDetails();
     return SafeArea(
       child: Scaffold(
         backgroundColor: AppColors.white,
@@ -44,6 +47,7 @@ class _LanguagesScreenState extends State<LanguagesScreen> {
   }
 
   _getBody() {
+    userDetails();
     return SingleChildScrollView(
       child: Stack(
         children: [
@@ -153,12 +157,12 @@ class _LanguagesScreenState extends State<LanguagesScreen> {
                   _navigateToAdvancedSearchScreen(_selectedItems);
                   //_selectedItems.clear();
                 }else{
-                  print(_selectedItems);
-                  languages =_selectedItems.join(",");
-                  print(languages);
+                  // print(_selectedItems);
+                  // languages =_selectedItems.join(",");
+                  // print(languages);
                   print("Add");
-                  updateUserProfile(languages);
-                  Navigation.back(context);
+                  updateUserProfile(jsonEncode(_selectedItems));
+                  Navigator.pop(context,true);
                 }
 
                 //Navigator.pop(context);
@@ -180,7 +184,7 @@ class _LanguagesScreenState extends State<LanguagesScreen> {
    }
 
   Future<void> userDetails() async{
-    userProfile = await Amplify.DataStore.query(UserProfile.classType,where: UserProfile.ID.eq("0263d01c-1250-4541-826d-8d63f96cf8c0"));
+    userProfile = await Amplify.DataStore.query(UserProfile.classType,where: UserProfile.USERSID.eq(widget.sessionId.id));
      String link=userProfile[0].languages_spoken;
      var a=link.split(",");
     _list=a;
@@ -194,6 +198,8 @@ class _LanguagesScreenState extends State<LanguagesScreen> {
         languages_spoken:languages);
 
     await Amplify.DataStore.save(updatedItem);
+    await Future.delayed(Duration(seconds: 1));
+
   }
 }
 class MultiSelectChip extends StatefulWidget {

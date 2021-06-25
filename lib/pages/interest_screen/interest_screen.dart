@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:amplify_flutter/amplify.dart';
 import 'package:flutter/material.dart';
@@ -333,14 +334,14 @@ class _InterestScreenState extends State<InterestScreen> {
 
   Future<void> _UpdatingIntrest() async
   {
-
     print(communityIntrest);
     print("updating the user");
     //print(widget.userProfile);
    // print(widget.userProfile[0].community_interests);
       final updatedItem = widget.userProfile[0].copyWith(
 
-          community_interests: communityIntrest);
+          //community_interests: communityIntrest
+          community_interests: jsonEncode(COMMUNITYINTREST));
 
       await Amplify.DataStore.save(updatedItem);
     //await Future.delayed(const Duration(seconds: 3));
@@ -364,7 +365,9 @@ class _InterestScreenState extends State<InterestScreen> {
     _generatingListId();
     print("Before the Intrest");
     print(COMMUNITYINTREST);
-    communityIntrest=COMMUNITYINTREST.join(",");
+    //communityIntrest=COMMUNITYINTREST.join(",");
+     
+    // communityIntrest=jsonEncode(COMMUNITYINTREST);
     print(communityIntrest);
     _UpdatingIntrest();
     // Navigator.pop(context, communityIntrest);

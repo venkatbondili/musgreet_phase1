@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mus_greet/core/utils/constants.dart';
 import 'package:mus_greet/core/widgets/bottom_navigation_bar_widget.dart';
+import 'package:mus_greet/models/ModelProvider.dart';
 import 'package:mus_greet/models/Users.dart';
 import 'package:mus_greet/pages/create_post_screen/create_post_screen.dart';
 import 'package:mus_greet/pages/friend_search/friend_search.dart';
@@ -26,7 +27,7 @@ class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin{
   PageController _pageController = PageController();
   bool shouldNavigateToSearch = false;
   bool shouldNavigateToMosqueSearch = false;
-
+  Users objectUser;
 
   _onWillPop() {
     if (shouldNavigateToSearch) {
@@ -56,6 +57,7 @@ class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin{
 
   ///This will render the body of home.
   _getBody() {
+    getUser();
     return SizedBox.expand(
       child: PageView(
         controller: _pageController,
@@ -67,7 +69,7 @@ class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin{
           //Container(),
           //FriendSearch(),
           HomeScreen(),
-          ViewProfileScreen(sessionUser: null,),
+          ViewProfileScreen(sessionUser: objectUser),
         ],
       ),
     );
@@ -121,6 +123,18 @@ class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin{
     setState(() {
       shouldNavigateToSearch = true;
     });
+  }
+
+  Future<void> getUser() async
+  { print("inside the get users");
+    List<Users> userObject=await Amplify.DataStore.query(Users.classType);
+    for(var user in userObject)
+      {print("for loop in user object");
+        if(user.id== "c55d5cd0-d200-4f26-a170-bb655af93fe5")
+          {print("inside the if condition");
+            objectUser=user;
+          }
+      }
   }
 
   @override

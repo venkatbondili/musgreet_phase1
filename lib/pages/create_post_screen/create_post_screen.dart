@@ -9,6 +9,7 @@ import 'package:mus_greet/core/utils/constants.dart';
 import 'package:mus_greet/core/utils/routes.dart';
 import 'package:mus_greet/core/widgets/action_button_widget.dart';
 import 'package:mus_greet/core/widgets/asset_image_widget.dart';
+import 'package:mus_greet/core/widgets/bottom_navigation_widget.dart';
 import 'package:mus_greet/core/widgets/custom_spacer_widget.dart';
 import 'package:mus_greet/core/widgets/drop_down_text_field.dart';
 import 'package:mus_greet/core/widgets/media_source_widget.dart';
@@ -16,6 +17,7 @@ import 'package:amplify_storage_s3/amplify_storage_s3.dart';
 import 'package:mus_greet/core/widgets/rounded_button_widget.dart';
 import 'package:mus_greet/core/widgets/s3_bucket_image_widget.dart';
 import 'package:mus_greet/models/ModelProvider.dart';
+import 'package:mus_greet/pages/home_screen/home_screen.dart';
 import 'package:path_provider/path_provider.dart';
 
 
@@ -25,6 +27,8 @@ class CreatePostScreen extends StatefulWidget {
   //final String UserProfileImage;
   //final String UserName;
   //CreatePostScreen({this.UserProfileImage, this.UserName});
+  final Users sessionUser;
+  CreatePostScreen({this.sessionUser});
   @override
   _CreatePostScreenState createState() => _CreatePostScreenState();
 }
@@ -32,7 +36,8 @@ class CreatePostScreen extends StatefulWidget {
 class _CreatePostScreenState extends State<CreatePostScreen> {
   final TextEditingController _thoughtsController = TextEditingController();
   /// remove the below two lines when we are passing the user details from other classes
-  String UserName = "Sindhuja";
+  //String UserName = "Sindhuja";
+  String UserName;
   String UserProfileImage = "https://musgreetphase1images184452-staging.s3.eu-west-2.amazonaws.com/public/public.png";
   var pickedFile;
   var filepath = '';
@@ -92,12 +97,24 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
 
   @override
   Widget build(BuildContext context) {
+    UserName = widget.sessionUser.first_name + " " + widget.sessionUser.last_name;
     return SafeArea(
       child: Scaffold(
         backgroundColor: AppColors.white,
         appBar: _getAppBar(),
         body: _getBody(),
+        bottomNavigationBar: _getBottomNavigation(widget.sessionUser),
       ),
+    );
+  }
+
+  _getBottomNavigation(Users sessionUser) {
+    return BottomNavigationWidget(
+      //MosqueFollowersList: UserMosqueFollowingList,
+      //CallingFunction: _navigateback(),
+      sessionUser: widget.sessionUser,
+      CallingScreen: "CreatePost",
+      index: 2,
     );
   }
 
@@ -149,7 +166,11 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
       leading: Container(
         padding: EdgeInsets.only(top: 15, left: 20, right: 20),
         child:GestureDetector(
-          onTap: ()=> Navigation.intent(context, AppRoutes.HOME),
+          //onTap: ()=> Navigation.intent(context, AppRoutes.HOME),
+          onTap: ()=> {
+            Navigator.of(context)
+                .push(MaterialPageRoute(builder: (context) => HomeScreen(sessionUser:widget.sessionUser)))
+          },
           child: AssetImageWidget(
             image: ImageConstants.IC_BACK,
             height: 10,
@@ -484,7 +505,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
         post_image_path: S3ImageURL.split('?')[0],
         description: "Keep Smiling",
         visibility: postVisibility,
-        usersID: "40d605ff-0ce4-4b4f-ae43-9e97d37c6cfc",
+        usersID: widget.sessionUser.id,
         //usersID: UserObject.ID,
         //usersID: "49e213cb-2849-4164-b5c6-4e6ab971c4c7",
         mosquesID: "",
@@ -501,7 +522,9 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
 
   ///This method will navigate back to Home
   _navigateToHome() {
-    Navigation.intent(context, AppRoutes.HOME);
+    Navigator.of(context)
+        .push(MaterialPageRoute(builder: (context) => HomeScreen(sessionUser:widget.sessionUser)));
+    //Navigation.intent(context, AppRoutes.HOME);
   }
 
 }

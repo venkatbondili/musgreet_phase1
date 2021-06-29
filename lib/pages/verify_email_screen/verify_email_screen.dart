@@ -5,7 +5,7 @@ import 'dart:convert';
 import 'package:amplify_flutter/amplify.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_session/flutter_session.dart';
+//import 'package:flutter_session/flutter_session.dart';
 import 'package:mus_greet/core/config/navigation.dart';
 //import 'package:mus_greet/core/utils/arguments.dart';
 import 'package:mus_greet/core/utils/constants.dart';
@@ -208,7 +208,7 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
       text: AppTexts.VERIFY_TEXT,
       isFilled: true,
       callBack: () {
-        print("clicking on verfiy button");
+        print("clicking on verify button");
         verify();
       },
     );

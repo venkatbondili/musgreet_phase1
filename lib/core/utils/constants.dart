@@ -230,7 +230,9 @@ class AppTexts {
   static const String RESEND_CODE_TEXT="Resend code";
   static const String VERIFY_TEXT="Verify";
   static const String VERIFY_EMAIL_TEXT="Verify your Email";
+  static const String VERIFY_ADDRESS_TEXT="Verify your Address";
   static const String ENTER_CODE_HINT="Please enter the 6 digit code sent to";
+  static const String ADDRESS_CODE_HINT="Please enter the 6 digit code sent to your address by post";
   static const String TIME_LIMIT_CODE="This code will expire in 5 minutes";
   static const String PARENTAL_CONSENT_FORM="Parental consent form";
   static const String VERIFY_AND_CONTINUE="Verify and continue";
@@ -245,7 +247,116 @@ class AppTexts {
     "Business services...",
   ];
 
-  static const List<String> SKILLS_CATEGORIES = [
+  static const Map<String,String> SKILLS_CATEGORIES = const {
+    "Business & Office" : "assets/images/business_owners.png",
+    "ChildCare" : "assets/images/childcare.png",
+    "Clothing" : "assets/images/clothing.png",
+    "Computers & Marketing" : "assets/images/computers_and_marketing.png",
+    "Entertainment" : "assets/images/entertainment.png",
+    "Finance & Legal" : "assets/images/finance_and_legal.png",
+    "Goods Suppliers & Retailers" : "assets/images/goods_suppliers_and_retailers.png",
+    "Health-Beauty-Fitness" : "assets/images/health_beauty_fitness.png",
+    "Motoring" : "assets/images/motoring.png",
+    "Pets" : "assets/images/pets.png",
+    "Online Shopping" : "assets/images/online_shopping.png",
+    "Property & Maintenance" : "assets/images/property_and_maintenance.png",
+    "Tradesman & Construction" : "assets/images/tradesman_and_construction.png",
+    "Public" : "assets/images/public.png",
+    "Transport" : "assets/images/transport.png",
+    "Travel & Tourism" : "assets/images/travel_and_tourism.png",
+    "Tuition & Classes" : "assets/images/tuition_and_classes.png",
+    "Wedding" : "assets/images/weddings.png",
+  };
+
+  static const Map<String,String> HOBIE_CATEGORIES = const{
+    "Baking" : "assets/images/baking.png",
+    "Business Owners" : "assets/images/business_owners.png",
+    "Cooking/Food" : "assets/images/cooking_food.png",
+    "Crafts" : "assets/images/crafts.png",
+    "Creative Writing" : "assets/images/creative_writing.png",
+    "Investing": "assets/images/investing.png",
+    "Learning Language": "assets/images/learning_languages.png",
+    "Video Games" : "assets/images/video_games.png",
+    "Music": "assets/images/music.png",
+    "Painting": "assets/images/painting.png",
+    "Photography/Filmmaking": "assets/images/photography_filmmaking.png",
+    "Radio Shows/Podcast": "assets/images/radio_shows_podcasts.png",
+    "Reading" : "assets/images/reading.png",
+    "Shopping" : "assets/images/online_shopping.png",
+  };
+
+  static const Map<String,String> SPORTS_EXERCISE_CATEGORIES = const {
+    "Archery" : "assets/images/archery.png",
+    "Badminton" :"assets/images/badminton.png",
+    "Basketball" :"assets/images/basketball",
+    "Boxing" :"assets/images/boxing",
+    "Cricket" :"assets/images/cricket.png",
+    "Cycling" :"assets/images/cycling.png",
+    "Football" :"assets/images/football.png",
+    "Hockey" : "assets/images/hockey.png",
+    "Horse Riding" :"assets/images/horse_riding.png",
+    "Martial Arts/MMA" : "assets/images/martail_arts.png",
+    "Pilates/Yoga" : "assets/images/pilates_yoga.png",
+    "Running/Athletics" :"assets/images/running_athletics.png",
+    "Swimming" :"assets/images/swimming.png",
+    "Rugby" : "assets/images/rugby.png",
+    "Water Sports" :"assets/images/watersports.png",
+    "Tennis" : "assets/images/tennis.png",
+  };
+
+  static const Map<String,String> FAMILY_OUTDOORS_CATEGORIES = const {
+    "Camping" : "assets/images/camping.png",
+    "Gardening" : "assets/images/gardening",
+    "Horse Riding" : "assets/images/horse_riding.png",
+    "Museums" : "assets/images/museums.png",
+    "Park/PlayGrounds" : "assets/images/parks_playgrounds.png",
+    "Walking" : "assets/images/walking.png",
+    "Theme Parks/Zoos" : "assets/images/theme_parks_zoo.png",
+    "Travel/Tourism/Backpacking" : "assets/images/travel.png" ,
+  };
+
+  static const Map<String,String> VOLUNTEER_CATEGORIES = const {
+    "Children And Youth" : "assets/images/children_and_youth.png",
+    "Community Centre" : "assets/images/community_center.png",
+    "Education" : "assets/images/education.png",
+    "Environment" : "assets/images/environment.png ",
+    "Mental Health Groups": "assets/images/mental_health_groups.png",
+    "Local Library" : "assets/images/local_library.png",
+    "Men's Wellbeing" : "assets/images/men_s_wellbeing.png",
+    "Health" : "assets/images/health.png",
+    "Wildlife Conservation": "assets/images/wildlife_conservation.png",
+    "Women's Wellbeing" : "assets/images/women_s_wellbeing.png",
+  };
+
+  static const Map<String,String> COMMUNITY_INVOLVEMENT_CATEGORIES = const {
+    "Coaching" : "assets/images/coaching.png",
+    "Collecting For Donations" : "assets/images/collecting_for_donations_e_g_school_supplies_food_items_hygiene_products.png",
+    "Kids & Youth Development" : "assets/images/youth_development",
+    "Mentoring" : "assets/images/mentoring.png",
+    "Making/Sending Handmade Gifts" : "assets/images/making_or_sending_handmade_gifts_e_g_for_hospitals_care_homes_family_shelters_etc.png",
+    "Teaching" : "assets/images/teaching_e_g_it_for_adults_cpr_etc",
+    "Participating In Local Park Clean Up" : "assets/images/participating_in_local_park_clean_up",
+  };
+
+  static const Map<String,String> RELIGIONS_INTEREST_CATEGORIES = const{
+    "Attending Mosque" : "assets/images/attending_mosque.png",
+    "Brothers Meetup" : "assets/images/brothers_meetup.png",
+    "Charity Work" : "assets/images/charity_work.png",
+    "Community Development" : "assets/images/community_development.png",
+    "Developing Arabic" : "assets/images/developing_arabic.png",
+    "Embracing Reverts" : "assets/images/embracing_reverts.png",
+    "Family Meetup" : "assets/images/family_meetup.png",
+    "Giving Dawah" : "assets/images/giving_dawah.png",
+    "Sisters Meetup" : "assets/images/sisters_meetup.png",
+    "Prayer Motivation" : "assets/images/prayer_motivation.png",
+    //"Mosque Classes" : "assets/images/mosque_lectures.png",
+    "Mosque Lectures" : "assets/images/mosque_lectures.png",
+    "Quran Motivation" : "assets/images/quran_motivation.png",
+    "Talks In The Community" : "assets/images/talks_in_the_community.png",
+    "Tajweed Developmeny" : "assets/images/tajweed_development.png",
+  };
+
+  static const List<String> SKILLS_CATEGORIES1 = [
     "Business & Office",
     "ChildCare",
     "Clothing",
@@ -306,7 +417,7 @@ class AppTexts {
     "Son",
   ];
 
-  static const List<String> HOBIE_CATEGORIES = [
+  static const List<String> HOBIE_CATEGORIES1 = [
     "Baking",
     "Business Owners",
     "Cooking/Food",
@@ -323,7 +434,7 @@ class AppTexts {
     "Shopping"
   ];
 
-  static const List<String> SPORTS_EXERCISE_CATEGORIES = [
+  static const List<String> SPORTS_EXERCISE_CATEGORIES1 = [
     "Archery",
     "Badminton",
     "Basketball",
@@ -365,7 +476,7 @@ class AppTexts {
 
   };
 
-  static const List<String> FAMILY_OUTDOORS_CATEGORIES = [
+  static const List<String> FAMILY_OUTDOORS_CATEGORIES1 = [
     "Camping",
     "Gardening",
     "Horse Riding",
@@ -376,7 +487,7 @@ class AppTexts {
     "Travel/Tourism/Backpacking"
   ];
 
-  static const List<String> VOLUNTEER_CATEGORIES = [
+  static const List<String> VOLUNTEER_CATEGORIES1 = [
     "Children And Youth",
     "Community Centre",
     "Education",
@@ -389,7 +500,7 @@ class AppTexts {
     "Women's Wellbeing",
   ];
 
-  static const List<String> COMMUNITY_INVOLVEMENT_CATEGORIES = [
+  static const List<String> COMMUNITY_INVOLVEMENT_CATEGORIES1 = [
     "Coaching",
     "Collecting For Donations",
     "Kids & Youth Development",
@@ -433,7 +544,7 @@ class AppTexts {
     "Ruqayya Services",
   ];
 
-  static const List<String> RELIGIONS_INTEREST_CATEGORIES = [
+  static const List<String> RELIGIONS_INTEREST_CATEGORIES1 = [
     "Attending Mosque",
     "Brothers Meetup",
     "Charity Work",
@@ -507,6 +618,11 @@ class AppTexts {
   static const List<String> PROFILE_PRIVACY=[
     "Community",
     "Friends",
+  ];
+
+  static const List<String> RELATIONSHIP=[
+    "Single",
+    "Married",
   ];
 }
 

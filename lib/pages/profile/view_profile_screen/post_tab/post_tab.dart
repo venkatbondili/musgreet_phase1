@@ -11,10 +11,13 @@ import 'package:mus_greet/models/ModelProvider.dart';
 import 'package:mus_greet/models/Posts.dart';
 import 'package:mus_greet/models/Users.dart';
 import 'package:amplify_flutter/amplify.dart';
+import 'package:mus_greet/pages/create_post_screen/create_post_screen.dart';
 import 'package:mus_greet/pages/home_screen/comment_screen/comment_screen.dart';
 
 
 class PostTab extends StatefulWidget {
+  final Users sessionUser;
+  PostTab({this.sessionUser});
   @override
   _PostTabState createState() => _PostTabState();
 }
@@ -28,10 +31,11 @@ class _PostTabState extends State<PostTab> {
   Users UserObject;
   //int   CommentsCount = 0;
   int  LikesCount = 0;
-  String UserID = "6e433507-a211-42f2-a7f4-f2b5583a7ed1";
+  String UserID;
 
   @override
   Widget build(BuildContext context) {
+    UserID = widget.sessionUser.id;
     return FutureBuilder<Users>(
       future: _getUser(UserID),
       builder: (ctx, snapshot) {
@@ -66,7 +70,8 @@ class _PostTabState extends State<PostTab> {
           ),
           GestureDetector(
             onTap: (){
-              Navigation.intent(context, AppRoutes.CREATE_POST_SCREEN);
+              _navigatetoCreatePost();
+              //Navigation.intent(context, AppRoutes.CREATE_POST_SCREEN);
             },//=> widget.callBack(),
             child: Container(
               padding: EdgeInsets.only(left: 15,right: 15,top: 8,bottom: 8),
@@ -88,6 +93,15 @@ class _PostTabState extends State<PostTab> {
         ],
       ),
     );
+  }
+
+  _navigatetoCreatePost(){
+    print("inside navigate to create post");
+    print(widget.sessionUser.first_name);
+
+    Navigator.of(context)
+        .push(MaterialPageRoute(builder: (context) => CreatePostScreen(sessionUser:widget.sessionUser)));
+
   }
 
   _getEditButton() {
@@ -123,7 +137,7 @@ class _PostTabState extends State<PostTab> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 _getTextField(),
-                ListView.separated(
+                Postss.isNotEmpty ? ListView.separated(
                   //physics: NeverScrollableScrollPhysics(),
                   shrinkWrap: true,
                   itemBuilder: (context, index){
@@ -137,6 +151,29 @@ class _PostTabState extends State<PostTab> {
                     );
                   },
                   itemCount: posts.length,
+                ) : PostCardWidget(
+                  //profileImage: ImageConstants.IC_HOME_USER1,
+                  //profileImage: Image.network('https://picsum.photos/250?image=9'),
+                  //profileImage:// userData profile photo link need to be linked,
+                  profileImage: "https://musgreetphase1images184452-staging.s3.eu-west-2.amazonaws.com/public/home_user1.png",
+                  //name: AppTexts.TEMP_NAME1,
+                  //name: Postss[index].usersID,
+                  //name: UserObject.first_name,
+                  //name: UserObjectList[0].first_name,
+                  name: "Musgreet",
+                  isSponsored: false,
+                  //timeAgo: AppTexts.TEMP_TIME_AGO_1,
+                  timeAgo:"",
+                  //image: ImageConstants.IMG_POST1,
+                  post: "Welcome to Musgreet!!! Create your Posts here",
+                  image: "https://musgreetphase1images184452-staging.s3.eu-west-2.amazonaws.com/public/post_img.png",
+                  //image: "https://musgreetphase1images184452-staging.s3.eu-west-2.amazonaws.com/public/image_picker5824495182282881133.jpg",
+                  //image: "https://musgreetphase1images184452-staging.s3.eu-west-2.amazonaws.com/public/post_img_2.png",
+                  //callBack: () => _loadCommentScreen(),
+                  //callBack: () => _loadCommentScreen(Postss[index].id, User[0], Postss[index].post, Postss[index].post_image_path),
+                  //callBack: () =>
+                  // _loadCommentScreen(postData, UserData, CommentsCount.toString(), sessionUser),
+                  commentsCount: 0.toString(),
                 ),
               ],
             ),
@@ -304,6 +341,34 @@ class _PostTabState extends State<PostTab> {
             return _buildLoadingScreen();
         }
       },
+    );
+  }
+
+  _getAdminPost() {
+
+    return PostCardWidget(
+      //profileImage: ImageConstants.IC_HOME_USER1,
+      //profileImage: Image.network('https://picsum.photos/250?image=9'),
+      //profileImage:// userData profile photo link need to be linked,
+      profileImage: "https://musgreetphase1images184452-staging.s3.eu-west-2.amazonaws.com/public/home_user1.png",
+      //name: AppTexts.TEMP_NAME1,
+      //name: Postss[index].usersID,
+      //name: UserObject.first_name,
+      //name: UserObjectList[0].first_name,
+      name: "MUsgreet",
+      isSponsored: false,
+      //timeAgo: AppTexts.TEMP_TIME_AGO_1,
+      timeAgo:"",
+      //image: ImageConstants.IMG_POST1,
+      post: "Welcome to Musgreet!!! Create your Posts here",
+      image: "https://musgreetphase1images184452-staging.s3.eu-west-2.amazonaws.com/public/post_img.png",
+      //image: "https://musgreetphase1images184452-staging.s3.eu-west-2.amazonaws.com/public/image_picker5824495182282881133.jpg",
+      //image: "https://musgreetphase1images184452-staging.s3.eu-west-2.amazonaws.com/public/post_img_2.png",
+      //callBack: () => _loadCommentScreen(),
+      //callBack: () => _loadCommentScreen(Postss[index].id, User[0], Postss[index].post, Postss[index].post_image_path),
+      //callBack: () =>
+      // _loadCommentScreen(postData, UserData, CommentsCount.toString(), sessionUser),
+      //commentsCount: CommentsCount.toString(),
     );
   }
 

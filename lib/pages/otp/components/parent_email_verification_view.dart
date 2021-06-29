@@ -30,7 +30,7 @@ class _ParentEmailVerificationViewState extends State<ParentEmailVerificationVie
 
   @override
   Widget build(BuildContext context) {
-
+    SizeConfig().init(context);
     args = ModalRoute.of(context).settings.arguments as ParentEmailArgumentClass;
     sessionUser = args.sessionUser;
     email = sessionUser.email;

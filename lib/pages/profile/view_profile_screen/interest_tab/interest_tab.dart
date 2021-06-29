@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:mus_greet/core/config/navigation.dart';
 import 'package:mus_greet/core/utils/constants.dart';
@@ -5,16 +7,18 @@ import 'package:mus_greet/core/utils/routes.dart';
 import 'package:mus_greet/core/widgets/asset_image_widget.dart';
 import 'package:mus_greet/core/widgets/custom_spacer_widget.dart';
 import 'package:mus_greet/models/MasterIntrests.dart';
+import 'package:mus_greet/models/ModelProvider.dart';
 import 'package:mus_greet/models/UserProfile.dart';
+import 'package:mus_greet/pages/add_skills_screen/add_skills_screen.dart';
 import 'package:mus_greet/pages/final/nearly_finished_page.dart';
 import 'package:mus_greet/pages/interest_screen/interest_screen.dart';
 import 'package:amplify_flutter/amplify.dart';
+import 'package:mus_greet/pages/interest_screen/religious_interest_screen.dart';
 
 
 class InterestTab extends StatefulWidget {
-  final List<UserProfile> userProfile;
-  //FacilitiesTab(List<Mosque> mosque);
-  InterestTab({this.userProfile});
+  final Users sessionUser;
+  InterestTab({this.sessionUser});
   @override
   _InterestTabState createState() => _InterestTabState();
 }
@@ -22,7 +26,7 @@ class InterestTab extends StatefulWidget {
 class _InterestTabState extends State<InterestTab> {
 
   List<MasterIntrests> masterIntrest;
-  List<UserProfile> userProfile;
+ List<UserProfile> userProfile;
   List<String> idIntrest=[];
   List<String> IdSkill=[];
   List<String> idReligious=[];
@@ -33,13 +37,15 @@ class _InterestTabState extends State<InterestTab> {
   @override
   Widget build(BuildContext context) {
     print("Build Context");
+    //print(widget.userProfile);
+
     return FutureBuilder<List<MasterIntrests>>(
       future: _getMasterIntrestList(),
       builder: (ctx, snapshot) {
         switch (snapshot.connectionState) {
           case ConnectionState.done:
             masterIntrest = snapshot.data;
-            return buildUserProfile(masterIntrest);
+            return buildUi(masterIntrest);
           default:
             return _buildLoadingScreen();
         }
@@ -48,17 +54,15 @@ class _InterestTabState extends State<InterestTab> {
 
   }
 
-  buildUserProfile(List<MasterIntrests> masterIntrest)
+  buildUi(List<MasterIntrests> masterIntrest)
   {
-    print("checking intrest tab");
-    print(idIntrest);
     return FutureBuilder<List<UserProfile>>(
       future: getUserProfile(),
       builder: (ctx, snapshot) {
         switch (snapshot.connectionState) {
           case ConnectionState.done:
             userProfile = snapshot.data;
-            return buildUI(userProfile);
+            return buildUserProfileList(userProfile);
           default:
             return _buildLoadingScreen();
         }
@@ -66,201 +70,206 @@ class _InterestTabState extends State<InterestTab> {
     );
   }
 
-  buildUI(List<UserProfile> userProfile)
+
+  buildUserProfileList(List<UserProfile> userProfile)
   {print("BUILD UI");
+  print(masterIntrest.length);
+  getIntrests();
   print(idIntrest.length);
-  print(userProfile[0].community_interests);
-    getIntrests();
-    return Container(
-        margin: EdgeInsets.only(top: 4),
-        width: MediaQuery.of(context).size.width,
-        color: AppColors.white,
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          getCommonPadding(
-              26,
-              7,
-              0,
-              27,
+  //print(userProfile[0].community_interests);
+
+  return Container(
+      margin: EdgeInsets.only(top: 4),
+      width: MediaQuery.of(context).size.width,
+      color: AppColors.white,
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        getCommonPadding(
+            26,
+            7,
+            0,
+            27,
+            Text(
+              AppTexts.COMMUNITY_INTEREST,
+              style: TextStyle(
+                  fontFamily: FontConstants.FONT,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.header_black),
+            )),
+        getCommonPadding(
+          39,
+          7,
+          0,
+          27,
+          Row(
+            children: [
               Text(
-                AppTexts.COMMUNITY_INTEREST,
+                AppTexts.INTEREST,
                 style: TextStyle(
                     fontFamily: FontConstants.FONT,
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
                     color: AppColors.header_black),
-              )),
-          getCommonPadding(
-            39,
-            7,
-            0,
-            27,
-            Row(
-              children: [
-                Text(
-                  AppTexts.INTEREST,
-                  style: TextStyle(
-                      fontFamily: FontConstants.FONT,
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.header_black),
+              ),
+              Text(
+                INTRESTS.length.toString(),
+                style: TextStyle(
+                    fontFamily: FontConstants.FONT,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.green),
+              ),
+              Expanded(
+                child: CustomSpacerWidget(
+                  width: 4,
                 ),
-                Text(
-                  INTRESTS.length.toString(),
-                  style: TextStyle(
-                      fontFamily: FontConstants.FONT,
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.green),
-                ),
-                Expanded(
-                  child: CustomSpacerWidget(
-                    width: 4,
+              ),
+              GestureDetector(
+                onTap: () => _navigateToInterestScreen(userProfile),
+                child: Padding(
+                  padding: const EdgeInsets.all(5.0),
+                  child: AssetImageWidget(
+                    image: ImageConstants.IC_EDIT,
+                    height: 20,
+                    width: 20,
                   ),
                 ),
-                GestureDetector(
-                  onTap: () => _navigateToInterestScreen(userProfile),
-                  child: Padding(
-                    padding: const EdgeInsets.all(5.0),
-                    child: AssetImageWidget(
-                      image: ImageConstants.IC_EDIT,
-                      height: 20,
-                      width: 20,
-                    ),
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
-          getInterestList(),
-          getCommonPadding(
-            39,
-            0,
-            0,
-            27,
-            Row(
-              children: [
-                Text(
-                  AppTexts.SKILLS,
-                  style: TextStyle(
-                      fontFamily: FontConstants.FONT,
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.black),
-                ),
-                Text(
-                  SKILLS.length.toString(),
-                  style: TextStyle(
-                      fontFamily: FontConstants.FONT,
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.green),
-                ),
-                Expanded(
-                  child: getCommonPadding(
-                      10,
-                      0,
-                      0,
-                      0,
-                      Container(
-                        height: 30,
-                        decoration: BoxDecoration(
-                          color: AppColors.green_light,
-                          borderRadius: BorderRadius.all(
-                            Radius.circular(40),
-                          ),
+        ),
+        getInterestList(),
+        getCommonPadding(
+          39,
+          0,
+          0,
+          27,
+          Row(
+            children: [
+              Text(
+                AppTexts.SKILLS,
+                style: TextStyle(
+                    fontFamily: FontConstants.FONT,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.black),
+              ),
+              Text(
+                SKILLS.length.toString(),
+                style: TextStyle(
+                    fontFamily: FontConstants.FONT,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.green),
+              ),
+              Expanded(
+                child: getCommonPadding(
+                    10,
+                    0,
+                    0,
+                    0,
+                    Container(
+                      height: 30,
+                      decoration: BoxDecoration(
+                        color: AppColors.green_light,
+                        borderRadius: BorderRadius.all(
+                          Radius.circular(40),
                         ),
-                        child: Center(
-                          child: getCommonPadding(
-                              15,
-                              3,
-                              3,
-                              15,
-                              Text(
-                                'For more options, visit our business services',
-                                overflow: TextOverflow.ellipsis,
-                                style: TextStyle(
-                                    fontFamily: FontConstants.FONT,
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.bold,
-                                    color: AppColors.green),
-                              )),
-                        ),
-                      )),
-                ),
-                CustomSpacerWidget(
-                  width: 15,
-                ),
-                GestureDetector(
-                  onTap: () => _navigateToEditSkillsScreen(),
-                  child: Padding(
-                    padding: const EdgeInsets.all(5.0),
-                    child: AssetImageWidget(
-                      image: ImageConstants.IC_EDIT,
-                      height: 20,
-                      width: 20,
-                    ),
+                      ),
+                      child: Center(
+                        child: getCommonPadding(
+                            15,
+                            3,
+                            3,
+                            15,
+                            Text(
+                              'For more options, visit our business services',
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                  fontFamily: FontConstants.FONT,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.green),
+                            )),
+                      ),
+                    )),
+              ),
+              CustomSpacerWidget(
+                width: 15,
+              ),
+              GestureDetector(
+                onTap: () => _navigateToEditSkillsScreen(userProfile),
+                child: Padding(
+                  padding: const EdgeInsets.all(5.0),
+                  child: AssetImageWidget(
+                    image: ImageConstants.IC_EDIT,
+                    height: 20,
+                    width: 20,
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
-          getSkills(),
-          getCommonPadding(
-            39,
+        ),
+        getSkills(),
+        getCommonPadding(
+          39,
+          0,
+          0,
+          27,
+          Row(
+            children: [
+              Text(
+                AppTexts.RELIGIOUS_INTEREST,
+                style: TextStyle(
+                    fontFamily: FontConstants.FONT,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.black),
+              ),
+              Text(
+                RELIGIOUS_LIST.length.toString(),
+                style: TextStyle(
+                    fontFamily: FontConstants.FONT,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.green),
+              ),
+              Expanded(
+                child: CustomSpacerWidget(
+                  width: 5,
+                ),
+              ),
+              GestureDetector(
+                onTap: () => _navigateToReligiousScreen(userProfile),
+                child: Padding(
+                  padding: const EdgeInsets.all(5.0),
+                  child: AssetImageWidget(
+                    image: ImageConstants.IC_EDIT,
+                    height: 20,
+                    width: 20,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        getReligiousInterest(),
+        getCommonPadding(
+            0,
+            30,
             0,
             0,
-            27,
-            Row(
-              children: [
-                Text(
-                  AppTexts.RELIGIOUS_INTEREST,
-                  style: TextStyle(
-                      fontFamily: FontConstants.FONT,
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.black),
-                ),
-                Text(
-                  RELIGIOUS_LIST.length.toString(),
-                  style: TextStyle(
-                      fontFamily: FontConstants.FONT,
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.green),
-                ),
-                Expanded(
-                  child: CustomSpacerWidget(
-                    width: 5,
-                  ),
-                ),
-                GestureDetector(
-                  onTap: () => _navigateToReligiousScreen(),
-                  child: Padding(
-                    padding: const EdgeInsets.all(5.0),
-                    child: AssetImageWidget(
-                      image: ImageConstants.IC_EDIT,
-                      height: 20,
-                      width: 20,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          getReligiousInterest(),
-          getCommonPadding(
-              0,
-              30,
-              0,
-              0,
-              Center(
-                child: AssetImageWidget(
-                  image: ImageConstants.AMAZON_ADS,
-                  width: MediaQuery.of(context).size.width,
-                ),
-              ))
-        ]));
+            Center(
+              child: AssetImageWidget(
+                image: ImageConstants.AMAZON_ADS,
+                width: MediaQuery.of(context).size.width,
+              ),
+            ))
+      ]));
   }
+
+
 
   Widget _buildLoadingScreen() {
     return Center(
@@ -490,31 +499,32 @@ class _InterestTabState extends State<InterestTab> {
 
   ///This will edit the interest and navigate to add interest screen
   _navigateToInterestScreen(List<UserProfile> userProfile) {
-   // Navigation.intent(context, AppRoutes.INTEREST_SCREEN);
+    //Navigation.intent(context, AppRoutes.INTEREST_SCREEN);
    //Navigator.push(context, MaterialPageRoute(builder: (context)=>InterestScreen(userProfile:widget.userProfile),));
-    Navigator.of(context).push(new MaterialPageRoute(builder: (_)=>new InterestScreen(userProfile: userProfile)),).then((value) => value?build(context):null);
+   Navigator.of(context).push(new MaterialPageRoute(builder: (_)=>new InterestScreen(userProfile: userProfile)),).then((value) => value?build(context):null);
   }
 
   ///This will edit the interest and navigate to add interest screen
-  _navigateToEditSkillsScreen() {
+  _navigateToEditSkillsScreen(List<UserProfile> userProfile) {
     //Navigation.intent(context, AppRoutes.ADD_SKILLS_IMAGES);
-    Navigation.intent(context, AppRoutes.ADD_SKILLS);
+    //Navigation.intent(context, AppRoutes.ADD_SKILLS);
+    Navigator.of(context).push(new MaterialPageRoute(builder: (_)=>new AddSkillsScreen(userProfile: userProfile)),).then((value) => value?build(context):null);
   }
 
 
-   _navigateToReligiousScreen()
+   _navigateToReligiousScreen(List<UserProfile> userProfile)
    {
-     Navigation.intent(context, AppRoutes.ADD_RELIGIOUS_INTERESTS_SCREEN);
-
+     //Navigation.intent(context, AppRoutes.ADD_RELIGIOUS_INTERESTS_SCREEN);
+     Navigator.of(context).push(new MaterialPageRoute(builder: (_)=>new ReligiousInterestScreen(userProfile: userProfile)),).then((value) => value?build(context):null);
    }
 
    Future<List<UserProfile>>getUserProfile() async{
+
       try {
         userProfile = await Amplify.DataStore.query(UserProfile.classType,
-            where: UserProfile.ID.eq("96860140-afa9-47b6-a578-01d30043507c"));
+            where: UserProfile.USERSID.eq(widget.sessionUser.id));
         print(userProfile);
         print("Inside the User Profile");
-
         return userProfile;
       } catch(e)
      {
@@ -522,74 +532,111 @@ class _InterestTabState extends State<InterestTab> {
      }
    }
 
-   getIntrests()
-  { //idIntrest.clear();
-    try {
+   getIntrests() { //idIntrest.clear();
+    //try {
+    print("Inside the get Intrest");
+    print(masterIntrest.length);
       INTRESTS.clear();
       SKILLS.clear();
       RELIGIOUS_LIST.clear();
       print("Inside the User Profile data store");
-      var  intrestId=userProfile[0].community_interests;
-      var skillsid=userProfile[0].skills;
-      var religiousid=userProfile[0].religious_interests;
-      print("In the main screen");
-      var intrestList = (intrestId.split(','));
-      var skilldList=(skillsid.split(','));
-      var religiousList=(religiousid.split(','));
-      IdSkill=skilldList;
-      idIntrest=intrestList;
-      idReligious=religiousList;
-      //print(idIntrest[0]);
+       var  intrestId=userProfile[0].community_interests;
+       if(intrestId != null){
+         print(intrestId);
+         print(intrestId.runtimeType);
+         List<dynamic> intrest=jsonDecode(intrestId);
+         print(intrest);
+         var intrestString=intrest.join(",");
+         var intrestList=intrestString.split(",");
+         print(intrestList);
+         idIntrest=intrestList;
 
-      for(int i=0;i<idIntrest.length;i++) {
-        String hobbieList=idIntrest[i];
-        print("Inside the For loop");
-        for(int i=0;i<masterIntrest.length;i++) {
-          print(hobbieList);
-          if (hobbieList == masterIntrest[i].id) {
-            print("inside the master");
-           INTRESTS.addAll({
-             masterIntrest[i].intrest_name :masterIntrest[i].photo_path,
-           });
-        }
-        }
-      }
+         for(int i=0;i<idIntrest.length;i++) {
+           String hobbieList=idIntrest[i];
+           print("Inside the For loop");
+           for(int i=0;i<masterIntrest.length;i++) {
+             print(hobbieList);
+             if (hobbieList == masterIntrest[i].id) {
+               print("inside the master");
+               INTRESTS.addAll({
+                 masterIntrest[i].intrest_name :masterIntrest[i].photo_path,
+               });
+             }
+           }
+         }
 
-      for(int i=0;i<IdSkill.length;i++) {
-        String skillList=IdSkill[i];
-        print("Inside the For loop for skills");
-        for(int i=0;i<masterIntrest.length;i++) {
-          print(skillList);
-          if (skillList == masterIntrest[i].id) {
-            print("inside the master skills");
-            SKILLS.addAll({
-              masterIntrest[i].intrest_name :masterIntrest[i].photo_path,
-            });
-          }
-        }
-      }
+       }else{
+        INTRESTS = {};
+       }
 
 
-      for(int i=0;i<idReligious.length;i++) {
-        String religiousList=idReligious[i];
-        print("Inside the For loop for skills");
-        for(int i=0;i<masterIntrest.length;i++) {
+
+       print("------------Skills-------------");
+       var  skillsId=userProfile[0].skills;
+       if(skillsId != null){
+         print(skillsId);
+         print(skillsId.runtimeType);
+         List<dynamic> skills=jsonDecode(skillsId);
+         print(skills);
+         var SkillsString=skills.join(",");
+         var skilldList=SkillsString.split(",");
+         print(skilldList);
+         IdSkill=skilldList;
+
+         for(int i=0;i<IdSkill.length;i++) {
+           String skillList=IdSkill[i];
+           print("Inside the For loop for skills");
+           for(int i=0;i<masterIntrest.length;i++) {
+             print(skillList);
+             if (skillList == masterIntrest[i].id) {
+               print("inside the master skills");
+               SKILLS.addAll({
+                 masterIntrest[i].intrest_name :masterIntrest[i].photo_path,
+               });
+             }
+           }
+         }
+
+       }
+       else{
+         SKILLS = {};
+       }
+
+
+       print("-----------------Religious -----------");
+
+        var  religious=userProfile[0].religious_interests;
+        if(religious != null){
+          print(religious);
+          print(religious.runtimeType);
+          List<dynamic> religiousDecode=jsonDecode(religious);
+          print(religiousDecode);
+          var religiousString=religiousDecode.join(",");
+          var religiousList=religiousString.split(",");
           print(religiousList);
-          if (religiousList == masterIntrest[i].id) {
-            print("inside the master religious");
-            RELIGIOUS_LIST.addAll({
-              masterIntrest[i].intrest_name :masterIntrest[i].photo_path,
-            });
+          idReligious=religiousList;
+
+          for(int i=0;i<idReligious.length;i++) {
+            String religiousList=idReligious[i];
+            print("Inside the For loop for skills");
+            for(int i=0;i<masterIntrest.length;i++) {
+              print(religiousList);
+              if (religiousList == masterIntrest[i].id) {
+                print("inside the master religious");
+                RELIGIOUS_LIST.addAll({
+                  masterIntrest[i].intrest_name :masterIntrest[i].photo_path,
+                });
+              }
+            }
           }
+        } else{
+          RELIGIOUS_LIST = {};
         }
-      }
-      print(INTRESTS);
+
       print("end of the list");
 
-    }catch(e)
-    {
-      print("Could not query DataStore: " + e.StackTrace);
-    }
+    //}catch(e)
+
 
   }
 
@@ -606,12 +653,7 @@ class _InterestTabState extends State<InterestTab> {
      }
    }
 
-  getRequest() {
 
-    setState(() {
-      print("entering the get request method");
-    });
-  }
 
 
 }

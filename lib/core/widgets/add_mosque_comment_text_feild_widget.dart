@@ -20,9 +20,10 @@ class MosqueCommentTextFieldWidget extends StatefulWidget {
   final Mosque MosqueObject;
   final PostComments postComments ;
   final String commentsCount;
+  final Users sessionUser;
   MosqueCommentTextFieldWidget({this.hintText, this.ScreenType, this.ParentID,this.PostObject,
     //this.UserObject,
-    this.MosqueObject,this.postComments,this.commentsCount});
+    this.MosqueObject,this.postComments,this.commentsCount, this.sessionUser});
   @override
   _MosqueCommentTextFieldWidgetState createState() => _MosqueCommentTextFieldWidgetState();
 }
@@ -31,9 +32,11 @@ class _MosqueCommentTextFieldWidgetState extends State<MosqueCommentTextFieldWid
   bool Action = false;
   bool reloadPage = false;
   int commentsCount ;
+  String UserID;
   final ctrlText = TextEditingController();
   @override
   Widget build(BuildContext context) {
+    UserID = widget.sessionUser.id;
     commentsCount = int.parse(widget.commentsCount);
     return Container(
       decoration: BoxDecoration(
@@ -117,7 +120,7 @@ class _MosqueCommentTextFieldWidgetState extends State<MosqueCommentTextFieldWid
           comment: textFeildText,
           parent_id: widget.ParentID,
           postsID: widget.PostObject.id,
-          usersID: widget.MosqueObject.id,
+          usersID: UserID,
           Comments_PostLikes: []);
       await Amplify.DataStore.save(item);
       await Future.delayed(Duration(seconds: 2));
@@ -137,7 +140,7 @@ class _MosqueCommentTextFieldWidgetState extends State<MosqueCommentTextFieldWid
     print("Thank you for reloading");
     Navigator.push(context,
         MaterialPageRoute(
-          builder: (context) => MosqueCommentScreen(CommentsCount: commentsCount.toString(), MosqueObject:widget.MosqueObject, PostObject: widget.PostObject),
+          builder: (context) => MosqueCommentScreen(CommentsCount: commentsCount.toString(), MosqueObject:widget.MosqueObject, PostObject: widget.PostObject,sessionUser: widget.sessionUser,),
         )
     );
   }

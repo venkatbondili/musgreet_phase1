@@ -13,6 +13,8 @@ import 'package:mus_greet/models/Users.dart';
 import 'package:amplify_flutter/amplify.dart';
 
 class AddEducationScreen extends StatefulWidget {
+  Users sessionUser;
+  AddEducationScreen({this.sessionUser});
   @override
   _AddEducationScreenState createState() => _AddEducationScreenState();
 }
@@ -25,9 +27,11 @@ class _AddEducationScreenState extends State<AddEducationScreen> {
   String degree;
   String addDateFrom;
   String addDateTo;
+  String loggedInUser;
 
   @override
   Widget build(BuildContext context) {
+    loggedInUser =widget.sessionUser.id;
     userList();
     education();
     return SafeArea(
@@ -247,7 +251,7 @@ class _AddEducationScreenState extends State<AddEducationScreen> {
                       updateUserEducation();
                     }
                 }
-              Navigation.back(context);
+                Navigator.pop(context,true);
                 },
             text: AppTexts.SAVE,
             isFilled: true,
@@ -264,7 +268,7 @@ class _AddEducationScreenState extends State<AddEducationScreen> {
 
   Future<void> userList() async{
     try {
-      user= await Amplify.DataStore.query(Users.classType,where: Users.ID.eq("315eca04-ab0d-46f7-b063-d8707d607a18"));
+      user= await Amplify.DataStore.query(Users.classType,where: Users.ID.eq(loggedInUser));
       print(user);
       print("inside the user");
     }catch(e)

@@ -5,10 +5,14 @@ import 'package:mus_greet/core/utils/routes.dart';
 import 'package:mus_greet/core/widgets/action_button_widget.dart';
 import 'package:mus_greet/core/widgets/asset_image_widget.dart';
 import 'package:mus_greet/core/widgets/custom_spacer_widget.dart';
+import 'package:mus_greet/models/ModelProvider.dart';
 import 'package:mus_greet/pages/add_skills_screen/add_skills_screen.dart';
+import 'package:mus_greet/pages/interest_screen/multi_line_chip.dart';
 import 'package:mus_greet/pages/mosque_screen/mosque_search_list_view/mosque_search_list_view.dart';
 
 class AdvanceSearchScreen extends StatefulWidget {
+  final Users sessionUser;
+  AdvanceSearchScreen({this.sessionUser}) ;
   @override
   _AdvanceSearchScreenState createState() => _AdvanceSearchScreenState();
 }
@@ -167,7 +171,7 @@ class _AdvanceSearchScreenState extends State<AdvanceSearchScreen> {
   _navigationToSearch() {
     //_selectedReligion.clear();
     //_selectPreference.clear();
-    Navigation.intentWithData(context, AppRoutes.MOSQUE_SEARCH_LIST_VIEW,ArgumentClass(_selectedReligion,_selectPreference));
+    Navigation.intentWithData(context, AppRoutes.MOSQUE_SEARCH_LIST_VIEW,ArgumentClass(_selectedReligion,_selectPreference,widget.sessionUser));
 
   }
 }

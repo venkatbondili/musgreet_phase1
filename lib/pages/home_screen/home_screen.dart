@@ -66,9 +66,10 @@ class _HomeScreenState extends State<HomeScreen> {
     }
    else{
       sessionUser = args.sessionUser;
+      print(sessionUser);
     }
     //LoginUserID = sessionUser.id;
-
+    print(sessionUser);
     print("after Timer");
     //print(Postss.length);
     return FutureBuilder<List<Posts>>(
@@ -177,7 +178,35 @@ class _HomeScreenState extends State<HomeScreen> {
           shrinkWrap: true,
           itemBuilder: (context, index){
             print(index);
-            return getpostcardWidget(posts[index], index, sessionUser);
+            if(posts.length == 0){
+              return PostCardWidget(
+                //profileImage: ImageConstants.IC_HOME_USER1,
+                //profileImage: Image.network('https://picsum.photos/250?image=9'),
+                //profileImage:// userData profile photo link need to be linked,
+                profileImage: "https://musgreetphase1images184452-staging.s3.eu-west-2.amazonaws.com/public/home_user1.png",
+                //name: AppTexts.TEMP_NAME1,
+                //name: Postss[index].usersID,
+                //name: UserObject.first_name,
+                //name: UserObjectList[0].first_name,
+                name: "MUsgreet",
+                isSponsored: false,
+                //timeAgo: AppTexts.TEMP_TIME_AGO_1,
+                timeAgo:"",
+                //image: ImageConstants.IMG_POST1,
+                post: "Welcome to Musgreet Home!!! Create your Posts here",
+                image: "https://musgreetphase1images184452-staging.s3.eu-west-2.amazonaws.com/public/post_img.png",
+                //image: "https://musgreetphase1images184452-staging.s3.eu-west-2.amazonaws.com/public/image_picker5824495182282881133.jpg",
+                //image: "https://musgreetphase1images184452-staging.s3.eu-west-2.amazonaws.com/public/post_img_2.png",
+                //callBack: () => _loadCommentScreen(),
+                //callBack: () => _loadCommentScreen(Postss[index].id, User[0], Postss[index].post, Postss[index].post_image_path),
+                //callBack: () =>
+                   // _loadCommentScreen(postData, UserData, CommentsCount.toString(), sessionUser),
+                //commentsCount: CommentsCount.toString(),
+              );
+            }
+            else{
+              return getpostcardWidget(posts[index], index, sessionUser);
+            }
           },
           separatorBuilder: (context, index) {
             return Divider(
@@ -291,7 +320,7 @@ class _HomeScreenState extends State<HomeScreen> {
     //Navigation.intent(context, AppRoutes.FRIEND_SEARCH);
     Navigator.push(context,
         MaterialPageRoute(
-          builder: (context) => FriendSearch(sessionUser:widget.sessionUser),
+          builder: (context) => FriendSearch(sessionUser:sessionUser),
         )
     );
     //showDialog(context: context, builder: (context){
@@ -333,8 +362,9 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<List<Posts>> queryPosts() async {
     try {
       //List<Posts>
-      Postss = await Amplify.DataStore.query(Posts.classType);
+      Postss = await Amplify.DataStore.query(Posts.classType,where:Posts.MOSQUESID.eq(""));
       print("inside posts");
+      print(Postss);
       return Postss;
     } catch (e) {
       print("Could not query DataStore: " + e);

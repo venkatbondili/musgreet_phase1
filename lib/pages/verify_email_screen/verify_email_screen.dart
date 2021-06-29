@@ -208,7 +208,7 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
       text: AppTexts.VERIFY_TEXT,
       isFilled: true,
       callBack: () {
-        print("clicking on verfiy button");
+        print("clicking on verify button");
         verify();
       },
     );

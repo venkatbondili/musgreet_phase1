@@ -10,7 +10,6 @@ import 'package:mus_greet/core/utils/size_config.dart';
 import 'package:mus_greet/models/Users.dart';
 import 'package:mus_greet/pages/address-verification/confirm_address_2_screen.dart';
 import 'package:mus_greet/pages/home/home.dart';
-import 'package:mus_greet/pages/home_screen/home_screen.dart';
 
 import '../../main.dart';
 import 'account_verification_success.dart';
@@ -292,10 +291,7 @@ class _CommunityPromisePageState extends State<CommunityPromisePage> {
   void _navigateToNextScreen(BuildContext context) {
     // Navigator.of(context)
     //     .push(MaterialPageRoute(builder: (context) => Home()));
-    //Navigation.intentWithData(context, AppRoutes.HOME,CommunityPromiseArgumentClass(sessionUser));
-    Navigator.of(context)
-        .push(MaterialPageRoute(builder: (context) => HomeScreen(sessionUser: sessionUser)));
-
+    Navigation.intentWithData(context, AppRoutes.HOME,CommunityPromiseArgumentClass(sessionUser));
   }
 
 }

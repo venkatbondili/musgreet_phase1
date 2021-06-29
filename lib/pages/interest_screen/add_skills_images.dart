@@ -135,6 +135,15 @@ class _AddSkillsImagesScreenState extends State<AddSkillsImagesScreen> {
     );
   }
 
+  Widget _buildLoadingScreen() {
+    return Center(
+      child: Container(
+        width: 50,
+        height: 50,
+        child: CircularProgressIndicator(),
+      ),
+    );
+  }
 
   Future<void> _userProfile() async
   {
@@ -157,7 +166,6 @@ class _AddSkillsImagesScreenState extends State<AddSkillsImagesScreen> {
         }
       }
     }
-
   }
   Future<void> _getSkills() async
   {

@@ -230,7 +230,9 @@ class AppTexts {
   static const String RESEND_CODE_TEXT="Resend code";
   static const String VERIFY_TEXT="Verify";
   static const String VERIFY_EMAIL_TEXT="Verify your Email";
+  static const String VERIFY_ADDRESS_TEXT="Verify your Address";
   static const String ENTER_CODE_HINT="Please enter the 6 digit code sent to";
+  static const String ADDRESS_CODE_HINT="Please enter the 6 digit code sent to your address by post";
   static const String TIME_LIMIT_CODE="This code will expire in 5 minutes";
   static const String PARENTAL_CONSENT_FORM="Parental consent form";
   static const String VERIFY_AND_CONTINUE="Verify and continue";
@@ -616,6 +618,11 @@ class AppTexts {
   static const List<String> PROFILE_PRIVACY=[
     "Community",
     "Friends",
+  ];
+
+  static const List<String> RELATIONSHIP=[
+    "Single",
+    "Married",
   ];
 }
 

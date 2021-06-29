@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:mus_greet/pages/address-verification/address_verification_view.dart';
 import 'package:mus_greet/pages/address-verification/confirm_address_2_view.dart';
+import 'package:mus_greet/pages/address-verification/confirm_address_otp_screen.dart';
 import 'package:mus_greet/pages/address-verification/confirm_address_view.dart';
 import 'package:mus_greet/pages/age/age_registration_page.dart';
 import 'package:mus_greet/pages/final/account_verification_success.dart';
@@ -11,6 +12,7 @@ import 'package:mus_greet/pages/final/community_promise_page.dart';
 import 'package:mus_greet/pages/final/final_step_page.dart';
 import 'package:mus_greet/pages/final/nearly_finished_page.dart';
 import 'package:mus_greet/pages/home_screen/home_screen.dart';
+import 'package:mus_greet/pages/login/login_screen.dart';
 import 'package:mus_greet/pages/otp/components/parent_email_verification_view.dart';
 import 'package:mus_greet/pages/otp/components/phone_otp_view.dart';
 import 'package:mus_greet/pages/otp/components/phone_verification_view.dart';
@@ -52,6 +54,7 @@ import 'package:mus_greet/pages/my_family_screen/my_family_screen.dart';
 import 'package:mus_greet/pages/splash_screen/splash_screen.dart';
 import 'core/utils/constants.dart';
 import 'core/utils/routes.dart';
+import 'package:mus_greet/pages/relation/relationshio.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -154,7 +157,9 @@ class _MyAppState extends State<MyApp> {
       AppRoutes.COMMUNITYPROMISE :(context) => CommunityPromisePage(),
       AppRoutes.MANUALADDRESS1 :(context) => ConfirmAddressView(),
       AppRoutes.MANUALADDRESS2 :(context) => ConfirmAddress2View(),
-
+      AppRoutes.MANUALADDRESSOTP :(context) => VerifyAddressOTPScreen(),
+      AppRoutes.LOGIN :(context) => LoginScreen(),
+      AppRoutes.RELATIONSHIP:(context) => Relationship(),
     };
   }
 }
@@ -184,7 +189,7 @@ class _MyDBState extends State<MyDB> {
     // TODO: implement build
     print("Hello welcome");
     createMasterData();
-     //createUsers();
+    //createUsers();
     // createMosqueFacility();
     // createLanguagesSpoken();
     //createMasterIntrest();
@@ -554,7 +559,7 @@ Future<void> deleteUserProfile() async {
 }
 
 Future<void> createMasterData() async{
-  //clearData();
+  clearData();
   await Future.delayed(Duration(seconds: 2));
   createMasterIntrest();
   await Future.delayed(Duration(seconds: 2));
@@ -1007,9 +1012,9 @@ Future<void> createMosque() async {
     mosque=await Amplify.DataStore.query(Mosque.classType);
     print(mosque.length);
     print(mosque);
-    List<String> facilityUserList=[facilities[0].id,facilities[1].id];
-    List<String>  facilityUserList1=[facilities[0].getId()  + "," + facilities[3].getId()];
-    List<String>  facilityUserList2=[facilities[1].getId()  + "," + facilities[2].getId()];
+    List<String> facilityUserList=[facilities[0].id,facilities[1].id,facilities[2].id,facilities[3].id,facilities[4].id];
+    List<String>  facilityUserList1=[facilities[0].getId()  + "," + facilities[3].getId()+ "," + facilities[4].getId()+ "," + facilities[5].getId()+ "," + facilities[6].getId()];
+    List<String>  facilityUserList2=[facilities[0].getId()  + "," + facilities[2].getId() + "," + facilities[3].getId() + "," + facilities[4].getId() + "," + facilities[5].getId()];
     print(userProfile);
     if(mosque.isEmpty)
     {
@@ -1018,6 +1023,7 @@ Future<void> createMosque() async {
           about: "Lorem ipsum dolor sit amet",
           is_verified: true,
           sect: "Sunni",
+          mosque_photos_list:  "",
           mosque_facility_list: jsonEncode(facilityUserList),
           contact_description: "Lorem ipsum dolor sit amet",
           phone: "020 8690 5090",
@@ -1123,56 +1129,63 @@ Future<void> createPost() async {
 
     if(userPosts.isEmpty) {
       final item = Posts(
-          post: "Lorem ipsum dolor sit amet",
+          post: "Hello Friends Good Morning This is my first post! Today is the great day and I found so many friends here.",
           post_image_path: "https://musgreetphase1images184452-staging.s3.eu-west-2.amazonaws.com/public/post_img.png",
           description: "",
           visibility: "Community",
+          mosquesID:"",
           usersID: users[0].getId());
       await Amplify.DataStore.save(item);
 
       final posts = Posts(
-          post: "Good Evening",
+          post: "Good Evening Friends Good Morning This is my first post! Today is the great day and I found so many friends here.",
           post_image_path: "https://musgreetphase1images184452-staging.s3.eu-west-2.amazonaws.com/public/post_img_2.png",
           description: "",
           visibility: "Community",
+          mosquesID:"",
           usersID: users[1].getId());
       await Amplify.DataStore.save(posts);
 
       final posts1 = Posts(
-          post: "Hi ,Welcome to the post",
+          post: "Hi ,Welcome to the post. Today is the great day and I found so many friends here.",
           post_image_path: "https://musgreetphase1images184452-staging.s3.eu-west-2.amazonaws.com/public/post_img.png",
           description: "",
           visibility: "Community",
+          mosquesID:"",
           usersID: users[2].getId());
+
       await Amplify.DataStore.save(posts1);
 
 
       final posts2 = Posts(
-          post: "Lorem ipsum dolor sit amet",
+          post: "Hello Friends Good Morning This is my second post! Today is the great day and I found so many friends here.",
           post_image_path: "https://musgreetphase1images184452-staging.s3.eu-west-2.amazonaws.com/public/post_img_2.png",
           description: "",
           visibility: "Friends",
+          mosquesID:"",
           usersID: users[0].getId());
       await Amplify.DataStore.save(posts2);
 
       final posts3 = Posts(
-          post: "Good Evening",
+          post: "Good Evening Friends Good Morning This is my second post! Today is the great day and I found so many friends here.",
           post_image_path: "https://musgreetphase1images184452-staging.s3.eu-west-2.amazonaws.com/public/post_img.png",
           description: "",
           visibility: "Friends",
+          mosquesID:"",
           usersID: users[1].getId());
       await Amplify.DataStore.save(posts3);
 
       final posts4 = Posts(
-          post: "Hi ,Welcome to the post",
+          post: "Hi ,Welcome to the post. Today is the great day and I found so many friends here.",
           post_image_path: "https://musgreetphase1images184452-staging.s3.eu-west-2.amazonaws.com/public/post_img_2.png",
           description: "",
           visibility: "Friends",
+          mosquesID:"",
           usersID: users[2].getId());
       await Amplify.DataStore.save(posts4);
 
       final posts5 = Posts(
-          post: "Lorem ipsum dolor sit amet",
+          post: "Hello Users this is my first mosque post!! ",
           post_image_path: "https://musgreetphase1images184452-staging.s3.eu-west-2.amazonaws.com/public/post_img_2.png",
           description: "",
           visibility: "Community",
@@ -1181,7 +1194,7 @@ Future<void> createPost() async {
       await Amplify.DataStore.save(posts5);
 
       final post6 = Posts(
-          post: "Good Evening",
+          post: "Good Evening Users this is my first mosque post!!",
           post_image_path: "https://musgreetphase1images184452-staging.s3.eu-west-2.amazonaws.com/public/post_img_2.png",
           description: "",
           visibility: "Community",
@@ -1190,7 +1203,7 @@ Future<void> createPost() async {
       await Amplify.DataStore.save(post6);
 
       final posts7 = Posts(
-          post: "Hi ,Welcome to the post",
+          post: "Hello Users this is my second mosque post!! ",
           post_image_path: "https://musgreetphase1images184452-staging.s3.eu-west-2.amazonaws.com/public/post_img_2.png",
           description: "",
           visibility: "Friends",
@@ -1200,7 +1213,7 @@ Future<void> createPost() async {
 
 
       final posts8 = Posts(
-          post: "Lorem ipsum dolor sit amet",
+          post: "Good Evening Users this is my second mosque post!!",
           post_image_path: "https://musgreetphase1images184452-staging.s3.eu-west-2.amazonaws.com/public/post_img_2.png",
           description: "",
           visibility: "Friends",

@@ -1,21 +1,40 @@
 import 'dart:ui';
-
+//import 'package:intl/intl.dart'; // un comment this line
+import 'package:amplify_datastore/amplify_datastore.dart';
+import 'package:amplify_flutter/amplify.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mus_greet/core/config/navigation.dart';
 import 'package:mus_greet/core/utils/constants.dart';
 import 'package:mus_greet/core/widgets/action_button_widget.dart';
 import 'package:mus_greet/core/widgets/custom_spacer_widget.dart';
+import 'package:mus_greet/models/FriendRequest.dart';
+import 'package:mus_greet/models/Users.dart';
 
 class SendRequestDialogWidget extends StatefulWidget {
+
+  final Users userObject;
+ // DateTimeFormat dateTimeFormat;
+  final String loginUserId;
+  SendRequestDialogWidget({this.userObject, this.loginUserId});
+
   @override
   _SendRequestDialogWidgetState createState() =>
       _SendRequestDialogWidgetState();
 }
 
 class _SendRequestDialogWidgetState extends State<SendRequestDialogWidget> {
-  final TextEditingController _textEditingController=TextEditingController();
+   TextEditingController _textEditingController=TextEditingController();
+  TemporalDate temporalDate=new TemporalDate(DateTime.now());
+   DateTime date=new DateTime.now();
+   String initialText="Himaja";
 
+   @override
+   void initState()
+   {
+     super.initState();
+     _textEditingController=TextEditingController(text: initialText);
+   }
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +45,7 @@ class _SendRequestDialogWidgetState extends State<SendRequestDialogWidget> {
         elevation: 5,
         backgroundColor: AppColors.white,
         shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(20.0))
+            //borderRadius: BorderRadius.all(Radius.circular(20.0)) ///uncomment this line
         ),
         child: Container(
           padding: EdgeInsets.all(20),
@@ -106,8 +125,11 @@ class _SendRequestDialogWidgetState extends State<SendRequestDialogWidget> {
     return SendRequestMessageBox(
       controller: _textEditingController,
       onChange: (val){
+        print(val);
+        print("Send Request Message Box");
         setState(() {
-
+         // initialText=val;
+          //print(initialText);
         });
       },
     );
@@ -120,7 +142,7 @@ class _SendRequestDialogWidgetState extends State<SendRequestDialogWidget> {
       padding: EdgeInsets.only(right: 5),
       width: MediaQuery.of(context).size.width,
       child: Text(
-        "${_textEditingController.text.length}/130",
+        "${initialText.length}/130",
         style: TextStyle(
           fontFamily: FontConstants.FONT,
           fontSize: 10,
@@ -151,13 +173,41 @@ class _SendRequestDialogWidgetState extends State<SendRequestDialogWidget> {
               text: AppTexts.SEND_TEXT,
               isFilled: true,
               callBack: (){
-                Navigation.back(context);
+                print("click on send text");
+                print(widget.userObject);
+                //updateFriendsTable();
+                //Navigation.back(context);
               },
             ),
           ),
         ],
       ),
     );
+  }
+
+
+
+  Future<void> updateFriendsTable()  async {
+    String message="";
+    if(_textEditingController.text.isEmpty)
+      {
+        message= AppTexts.MESSAGE_TEXT;
+      }else
+        {
+          message=_textEditingController.text;
+        }
+
+    final item = FriendRequest(
+        request_date: temporalDate,
+        request_from_id: widget.loginUserId,
+        request_to_id: widget.userObject.id,
+        request_message: message,
+        request_status: "Sent");
+        //request_status_date: TemporalDate.fromString("1970-01-01Z"),
+        //unfriend_date: TemporalDate.fromString("1970-01-01Z"));
+    await Amplify.DataStore.save(item);
+    print(item);
+    print("updating the FriendsTable");
   }
 }
 
@@ -168,7 +218,8 @@ class _SendRequestDialogWidgetState extends State<SendRequestDialogWidget> {
 
 class SendRequestMessageBox extends StatefulWidget {
   final Function(String) onChange;
-  final TextEditingController controller;
+   final TextEditingController controller;
+  //String initalText=AppTexts.FRIEND_REQUEST_MESSAGE;
 
   const SendRequestMessageBox({Key key, this.onChange,this.controller}) : super(key: key);
   @override
@@ -176,6 +227,7 @@ class SendRequestMessageBox extends StatefulWidget {
 }
 
 class _SendRequestMessageBoxState extends State<SendRequestMessageBox> {
+
 
   @override
   Widget build(BuildContext context) {
@@ -196,7 +248,7 @@ class _SendRequestMessageBoxState extends State<SendRequestMessageBox> {
           color: AppColors.vertical_divider,
         ),
         decoration: InputDecoration(
-          labelText: AppTexts.FRIEND_REQUEST_MESSAGE,
+          //labelText: AppTexts.FRIEND_REQUEST_MESSAGE,
           border: InputBorder.none,
           focusedBorder: InputBorder.none,
           enabledBorder: InputBorder.none,

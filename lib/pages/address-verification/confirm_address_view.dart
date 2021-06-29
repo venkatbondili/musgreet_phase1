@@ -301,7 +301,7 @@ class _ConfirmAddressViewState extends State<ConfirmAddressView> {
             address_verification_mode: "Manual",
             manual_address_taken_date: new TemporalDate(DateTime.now()),
             manul_address_code:123355,
-            //manual_address_code_sent_date:"",
+            manual_address_code_sent_date:new TemporalDate(DateTime.now()),
             address_verification: false);
 
         await Amplify.DataStore.save(updatedItem);
@@ -317,7 +317,7 @@ class _ConfirmAddressViewState extends State<ConfirmAddressView> {
     // Navigator.of(context)
     //     .push(MaterialPageRoute(builder: (context) => ConfirmAddress2Screen()));
     if (Status) {
-      Navigation.intentWithData(context, AppRoutes.NEARLYFINISHED,AddressVerificationArgumentClass(sessionUser));
+      Navigation.intentWithData(context, AppRoutes.MANUALADDRESSOTP,AddressVerificationArgumentClass(sessionUser));
     } else {
       Navigation.intentWithData(context, AppRoutes.MANUALADDRESS2,ConfirmAddress1ArgumentClass(sessionUser));
     }

@@ -1,10 +1,5 @@
-import 'dart:async';
-
-import 'package:amplify_flutter/amplify.dart';
 import 'package:flutter/material.dart';
-import 'package:mus_greet/models/ModelProvider.dart';
 import 'package:mus_greet/pages/home/home.dart';
-import 'package:mus_greet/pages/home_screen/home_screen.dart';
 import 'package:mus_greet/pages/registration/registration_page.dart';
 
 class LoginPage extends StatefulWidget {
@@ -15,7 +10,6 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
-    print("inside loginPage");
     /*var height = SizeConfig.getHeight(context);
     var width = SizeConfig.getWidth(context);
     double fontSize(double size) {
@@ -29,40 +23,11 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 }
-Future<void> _getUser(BuildContext context) async {
-  print("User");
-  print("inside login get user");
-  //print(usersID);
-  try {
-    List<Users>UserObjectList = await Amplify.DataStore.query(Users.classType);
-    //print(User[0].first_name);
-    print(UserObjectList.length);
-    //print(UserObjectList[0].first_name);
-    //await Future.delayed(Duration(seconds: 1));
-    Timer(
-        Duration(seconds: 5),
-            () => _navigateToHomeScreen(context, UserObjectList));
-    // Navigator.of(context)
-    //     .push(MaterialPageRoute(builder: (context) => HomeScreen()));
-
-  } catch (e) {
-    print("Could not query DataStore: " + e);
-  }
-}
-_navigateToHomeScreen(BuildContext context,List<Users>UserObjectList){
-  print(UserObjectList.length);
-  Navigator.of(context)
-      .push(MaterialPageRoute(builder: (context) => HomeScreen(sessionUser: UserObjectList[0])));
-}
-
 var login = 0;
 void _navigateToNextScreen(BuildContext context) {
-  print("inside login screen");
   if (login == 1){
-    print("going to home screen");
-    _getUser(context);
-    // Navigator.of(context)
-    //     .push(MaterialPageRoute(builder: (context) => HomeScreen()));
+    Navigator.of(context)
+        .push(MaterialPageRoute(builder: (context) => Home()));
   }
   else{
   Navigator.of(context)
@@ -164,7 +129,6 @@ Widget _buildContent(BuildContext context) {
                   Radius.circular(8.0),
                 )),
             onPressed: () {
-              print("onpressed login");
               login =1;
               _navigateToNextScreen(context);
             },

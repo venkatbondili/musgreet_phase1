@@ -211,7 +211,7 @@ class _ConfirmAddress2ViewState extends State<ConfirmAddress2View> {
             address_verification_mode: "Manual",
             manual_address_taken_date: new TemporalDate(DateTime.now()),
             manul_address_code:123355,
-            //manual_address_code_sent_date:"",
+            manual_address_code_sent_date:new TemporalDate(DateTime.now()),
             address_verification: false);
 
             // house_number: "Flat 12",
@@ -237,7 +237,7 @@ class _ConfirmAddress2ViewState extends State<ConfirmAddress2View> {
   void _navigateToNextScreen(BuildContext context) {
     // Navigator.of(context)
     //     .push(MaterialPageRoute(builder: (context) => NearlyFinishedPage()));
-    Navigation.intentWithData(context, AppRoutes.NEARLYFINISHED,AddressVerificationArgumentClass(sessionUser));
+    Navigation.intentWithData(context, AppRoutes.MANUALADDRESSOTP,AddressVerificationArgumentClass(sessionUser));
   }
 
 }

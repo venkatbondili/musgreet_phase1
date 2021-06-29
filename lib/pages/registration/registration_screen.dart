@@ -392,11 +392,11 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
 
   Future<void> _registerUser() async {
     try {
-      Map<String, String> userAttributes = {
-        'email': _emailController.text,
-        'phone_number': '+447448479715',
-        // additional attributes as needed
-      };
+      // Map<String, String> userAttributes = {
+      //   'email': _emailController.text,
+      //   'phone_number': '+447448479715',
+      //   // additional attributes as needed
+      // };
       // SignUpResult res = await Amplify.Auth.signUp(
       //     username: _emailController.text,
       //     password: _passwordController.text,
@@ -436,6 +436,11 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
         last_name: _lastNameController.text,
         email: _emailController.text,
         password: _passwordController.text,
+        email_verification: false,
+        phone_verification: false,
+        parent_verification: false,
+        address_verification: false,
+        photo_verification: false,
         // phone: "",
         // age: "25",
         // gender: "male",

@@ -13,6 +13,7 @@ import 'package:mus_greet/models/Facilitiesmaster.dart';
 import 'package:mus_greet/models/ModelProvider.dart';
 import 'package:mus_greet/models/Mosque.dart';
 import 'package:mus_greet/pages/home_screen/home_screen.dart';
+import 'package:mus_greet/pages/mosque_screen/advance_search_screen/advance_search_screen.dart';
 import 'package:mus_greet/pages/mosque_screen/mosque_screen.dart';
 import 'package:mus_greet/core/widgets/bottom_navigation_widget.dart';
 
@@ -43,12 +44,12 @@ class _MosqueSearchListViewState extends State<MosqueSearchListView> {
   List<MosqueFollowers> MosqueFollowerss =[];
   @override
   Widget build1(BuildContext context) {
-    UserID = widget.sessionUser.id;
     print("printing args");
     args = ModalRoute.of(context).settings.arguments as ArgumentClass;
     print(args);
     //listMosque(advancedSearchSectList,advancedSearchFacilitiesList);
     if (args != null) {
+      UserID = args.sessionUser.id;
       advancedSearchSectList = args.advancedSearchSectList;
       advancedSearchFacilitiesList = args.advancedSearchFacilitiesList;
       print(advancedSearchSectList);
@@ -58,6 +59,7 @@ class _MosqueSearchListViewState extends State<MosqueSearchListView> {
       //advancedSearchMosqueList(advancedSearchSectList,advancedSearchFacilitiesList);
     }
     else {
+      UserID = widget.sessionUser.id;
       print(advancedSearchFacilitiesList);
       print(advancedSearchSectList);
       listMosque(advancedSearchSectList, advancedSearchFacilitiesList, false);
@@ -201,7 +203,12 @@ class _MosqueSearchListViewState extends State<MosqueSearchListView> {
 
 
   _navigateToAdvanceSearchScreen() {
-    Navigation.intent(context, AppRoutes.MOSQUE_ADVANCE_SEARCH);
+    Navigator.push(context,
+        MaterialPageRoute(
+          builder: (context) => AdvanceSearchScreen(sessionUser:widget.sessionUser),
+        )
+    );
+    //Navigation.intent(context, AppRoutes.MOSQUE_ADVANCE_SEARCH);
   }
 
 /// this method is to get result mosques list
@@ -603,7 +610,8 @@ class _MosqueSearchListViewState extends State<MosqueSearchListView> {
 class ArgumentClass {
   final List<String> advancedSearchSectList;
   final List<String> advancedSearchFacilitiesList;
-  ArgumentClass(this.advancedSearchSectList, this.advancedSearchFacilitiesList);
+  final Users sessionUser;
+  ArgumentClass(this.advancedSearchSectList, this.advancedSearchFacilitiesList, this.sessionUser);
 
 }
 

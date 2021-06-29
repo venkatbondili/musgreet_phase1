@@ -75,9 +75,9 @@ class _ViewProfileScreenState extends State<ViewProfileScreen>
           Center(
             child: [
               PostTab(sessionUser: widget.sessionUser,),
-              AboutTab(userProfile:userProfile),
-              InterestTab(userProfile :userProfile),
-              FriendTab(),
+              AboutTab(sessionUser: widget.sessionUser),
+              InterestTab(sessionUser: widget.sessionUser),
+              FriendTab(sessionUser: widget.sessionUser),
             ][_tabController.index],
           ),
         ],

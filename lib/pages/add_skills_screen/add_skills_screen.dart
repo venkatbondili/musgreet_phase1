@@ -9,6 +9,7 @@ import 'package:mus_greet/core/widgets/action_button_widget.dart';
 import 'package:mus_greet/core/widgets/asset_image_widget.dart';
 import 'package:mus_greet/core/widgets/custom_spacer_widget.dart';
 import 'package:mus_greet/core/widgets/rounded_button_widget.dart';
+import 'package:mus_greet/models/MasterIntrests.dart';
 import 'package:mus_greet/models/ModelProvider.dart';
 import 'package:amplify_flutter/amplify.dart';
 import 'package:mus_greet/pages/advanced_search/search_skills_screen.dart';

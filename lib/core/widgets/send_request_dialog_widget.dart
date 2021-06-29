@@ -27,14 +27,13 @@ class _SendRequestDialogWidgetState extends State<SendRequestDialogWidget> {
    TextEditingController _textEditingController=TextEditingController();
   TemporalDate temporalDate=new TemporalDate(DateTime.now());
    DateTime date=new DateTime.now();
-   String initialText="Himaja";
 
-   @override
-   void initState()
-   {
-     super.initState();
-     _textEditingController=TextEditingController(text: initialText);
-   }
+   // @override
+   // void initState()
+   // {
+   //   super.initState();
+   //   _textEditingController=TextEditingController(text: initialText);
+   // }
 
   @override
   Widget build(BuildContext context) {
@@ -93,7 +92,7 @@ class _SendRequestDialogWidgetState extends State<SendRequestDialogWidget> {
           ),
           children: [
             TextSpan(
-              text: AppTexts.TO_USER_NAME,
+              text: widget.userObject.first_name + " "+ widget.userObject.last_name,
               style: TextStyle(
                 fontFamily: FontConstants.FONT,
                 fontSize: 12,
@@ -128,7 +127,6 @@ class _SendRequestDialogWidgetState extends State<SendRequestDialogWidget> {
         print(val);
         print("Send Request Message Box");
         setState(() {
-         // initialText=val;
           //print(initialText);
         });
       },
@@ -142,7 +140,7 @@ class _SendRequestDialogWidgetState extends State<SendRequestDialogWidget> {
       padding: EdgeInsets.only(right: 5),
       width: MediaQuery.of(context).size.width,
       child: Text(
-        "${initialText.length}/130",
+        "${_textEditingController.text.length}/130",
         style: TextStyle(
           fontFamily: FontConstants.FONT,
           fontSize: 10,
@@ -175,8 +173,8 @@ class _SendRequestDialogWidgetState extends State<SendRequestDialogWidget> {
               callBack: (){
                 print("click on send text");
                 print(widget.userObject);
-                //updateFriendsTable();
-                //Navigation.back(context);
+                updateFriendsTable();
+                Navigation.back(context);
               },
             ),
           ),

@@ -1,3 +1,30 @@
+type Languagespoken @model @auth(rules: [{allow: public}]) {
+  id: ID!
+  languages: String
+}
+
+type UserFamily @model @auth(rules: [{allow: public}]) {
+  id: ID!
+  name: String
+  relationship: String
+  user_id: String
+}
+
+type Facilitiesmaster @model @auth(rules: [{allow: public}]) {
+  id: ID!
+  icon_path: String
+  facility_header: String
+  description: String
+}
+
+type MasterIntrests @model @auth(rules: [{allow: public}]) {
+  id: ID!
+  photo_path: String
+  intrest_name: String
+  decription: String
+  category_name: String
+}
+
 type UserProfile @model @auth(rules: [{allow: public}]) @key(name: "byUsers", fields: ["usersID"]) {
   id: ID!
   bio: String
@@ -55,8 +82,10 @@ type MosqueFollowers @model @auth(rules: [{allow: public}]) @key(name: "byMosque
 type MosquePrayers @model @auth(rules: [{allow: public}]) @key(name: "byMosque", fields: ["mosqueID"]) {
   id: ID!
   prayer: String!
-  time: AWSTime!
   mosqueID: ID
+  Date: AWSDate
+  end_time: AWSTime
+  begin_time: AWSTime
 }
 
 type MosqueUsers @model @auth(rules: [{allow: public}]) @key(name: "byMosque", fields: ["mosqueID"]) {
@@ -115,16 +144,16 @@ type Mosque @model @auth(rules: [{allow: public}]) {
   Mosque_Followers: [MosqueFollowers] @connection(keyName: "byMosque", fields: ["id"])
 }
 
-type Posts @model @auth(rules: [{allow: public}]) @key(name: "byUsers", fields: ["usersID"]) @key(name: "byMosque", fields: ["mosquesID"]) {
+type Posts @model @auth(rules: [{allow: public}]) @key(name: "byMosque", fields: ["mosquesID"]) @key(name: "byUsers", fields: ["usersID"]) {
   id: ID!
   post: String!
   post_image_path: String
   description: String
   visibility: String
-  usersID: ID
   mosquesID: ID
   Post_Comments: [PostComments] @connection(keyName: "byPosts", fields: ["id"])
   Post_Likes: [PostLikes] @connection(keyName: "byPosts", fields: ["id"])
+  usersID: ID
 }
 
 type Users @model @auth(rules: [{allow: public}]) {
@@ -154,7 +183,6 @@ type Users @model @auth(rules: [{allow: public}]) {
   photo_verification: Boolean
   joined_date: AWSDate
   active_status: Boolean
-  User_Posts: [Posts] @connection(keyName: "byUsers", fields: ["id"])
   User_Comments: [PostComments] @connection(keyName: "byUsers", fields: ["id"])
   User_PostLikes: [PostLikes] @connection(keyName: "byUsers", fields: ["id"])
   User_MosqueFollowers: [MosqueFollowers] @connection(keyName: "byUsers", fields: ["id"])
@@ -162,5 +190,10 @@ type Users @model @auth(rules: [{allow: public}]) {
   User_Photos: [UserPhotos] @connection(keyName: "byUsers", fields: ["id"])
   User_Educations: [UserEducation] @connection(keyName: "byUsers", fields: ["id"])
   User_Profiles: [UserProfile] @connection(keyName: "byUsers", fields: ["id"])
+  User_Posts: [Posts] @connection(keyName: "byUsers", fields: ["id"])
+  address_verification_mode: String
+  manul_address_code: Int
+  manual_address_taken_date: AWSDate
+  manual_address_code_sent_date: AWSDate
 }
  

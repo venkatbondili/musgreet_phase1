@@ -14,15 +14,15 @@ import 'package:mus_greet/models/Users.dart';
 
 import '../../main.dart';
 
-class Relationship extends StatefulWidget {
+class Reliationship extends StatefulWidget {
   Users sessionId;
-  Relationship({this.sessionId});
+  Reliationship({this.sessionId});
   @override
   _ReliationPrivacyState createState() => _ReliationPrivacyState();
 }
 
 
-class _ReliationPrivacyState extends State<Relationship> {
+class _ReliationPrivacyState extends State<Reliationship> {
 
 
   List<UserProfile> userProfile;

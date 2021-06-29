@@ -22,7 +22,7 @@ class AddEducationScreen extends StatefulWidget {
 class _AddEducationScreenState extends State<AddEducationScreen> {
   final List<Widget> fieldList = List.empty(growable: true);
   List<UserEducation> userEducation;
-  List<Users> user;
+  //List<Users> user;
   String college;
   String degree;
   String addDateFrom;
@@ -32,7 +32,6 @@ class _AddEducationScreenState extends State<AddEducationScreen> {
   @override
   Widget build(BuildContext context) {
     loggedInUser =widget.sessionUser.id;
-    userList();
     education();
     return SafeArea(
       child: Scaffold(
@@ -242,15 +241,8 @@ class _AddEducationScreenState extends State<AddEducationScreen> {
         Expanded(
           child: ActionButtonWidget(
             callBack: () {
-
-              for(int i=0;i<user.length ;i++)
-                { print("inside the save button");
-                  if(user[i].id == userEducation[i].usersID)
-                    {
-                      print("himaja");
-                      updateUserEducation();
-                    }
-                }
+              print("inside the call back");
+                educationList(widget.sessionUser);
                 Navigator.pop(context,true);
                 },
             text: AppTexts.SAVE,
@@ -261,41 +253,60 @@ class _AddEducationScreenState extends State<AddEducationScreen> {
     );
   }
 
+  educationList(Users sessionUser)
+  {
+    if(userEducation.isEmpty)
+      {
+        createUserEducationTable(sessionUser);
+      }else
+        {
+          for(int i=0;i<userEducation.length;i++)
+          {
+            if (loggedInUser== userEducation[i].usersID) {
+              print("inside the callback method");
+              updateUserEducation(widget.sessionUser);
+            }
+          }
+        }
+  }
+
   _handleOnTap() {
     fieldList.add(_getListOfInfo());
     setState(() {});
   }
 
-  Future<void> userList() async{
-    try {
-      user= await Amplify.DataStore.query(Users.classType,where: Users.ID.eq(loggedInUser));
-      print(user);
-      print("inside the user");
-    }catch(e)
-    {
-      print("Could not query DataStore: " + e);
-    }
-  }
 
   Future<void> education() async
   {
     try {
       userEducation= await Amplify.DataStore.query(UserEducation.classType);
       print(userEducation);
-      print("inside the user");
+      print("inside the education");
     }catch(e)
     {
       print("Could not query DataStore: " + e);
     }
   }
 
-  updateUserEducation() async{
+  updateUserEducation(Users sessionUser) async{
+    print("inside the updated education");
     final updatedItem = userEducation[0].copyWith(
         institution: college,
         course: degree,
         from: addDateFrom,
         to: addDateTo,
-        usersID: userEducation[0].usersID);
+        usersID: sessionUser.id);
     await Amplify.DataStore.save(updatedItem);
+  }
+
+  createUserEducationTable(Users sessionUser) async{
+
+    final item = UserEducation(
+        institution: college,
+        course: degree,
+        from: addDateFrom,
+        to: addDateTo,
+       usersID :sessionUser.id);
+    await Amplify.DataStore.save(item);
   }
 }

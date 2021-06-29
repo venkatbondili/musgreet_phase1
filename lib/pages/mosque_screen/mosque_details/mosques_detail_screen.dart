@@ -1,6 +1,10 @@
+import 'dart:async';
+
 import 'package:amplify_flutter/amplify.dart';
 import 'package:flutter/material.dart';
+import 'package:mus_greet/core/config/navigation.dart';
 import 'package:mus_greet/core/utils/constants.dart';
+import 'package:mus_greet/core/utils/routes.dart';
 import 'package:mus_greet/core/widgets/asset_image_widget.dart';
 import 'package:mus_greet/core/widgets/custom_spacer_widget.dart';
 import 'package:mus_greet/core/widgets/dot_indicator.dart';
@@ -8,9 +12,17 @@ import 'package:mus_greet/core/widgets/following_mosque_list_grid.dart';
 import 'package:mus_greet/core/widgets/tab_style_widget.dart';
 import 'package:mus_greet/models/Facilitiesmaster.dart';
 import 'package:mus_greet/models/ModelProvider.dart';
+import 'package:mus_greet/models/ModelProvider.dart';
+import 'package:mus_greet/models/MosqueFollowers.dart';
+import 'package:mus_greet/models/MosqueFollowers.dart';
+import 'package:mus_greet/models/MosqueFollowers.dart';
+import 'package:mus_greet/pages/home_screen/home_screen.dart';
 import 'package:mus_greet/pages/mosque_screen/mosque_details/contact_tab/contect_tab.dart';
 import 'package:mus_greet/pages/mosque_screen/mosque_details/facilities_tab/facilities_tab.dart';
 import 'package:mus_greet/pages/mosque_screen/mosque_details/home_tab/home_tab.dart';
+import 'package:mus_greet/pages/mosque_screen/mosque_screen.dart';
+import 'package:mus_greet/pages/mosque_screen/mosque_search_list_view/mosque_search_list_view.dart';
+import 'package:mus_greet/core/widgets/bottom_navigation_widget.dart';
 import 'package:mus_greet/pages/profile/view_profile_screen/about_tab/about_tab.dart';
 import 'package:mus_greet/pages/profile/view_profile_screen/friend_tab/friend_tab.dart';
 import 'package:mus_greet/pages/profile/view_profile_screen/interest_tab/interest_tab.dart';
@@ -19,8 +31,13 @@ import 'mosque_about_tab/mosque_about_tab.dart';
 
 class MosquesDetailsScreen extends StatefulWidget {
   final Function backCallBack;
-
-  const MosquesDetailsScreen({Key key, this.backCallBack,}) : super(key: key);
+  final Mosque MosqueObject;
+  final String CallingScreen;
+  final bool Status;
+  final String UserID;
+  final MosqueFollowers MosqueFollowerObject;
+  final Users sessionUser;
+  const MosquesDetailsScreen({Key key, this.backCallBack, this.MosqueObject, this.CallingScreen, this.Status, this.UserID, this.MosqueFollowerObject, this.sessionUser}) : super(key: key);
   @override
   _MosquesDetailsScreenState createState() => _MosquesDetailsScreenState();
 }
@@ -38,6 +55,13 @@ class _MosquesDetailsScreenState extends State<MosquesDetailsScreen>
 
   List<Mosque> mosque = [];
   String mosqueID = "9de478b5-04c7-4074-baf4-2cadf902f594";
+  bool status = false;
+  //bool status ;
+  String CallingScreen = "";
+  bool buttonClickEvent = false;
+  List<MosqueFollowers> UserMosqueFollowingList = [];
+  //List<MosqueFollowers> MosqueFollowers = [];
+
   @override
   void initState() {
     _tabController = TabController(length: 4, vsync: this);
@@ -55,12 +79,40 @@ class _MosquesDetailsScreenState extends State<MosquesDetailsScreen>
 
   @override
   Widget build(BuildContext context) {
+
+    if(widget.CallingScreen == "MosqueSearch" || widget.CallingScreen == "MosqueScreen"){
+      if(buttonClickEvent == false) {
+        CallingScreen = widget.CallingScreen;
+        mosqueID = widget.MosqueObject.id;
+        status = widget.Status;
+      }
+      if(buttonClickEvent == true){
+        CallingScreen = widget.CallingScreen;
+        mosqueID = widget.MosqueObject.id;
+        status = status;
+      }
+    }
     return FutureBuilder<List<Mosque>>(
       future: getMosque(),
       builder: (ctx, snapshot) {
         switch (snapshot.connectionState) {
           case ConnectionState.done:
             mosque = snapshot.data;
+            return _getMosqueFollowersUI(mosque);
+          default:
+            return _buildLoadingScreen();
+        }
+      },
+    );
+  }
+
+  _getMosqueFollowersUI(List<Mosque> mosque){
+    return FutureBuilder<List<MosqueFollowers>>(
+      future: UserMosqueFollowList(),
+      builder: (ctx, snapshot) {
+        switch (snapshot.connectionState) {
+          case ConnectionState.done:
+            UserMosqueFollowingList = snapshot.data;
             return buildUI(mosque);
           default:
             return _buildLoadingScreen();
@@ -78,7 +130,7 @@ class _MosquesDetailsScreenState extends State<MosquesDetailsScreen>
           _getTabBar(),
           Center(
             child: [
-              HomeTab(mosque: mosque),
+              HomeTab(mosque: mosque,sessionUser: widget.sessionUser,),
               ContactTab(mosque: mosque),
               MosqueAboutTab(mosque: mosque),
               FacilitiesTab(mosque: mosque),
@@ -140,7 +192,9 @@ class _MosquesDetailsScreenState extends State<MosquesDetailsScreen>
                 left: 20,
                 child: InkWell(
                   onTap: () {
-                    widget.backCallBack();
+                    _navigateBack();
+                   // Navigation.back(context);
+                    //widget.backCallBack();
                   },
                   child: Image.asset(
                     ImageConstants.IC_BACK,
@@ -158,12 +212,12 @@ class _MosquesDetailsScreenState extends State<MosquesDetailsScreen>
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                _getMemberDetails(),
+                _getMosqueDetails(),
                 CustomSpacerWidget(
                   width: 5,
                 ),
                 Flexible(
-                  child: _getRemoveButton(),
+                  child: status?_getUnFollowButton():_getFollowButton(),
                 ),
                 CustomSpacerWidget(
                   width: 28,
@@ -240,18 +294,30 @@ class _MosquesDetailsScreenState extends State<MosquesDetailsScreen>
     ),
   ];
 
-  _getRemoveButton() {
+  _getFollowButton() {
     return MosqueFollowButton(
       radius: 30,
       callBack: () {
+        createMosqueFollower();
         print("Handle CallBack");
       },
       text: AppTexts.FOLLOW_TEXT,
       isFilled: false,
     );
   }
+  _getUnFollowButton() {
+    return MosqueFollowButton(
+      radius: 30,
+      callBack: () {
+        print("Handle CallBack");
+        deleteMosqueFollower();
+      },
+      text: AppTexts.UNFOLLOW_TEXT,
+      isFilled: true,
+    );
+  }
 
-  _getMemberDetails() {
+  _getMosqueDetails() {
     return Padding(
       padding: const EdgeInsets.only(left: 28.0, top: 5.5, right: 28.0),
       child: Row(
@@ -260,7 +326,7 @@ class _MosquesDetailsScreenState extends State<MosquesDetailsScreen>
           CustomSpacerWidget(
             width: 10,
           ),
-          _getNameAndRelationShip(),
+          _getNameAndLocation(),
         ],
       ),
     );
@@ -278,7 +344,7 @@ class _MosquesDetailsScreenState extends State<MosquesDetailsScreen>
     );
   }
 
-  _getNameAndRelationShip() {
+  _getNameAndLocation() {
     return Padding(
       padding: const EdgeInsets.only(top: 3.0),
       child: Column(
@@ -286,7 +352,8 @@ class _MosquesDetailsScreenState extends State<MosquesDetailsScreen>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            AppTexts.MOSQUE_NAME,
+            mosque[0].mosque_name,
+            //AppTexts.MOSQUE_NAME,
             style: TextStyle(
               fontFamily: FontConstants.FONT,
               fontSize: 12,
@@ -298,7 +365,8 @@ class _MosquesDetailsScreenState extends State<MosquesDetailsScreen>
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                AppTexts.MOSQUE_LOCATION,
+                mosque[0].city + " , "+ mosque[0].country,
+                //AppTexts.MOSQUE_LOCATION,
                 style: TextStyle(
                   fontFamily: FontConstants.FONT,
                   fontSize: 13,
@@ -344,8 +412,10 @@ class _MosquesDetailsScreenState extends State<MosquesDetailsScreen>
     return Scaffold(
       backgroundColor: AppColors.GREY_KIND,
       body: _getBody(),
+      bottomNavigationBar: _getBottomNavigation(),
     );
   }
+
   Widget _buildLoadingScreen() {
     return Center(
       child: Container(
@@ -353,6 +423,128 @@ class _MosquesDetailsScreenState extends State<MosquesDetailsScreen>
         height: 50,
         child: CircularProgressIndicator(),
       ),
+    );
+  }
+
+  _navigateBack() {
+    print(widget.CallingScreen);
+    print(CallingScreen);
+    switch (CallingScreen) {
+      case 'MosqueScreen':
+        if(UserMosqueFollowingList.isNotEmpty){
+          Navigator.push(context,
+              MaterialPageRoute(
+                builder: (context) => MosqueScreen(CallingScreen: "MosqueDetails",loginUser: widget.sessionUser,),
+              )
+          );
+          //Navigation.back(context);
+          //Navigator.pop(context, true);
+        }
+        else{
+          //Navigation.intent(context, AppRoutes.HOME);
+          Navigator.of(context)
+              .push(MaterialPageRoute(builder: (context) => HomeScreen(sessionUser:widget.sessionUser)));
+        }
+        break;
+      case 'MosqueSearch':
+        Navigator.push(context,
+            MaterialPageRoute(
+              builder: (context) => MosqueSearchListView(CallingScreen: "MosqueDetails",sessionUser: widget.sessionUser,),
+            )
+        );
+        //executePending();
+        break;
+      default:
+        if(UserMosqueFollowingList.isNotEmpty){
+          Navigator.push(context,
+              MaterialPageRoute(
+                builder: (context) => MosqueScreen(CallingScreen: "MosqueDetails",loginUser: widget.sessionUser),
+              )
+          );
+        }
+        else{
+          //Navigation.intent(context, AppRoutes.HOME);
+          Navigator.of(context)
+              .push(MaterialPageRoute(builder: (context) => HomeScreen(sessionUser:widget.sessionUser)));
+        }
+    }
+    //print(widget.CallingScreen);
+    //if(widget.CallingScreen == "MosqueScreen"){
+      //Navigator.push(context,
+         // MaterialPageRoute(
+          //  builder: (context) => MosqueScreen(),
+         // )
+      //);
+      //MosqueScreen();
+      //Navigation.intent(context, AppRoutes.HOME);
+    //}
+   //else{
+    //  Navigation.back(context);
+    //}
+  }
+
+  Future<void> deleteMosqueFollower() async{
+    print("inside delete mosqueFollowers");
+    try {
+    for(var m in UserMosqueFollowingList){
+      if(m.mosqueID == widget.MosqueObject.id && m.usersID == widget.UserID){
+        await Amplify.DataStore.delete(m);
+        Timer(
+            Duration(milliseconds: 200),
+                () => _setStateFunction());
+      }
+    }
+    } catch (e) {
+      print("Could not query DataStore: " + e);
+    }
+  }
+
+  _setStateFunction(){
+    print("inside set State");
+    setState((){
+      print("inside set state");
+      status = false;
+      buttonClickEvent = true;
+    });
+  }
+
+  Future<void> createMosqueFollower() async{
+    print("inside mosque followers");
+    print(widget.MosqueObject.id);
+    print(widget.UserID);
+    try {
+      final item = MosqueFollowers(
+          mosqueID: widget.MosqueObject.id,
+          usersID: widget.UserID);
+      await Amplify.DataStore.save(item);
+      print("going to set state");
+      setState(() {
+        print("inside mosque follower set state is true");
+        status = true;
+        buttonClickEvent = true;
+      });
+    }catch (e) {
+      print("Could not query DataStore: " + e);
+    }
+  }
+
+  Future<List<MosqueFollowers>> UserMosqueFollowList() async{
+    try {
+      UserMosqueFollowingList = await Amplify.DataStore.query(MosqueFollowers.classType, where:MosqueFollowers.USERSID.eq(widget.UserID));
+      print(UserMosqueFollowingList);
+      return UserMosqueFollowingList;
+    } catch (e) {
+      print("Could not query DataStore: " + e);
+    }
+  }
+
+  _getBottomNavigation() {
+    return BottomNavigationWidget(
+      //MosqueFollowersList: UserMosqueFollowingList,
+      //CallingFunction: _navigateback(),
+      sessionUser: widget.sessionUser,
+      CallingScreen: "MosqueDetails",
+      index: 1,
     );
   }
 

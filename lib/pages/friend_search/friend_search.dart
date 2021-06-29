@@ -6,13 +6,17 @@ import 'package:mus_greet/core/utils/constants.dart';
 import 'package:mus_greet/core/utils/routes.dart';
 import 'package:mus_greet/core/widgets/advance_search_widget.dart';
 import 'package:mus_greet/core/widgets/asset_image_widget.dart';
+import 'package:mus_greet/core/widgets/bottom_navigation_widget.dart';
 import 'package:mus_greet/core/widgets/custom_spacer_widget.dart';
 import 'package:mus_greet/core/widgets/friend_search_list_widget.dart';
 import 'package:mus_greet/core/widgets/sponsored_widget.dart';
 import 'package:mus_greet/models/ModelProvider.dart';
 import 'package:mus_greet/pages/age/age_registration_page.dart';
+import 'package:mus_greet/pages/home_screen/home_screen.dart';
 
 class FriendSearch extends StatefulWidget {
+  final Users sessionUser;
+  FriendSearch({this.sessionUser});
   @override
   _FriendSearchState createState() => _FriendSearchState();
 }
@@ -23,9 +27,10 @@ class _FriendSearchState extends State<FriendSearch> {
   List<String> friendsListIDofLoggedInUser=[];
   List<FriendRequest> friendsRequest=[];
   List<Users> userList =[];
-  String loginUserId="19d1eb65-ae18-4619-b94b-4670abfd5196";
+  String loginUserId;
   @override
   Widget build(BuildContext context) {
+    loginUserId=widget.sessionUser.id;
     print("Hello");
     return FutureBuilder<List<Users>>(
       future: listUsers(),
@@ -95,12 +100,12 @@ class _FriendSearchState extends State<FriendSearch> {
                 print(userList.length);
                 print("checking the body");
                 print(userList[index].id);
-                if("19d1eb65-ae18-4619-b94b-4670abfd5196" == userList[index].getId() ) {
+                if(loginUserId == userList[index].getId() ) {
                    return Container();
-                }else
-                  {
+                }
+                else {
                     print("user Found");
-                    if (index == 3) {
+                    if (index % 2 == 0 && index !=0) {
                       return _getSponsoredWidget(index);
                     } else {
                       return FriendSearchListWidget(
@@ -138,7 +143,7 @@ class _FriendSearchState extends State<FriendSearch> {
     return Container(
       padding: EdgeInsets.only(left: 20, top: 5, bottom: 20),
       child: Text(
-        "We found " +userList.length.toString()+ " result",
+        "We found " +(userList.length -1).toString()+ " result",
         //AppTexts.FOUND_RESULT,
         style: TextStyle(
             fontWeight: FontWeight.bold,
@@ -156,7 +161,7 @@ class _FriendSearchState extends State<FriendSearch> {
 
   _backButton() {
     return GestureDetector(
-      onTap: ()=> Navigation.intent(context, AppRoutes.HOME),
+      onTap: ()=> _navigatebackHome(),
       child: AssetImageWidget(
         image: ImageConstants.IC_BACK,
         height: 18,
@@ -203,7 +208,7 @@ class _FriendSearchState extends State<FriendSearch> {
     }
   }
 
-  Widget _buildUI(List<Users> users) {
+  Widget _buildUI(List<Users> Userss) {
 
     return FutureBuilder<List<Friends>>(
       future: getFriendsList(),
@@ -211,7 +216,7 @@ class _FriendSearchState extends State<FriendSearch> {
         switch (snapshot.connectionState) {
           case ConnectionState.done:
             friends = snapshot.data;
-            return _buildListOfUsers(friends);
+            return _buildListOfUsers(Userss,friends);
           default:
             return _buildLoadingScreen();
         }
@@ -219,21 +224,37 @@ class _FriendSearchState extends State<FriendSearch> {
     );
   }
 
-   _buildListOfUsers(List<Friends> friends)
-   {
-     print("List of Users");
-    getLoggedInUserFriends();
-    print("inside the friends method");
-    getUserFriendsByFiltering();
+   _buildListOfUsers(List<Users> userss, List<Friends> friends) {
+    if(friends.isEmpty){
+      userList = userss;
+    }
+    else{
+      print("List of Users");
+      getLoggedInUserFriends();
+      print("inside the friends method");
+      getUserFriendsByFiltering();
+    }
+
     return SafeArea(
       child: Scaffold(
         backgroundColor: AppColors.white_shade,
         appBar: _getAppBar(context),
         body: _getBody(),
+        bottomNavigationBar: _getBottomNavigation(),
       ),
     );
 
    }
+
+  _getBottomNavigation() {
+    return BottomNavigationWidget(
+      //MosqueFollowersList: UserMosqueFollowingList,
+      //CallingFunction: _navigateback(),
+      sessionUser: widget.sessionUser,
+      CallingScreen: "Home",
+      index: 0,
+    );
+  }
 
 
   Future<List<Friends>> getFriendsList() async{
@@ -244,7 +265,7 @@ class _FriendSearchState extends State<FriendSearch> {
       return friends;
     }catch(e)
     {
-
+        print(e);
     }
   }
 
@@ -265,28 +286,31 @@ class _FriendSearchState extends State<FriendSearch> {
     print(friendsListIDofLoggedInUser);
   }
 
-  getUserFriendsByFiltering()
-  {
-    for(int i=0 ;i<friendsListIDofLoggedInUser.length;i++)
-      {
+  getUserFriendsByFiltering() {
+    for(int i=0 ;i<friendsListIDofLoggedInUser.length;i++) {
         String friendsId=friendsListIDofLoggedInUser[i];
         print(friendsId);
         userList.clear();
         print("inside the get User Friends By Filterting");
-        for(int i=0 ; i<Userss.length ;i++)
-          {
-            if(friendsId == Userss[i].id)
-              {
+        for(int i=0 ; i<Userss.length ;i++) {
+            if(friendsId == Userss[i].id) {
                 print("The user id accepted so should not display in the friends search tab");
-              }else{
+              }
+            else{
               print(Userss[i]);
               //print(userList[i]);
               userList.add(Userss[i]);
             }
-          }
+        }
       }
     print("getUserFriendsByFiltering");
     print(userList);
+  }
+
+  _navigatebackHome() {
+    print(widget.sessionUser);
+    Navigator.of(context)
+        .push(MaterialPageRoute(builder: (context) => HomeScreen(sessionUser:widget.sessionUser)));
   }
 }
 

@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mus_greet/core/config/navigation.dart';
@@ -232,8 +234,8 @@ class _AddSkillsScreenState extends State<AddSkillsScreen> {
     _generatingSkillsId();
     print("Before the Intrest");
     print(SKILLSLIST);
-    skillList=SKILLSLIST.join(",");
-    print(skillList=SKILLSLIST.join(","));
+    //skillList=SKILLSLIST.join(",");
+    //print(skillList=SKILLSLIST.join(","));
     _UpdatingSkills();
   }
 
@@ -329,7 +331,7 @@ class _AddSkillsScreenState extends State<AddSkillsScreen> {
     print("inside the updating skills");
     final updatedItem = widget.userProfile[0].copyWith(
 
-        skills:  skillList);
+        skills:  jsonEncode(SKILLSLIST));
 
     await Amplify.DataStore.save(updatedItem);
     Navigator.pop(context,true);

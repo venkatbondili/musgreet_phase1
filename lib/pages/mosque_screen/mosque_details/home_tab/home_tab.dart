@@ -12,7 +12,8 @@ import 'package:mus_greet/pages/mosque_screen/mosque_details/mosque_comment_scre
 
 class HomeTab extends StatefulWidget {
   final List<Mosque> mosque;
-  HomeTab({this.mosque});
+  final Users sessionUser;
+  HomeTab({this.mosque, this.sessionUser});
   @override
   _HomeTabState createState() => _HomeTabState();
 }
@@ -678,7 +679,7 @@ class _HomeTabState extends State<HomeTab> {
               //image: "https://musgreetphase1images184452-staging.s3.eu-west-2.amazonaws.com/public/post_img_2.png",
               //callBack: () => _loadCommentScreen(),
               //callBack: () => _loadCommentScreen(Postss[index].id, User[0], Postss[index].post, Postss[index].post_image_path),
-              callBack: () => _loadCommentScreen(postData, mosqueObject, CommentsCount.toString()),
+              callBack: () => _loadCommentScreen(postData, mosqueObject, CommentsCount.toString(),),
               commentsCount:CommentsCount.toString(),
             );
           default:
@@ -714,7 +715,7 @@ class _HomeTabState extends State<HomeTab> {
     print(CommentsCount);
     Navigator.push(context,
         MaterialPageRoute(
-          builder: (context) => MosqueCommentScreen(PostObject: PostObject, CommentsCount: CommentsCount, MosqueObject: MosqueObject),
+          builder: (context) => MosqueCommentScreen(PostObject: PostObject, CommentsCount: CommentsCount, MosqueObject: MosqueObject,sessionUser: widget.sessionUser,),
         )
     );
     //CommentScreen(PostID: PostID,UserName: UserName, Post: Post, Post_image_path: Post_Image_path,);

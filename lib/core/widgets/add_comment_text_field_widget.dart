@@ -18,7 +18,8 @@ class AppCommentTextFieldWidget extends StatefulWidget {
   final Users UserObject;
   final PostComments postComments ;
   final String commentsCount;
-  AppCommentTextFieldWidget({this.hintText, this.ScreenType, this.ParentID,this.PostObject, this.UserObject,this.postComments,this.commentsCount});
+  final Users sessionUser;
+  AppCommentTextFieldWidget({this.hintText, this.ScreenType, this.ParentID,this.PostObject, this.UserObject,this.postComments,this.commentsCount,this.sessionUser});
   @override
   _AppCommentTextFieldWidgetState createState() => _AppCommentTextFieldWidgetState();
 }
@@ -113,7 +114,7 @@ class _AppCommentTextFieldWidgetState extends State<AppCommentTextFieldWidget> {
         comment: textFeildText,
         parent_id: widget.ParentID,
         postsID: widget.PostObject.id,
-        usersID: widget.UserObject.id,
+        usersID: widget.sessionUser.id,
         Comments_PostLikes: []);
     await Amplify.DataStore.save(item);
     await Future.delayed(Duration(seconds: 2));
@@ -133,7 +134,7 @@ class _AppCommentTextFieldWidgetState extends State<AppCommentTextFieldWidget> {
     print("Thank you for reloading");
     Navigator.push(context,
         MaterialPageRoute(
-          builder: (context) => CommentScreen(CommentsCount: commentsCount.toString(),UserObject: widget.UserObject,PostObject: widget.PostObject),
+          builder: (context) => CommentScreen(CommentsCount: commentsCount.toString(),UserObject: widget.UserObject,PostObject: widget.PostObject,LogedInUser: widget.sessionUser),
         )
     );
   }

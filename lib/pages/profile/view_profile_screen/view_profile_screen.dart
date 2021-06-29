@@ -1,6 +1,3 @@
-import 'dart:async';
-import 'dart:convert';
-import 'dart:core';
 import 'dart:ui';
 
 import 'package:amplify_flutter/amplify.dart';
@@ -8,13 +5,14 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mus_greet/core/utils/constants.dart';
 import 'package:mus_greet/core/widgets/asset_image_widget.dart';
+import 'package:mus_greet/core/widgets/bottom_navigation_widget.dart';
 import 'package:mus_greet/core/widgets/custom_spacer_widget.dart';
 import 'package:mus_greet/core/widgets/rounded_button_widget.dart';
 import 'package:mus_greet/core/widgets/s3_bucket_image_widget.dart';
 import 'package:mus_greet/core/widgets/tab_style_widget.dart';
 import 'package:mus_greet/core/widgets/upload_image_bottom_sheet_widget.dart';
+import 'package:mus_greet/models/ModelProvider.dart';
 import 'package:mus_greet/models/UserProfile.dart';
-import 'package:mus_greet/models/Users.dart';
 import 'package:mus_greet/pages/profile/view_profile_screen/about_tab/about_tab.dart';
 import 'package:mus_greet/pages/profile/view_profile_screen/friend_tab/friend_tab.dart';
 import 'package:mus_greet/pages/profile/view_profile_screen/interest_tab/interest_tab.dart';
@@ -24,7 +22,7 @@ import '../../../core/utils/constants.dart';
 
 ///This will render the current user profile on screen
 class ViewProfileScreen extends StatefulWidget {
-  final  Users sessionUser;
+  final Users sessionUser;
   ViewProfileScreen({this.sessionUser});
   @override
   _ViewProfileScreenState createState() => _ViewProfileScreenState();
@@ -36,8 +34,10 @@ class _ViewProfileScreenState extends State<ViewProfileScreen>
 
   TextEditingController _controller = TextEditingController();
   bool _isInEditMode = true;
-  List<UserProfile> userProfile;
-  String userId;
+  //String UserID = "61b35418-9426-4652-9e59-a65ad173117c";
+  String UserID ;
+  List<UserProfile> userProfile = [];
+
   @override
   void initState() {
     _tabController = TabController(length: 4, vsync: this);
@@ -55,21 +55,18 @@ class _ViewProfileScreenState extends State<ViewProfileScreen>
 
   @override
   Widget build(BuildContext context) {
-    print("inside the build");
-    print(widget.sessionUser.id);
-    userId=widget.sessionUser.id;
-    print(userId);
+    UserID = widget.sessionUser.id;
     return Scaffold(
       backgroundColor: AppColors.GREY_KIND,
-      body: _getBody(),
+      body: _getBody(UserID),
+      bottomNavigationBar: _getBottomNavigation(),
     );
   }
 
-  _getBody() {
-    //print(widget.sessionUser.id);
-    print("inside the screen");
-    getDetails();
-    //print(userProfile);
+  _getBody(String userID) {
+    print("inside get body");
+    print(userID);
+    getDetails(userID);
     return SingleChildScrollView(
       child: Column(
         children: [
@@ -77,10 +74,10 @@ class _ViewProfileScreenState extends State<ViewProfileScreen>
           _getTabBar(),
           Center(
             child: [
-              PostTab(),
-              AboutTab(sessionUser :widget.sessionUser),
-              InterestTab(sessionUser :widget.sessionUser),
-              FriendTab(),
+              PostTab(sessionUser: widget.sessionUser,),
+              AboutTab(sessionUser: widget.sessionUser),
+              InterestTab(sessionUser: widget.sessionUser),
+              FriendTab(sessionUser: widget.sessionUser),
             ][_tabController.index],
           ),
         ],
@@ -235,8 +232,8 @@ class _ViewProfileScreenState extends State<ViewProfileScreen>
   ///This will return name of the user
   _getUserName() {
     return Text(
-      widget.sessionUser.first_name + "" +widget.sessionUser.last_name,
-      //'',
+      // AppTexts.TEMP_USER_NAME,
+      widget.sessionUser.first_name + " " + widget.sessionUser.last_name,
       style: TextStyle(
           fontFamily: FontConstants.FONT,
           fontSize: 17,
@@ -259,7 +256,8 @@ class _ViewProfileScreenState extends State<ViewProfileScreen>
           width: 4,
         ),
         Text(
-          widget.sessionUser.city + " " +widget.sessionUser.country,
+          // AppTexts.TEMP_LOCATION,
+          widget.sessionUser.city,
           style: TextStyle(
             fontFamily: FontConstants.FONT,
             fontSize: 13,
@@ -329,24 +327,38 @@ class _ViewProfileScreenState extends State<ViewProfileScreen>
     );
   }
 
-  getDetails() async
-  {
-    //final userid=widget.sessionUser.id;
+  getDetails(String userIDs) async {
     try {
-      print("inside the get details method");
-      // userProfile = await Amplify.DataStore.query(UserProfile.classType,where: UserProfile.USERSID.eq(userId));
-      userProfile = await Amplify.DataStore.query(UserProfile.classType , where: UserProfile.USERSID.eq(userId));
-      print(userProfile);
-     // Timer(
-     //     Duration(seconds: 5),
-     //     getUser());
-     // // getUser();
+      print("inside get details");
+      print(userIDs);
+      // userProfile = await Amplify.DataStore.query(UserProfile.classType,
+      //     where: UserProfile.ID.eq(widget.sessionUser.id));
+      userProfile = await Amplify.DataStore.query(UserProfile.classType,
+          where: UserProfile.USERSID.eq(UserID));
 
+      //userProfile = await Amplify.DataStore.query(UserProfile.classType);
+      // for(var uP in userProfile){
+      //   if(uP.usersID == userID){
+      //     print(uP.usersID);
+      //     print(true);
+      //   }
+      // }
+
+      print(userProfile);
+      print("In the main page");
     }catch(e)
     {
 
     }
   }
 
-
+  _getBottomNavigation() {
+    return BottomNavigationWidget(
+      //MosqueFollowersList: UserMosqueFollowingList,
+      //CallingFunction: _navigateback(),
+      sessionUser: widget.sessionUser,
+      CallingScreen: "ViewProfile",
+      index: 4,
+    );
+  }
 }

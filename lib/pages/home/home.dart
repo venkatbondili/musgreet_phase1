@@ -3,8 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mus_greet/core/utils/constants.dart';
 import 'package:mus_greet/core/widgets/bottom_navigation_bar_widget.dart';
-import 'package:mus_greet/models/ModelProvider.dart';
-import 'package:mus_greet/models/Users.dart';
+import 'package:mus_greet/models/MosqueFollowers.dart';
 import 'package:mus_greet/pages/create_post_screen/create_post_screen.dart';
 import 'package:mus_greet/pages/friend_search/friend_search.dart';
 import 'package:mus_greet/pages/home_screen/home_screen.dart';
@@ -27,7 +26,7 @@ class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin{
   PageController _pageController = PageController();
   bool shouldNavigateToSearch = false;
   bool shouldNavigateToMosqueSearch = false;
-  Users objectUser;
+  List<MosqueFollowers> MosqueFollowerss =[];
 
   _onWillPop() {
     if (shouldNavigateToSearch) {
@@ -57,24 +56,50 @@ class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin{
 
   ///This will render the body of home.
   _getBody() {
-    getUser();
+    return FutureBuilder<List<MosqueFollowers>>(
+      future: listMosqueFollowers(),
+      builder: (ctx, snapshot) {
+        switch (snapshot.connectionState) {
+          case ConnectionState.done:
+            MosqueFollowerss = snapshot.data;
+            return _getUI(MosqueFollowerss);
+          default:
+            return _buildLoadingScreen();
+        }
+      },
+    );
+
+  }
+
+  _getUI(List<MosqueFollowers> mosqueFollowerss) {
     return SizedBox.expand(
       child: PageView(
         controller: _pageController,
         physics: NeverScrollableScrollPhysics(),
         children: [
           HomeScreen(),
-          _getMosquesScreen(),
+          MosqueFollowerss.isEmpty ? MosqueSearchListView(CallingScreen: "Home",): MosqueScreen(CallingScreen: "Home"),
+          //_getMosquesScreen(),
           CreatePostScreen(),
           //Container(),
           //FriendSearch(),
-          HomeScreen(),
-          ViewProfileScreen(sessionUser: objectUser),
+          //HomeScreen(),
+          MosqueFollowerss.isEmpty ? MosqueSearchListView(CallingScreen: "Home",): MosqueScreen(CallingScreen: "Home"),
+          ViewProfileScreen(),
         ],
       ),
     );
   }
 
+  Widget _buildLoadingScreen() {
+    return Center(
+      child: Container(
+        width: 50,
+        height: 50,
+        child: CircularProgressIndicator(),
+      ),
+    );
+  }
 
   ///This will return bottom navigation bar on screen
   _getBottomNavigationBar() {
@@ -84,34 +109,50 @@ class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin{
   }
 
   _getMosquesScreen() {
-    if (shouldNavigateToMosqueSearch == false &&
-        shouldNavigateToSearch == false) {
-      return MosqueScreen(
-        callBack: () => _loadMosqueDetailsScreen(),
-        navigateToMosqueSearch: () => _navigateToMosqueSearch(),
-      );
-    } else if (shouldNavigateToSearch) {
-      return MosquesDetailsScreen(backCallBack: () => _backToMosqueHome());
-    } else if (shouldNavigateToMosqueSearch) {
-      return MosqueSearchListView(
+    print("inside get Mosque Screen");
+    print("shouldNavigateToMosqueSearch");
+    print(shouldNavigateToMosqueSearch);
+    print("shouldNavigateToSearch");
+    print(shouldNavigateToSearch);
+    if(MosqueFollowerss.isEmpty){
+      return MosqueSearchListView(CallingScreen: "Home",
         callBack: () => _getBackToMosqueHomeFromSearch(),
       );
     }
+    else{
+      if (shouldNavigateToMosqueSearch == false &&
+          shouldNavigateToSearch == false) {
+        return MosqueScreen(
+          callBack: () => _loadMosqueDetailsScreen(),
+          navigateToMosqueSearch: () => _navigateToMosqueSearch(),
+        );
+      } else if (shouldNavigateToSearch) {
+        return MosquesDetailsScreen(backCallBack: () => _backToMosqueHome());
+      } else if (shouldNavigateToMosqueSearch) {
+        return MosqueSearchListView(CallingScreen: "MosqueScreen",
+          callBack: () => _getBackToMosqueHomeFromSearch(),
+        );
+      }
+    }
+
   }
 
   _backToMosqueHome() {
+    print("imside back to mosque home");
     setState(() {
       shouldNavigateToSearch = false;
     });
   }
 
   _navigateToMosqueSearch() {
+    print("inside navigate to mosque search");
     setState(() {
       shouldNavigateToMosqueSearch = true;
     });
   }
 
   _getBackToMosqueHomeFromSearch() {
+    print("inside get back to mosque home from search");
     print("world");
     setState(() {
       shouldNavigateToMosqueSearch = false;
@@ -119,24 +160,24 @@ class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin{
   }
 
   _loadMosqueDetailsScreen() {
+    print("inside load mosque details screen");
     print("Helloooo");
     setState(() {
       shouldNavigateToSearch = true;
     });
   }
 
-  Future<void> getUser() async
-  { print("inside the get users");
-    List<Users> userObject=await Amplify.DataStore.query(Users.classType);
-    for(var user in userObject)
-      {print("for loop in user object");
-        if(user.id== "c55d5cd0-d200-4f26-a170-bb655af93fe5")
-          {print("inside the if condition");
-            objectUser=user;
-          }
-      }
+  Future<List<MosqueFollowers>> listMosqueFollowers() async{
+    try {
+      MosqueFollowerss = await Amplify.DataStore.query(MosqueFollowers.classType);
+      print(MosqueFollowerss);
+      return MosqueFollowerss;
+    } catch (e) {
+      print("Could not query DataStore: " + e);
+    }
   }
 
   @override
   bool get wantKeepAlive => true;
+
 }

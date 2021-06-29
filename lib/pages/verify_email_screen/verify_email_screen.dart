@@ -1,8 +1,15 @@
 //import 'package:amplify_auth_cognito/amplify_auth_cognito.dart';
+import 'dart:async';
+import 'dart:convert';
+
 import 'package:amplify_flutter/amplify.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+//import 'package:flutter_session/flutter_session.dart';
+import 'package:mus_greet/core/config/navigation.dart';
+//import 'package:mus_greet/core/utils/arguments.dart';
 import 'package:mus_greet/core/utils/constants.dart';
+import 'package:mus_greet/core/utils/routes.dart';
 import 'package:mus_greet/core/widgets/asset_image_widget.dart';
 import 'package:mus_greet/core/widgets/custom_spacer_widget.dart';
 import 'package:mus_greet/core/widgets/otp_field_widget.dart';
@@ -11,6 +18,7 @@ import 'package:mus_greet/pages/login/login_screen.dart';
 import 'package:mus_greet/pages/otp/otp_success_screen.dart';
 import 'package:mus_greet/pages/otp/phone_verification_screen.dart';
 import 'package:amplify_datastore/amplify_datastore.dart';
+import 'package:mus_greet/pages/registration/registration_screen.dart';
 
 class VerifyEmailScreen extends StatefulWidget {
   String email='';
@@ -23,17 +31,17 @@ class VerifyEmailScreen extends StatefulWidget {
 
 class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
   final TextEditingController _codeController = TextEditingController();
-  ArgumentClass args;
+  RegistrationArgumentClass args;
   String email;
   List<Users> users;
+  Users sessionUser;
 
-  @override
-  Widget build(BuildContext context) {
-
+  @override build(BuildContext context) {
     // Extract the arguments from the current ModalRoute
     // settings and cast them as ScreenArguments.
-    args = ModalRoute.of(context).settings.arguments as ArgumentClass;
-    email = args.email;
+    args = ModalRoute.of(context).settings.arguments as RegistrationArgumentClass;
+    sessionUser = args.sessionUser;
+    email = sessionUser.email;
 
     return SafeArea(
       child: Scaffold(
@@ -200,7 +208,7 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
       text: AppTexts.VERIFY_TEXT,
       isFilled: true,
       callBack: () {
-        print("clicking on verfiy button");
+        print("clicking on verify button");
         verify();
       },
     );
@@ -229,7 +237,9 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
         //confirmationCode: _codeController.text,
       //);
 
-      if (true) {
+      String emailCode = '123456';
+
+      if (_codeController.text == emailCode) {
         print('Email code verification successful');
         updateEmailUser();
          //Navigator.of(context)
@@ -237,8 +247,7 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
        // builder:(BuildContext context) =>_buildContent(context);
         _showDialog();
       }
-       else
-         {
+       else {
            _showDialogFailed();
          }
       // setState(() {
@@ -248,19 +257,30 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
     } catch (e) {
       print(e.message);
     }
-
   }
 
-  updateEmailUser() async
-  {
-    final updatedItem = users[0].copyWith(
-        email:"" ,
-        email_verification: true);
-    await Amplify.DataStore.save(updatedItem);
+  updateEmailUser() async {
+    try {
+      if (sessionUser != null) {
+        final updatedItem = sessionUser.copyWith(
+            email_verification: true);
+        await Amplify.DataStore.save(updatedItem);
+        sessionUser = updatedItem;
+
+        // users = await Amplify.DataStore.query(Users.classType, where:Users.ID.eq(sessionUser.id));
+        // await Future.delayed(Duration(seconds: 2));
+        // //Timer(Duration(seconds: 2),() => _getUserDetails());
+        // if (users != null) {
+        //   sessionUser = users[0];
+        // }
+      }
+    }
+    catch(e) {
+      print(e.message);
+    }
   }
 
-   _showDialog()
-  {
+   _showDialog() {
     print("inside the show Dialog");
     return showDialog(
       context :context,
@@ -287,7 +307,7 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
           // wrap content in flutter
           children: <Widget>[
             Text(
-              '  You have successfully verified your email',
+              'You have successfully verified your email',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 20.0,
@@ -321,7 +341,7 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
                         Radius.circular(8.0),
                       )),
                   onPressed: () {
-                    _navigateToNextScreen(context);
+                    Timer(Duration(seconds: 2),() => _navigateToNextScreen(context));
                   },
                 ),
               ),
@@ -335,8 +355,7 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
 
   }
 
-  _showDialogFailed()
-  {
+  _showDialogFailed() {
     print("inside the show Dialog");
     return showDialog(
       context :context,
@@ -363,7 +382,7 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
           // wrap content in flutter
           children: <Widget>[
             Text(
-              '  Your Email Verfication has Failed.',
+              'Your email verification has failed.',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 20.0,
@@ -383,7 +402,7 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
                 child:  RaisedButton(
                   padding: EdgeInsets.symmetric(horizontal: 50, vertical: 7),
                   child: Text(
-                    'Continue',
+                    'Resend code',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       color: Colors.white,
@@ -397,7 +416,8 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
                         Radius.circular(8.0),
                       )),
                   onPressed: () {
-                    _navigateToNextScreen(context);
+                    Navigator.pop(context);
+                    //_navigateToNextScreen(context);
                   },
                 ),
               ),
@@ -410,29 +430,14 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
     );
   }
 
-
-
-  Future<void> userDetailsData() async
-  {
-    print("getting the data from the users");
-    try {
-      users = await Amplify.DataStore.query(Users.classType , where:Users.ID.eq("315eca04-ab0d-46f7-b063-d8707d607a18"));
-      print(users);
-    }
-    catch(e)
-    {
-
-    }
-  }
-
   void _navigateToNextScreen(BuildContext context) {
-    Navigator.of(context)
-        .push(MaterialPageRoute(builder: (context) => PhoneVerificationScreen()));
+    // Navigator.of(context)
+    //     .push(MaterialPageRoute(builder: (context) => PhoneVerificationScreen()));
+    Navigation.intentWithData(context, AppRoutes.PHONEINPUT,VerifyEmailArgumentClass(sessionUser));
   }
 }
 
-class ArgumentClass {
-  final String email;
-  ArgumentClass(this.email);
+class VerifyEmailArgumentClass {
+  final Users sessionUser;
+  VerifyEmailArgumentClass(this.sessionUser);
 }
-

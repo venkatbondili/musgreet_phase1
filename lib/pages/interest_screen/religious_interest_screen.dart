@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:amplify_flutter/amplify.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -186,8 +188,8 @@ class _ReligiousInterestScreenState extends State<ReligiousInterestScreen> {
   {
     _generatingReligious();
     print(RELIGIOUSLIST);
-    religious=RELIGIOUSLIST.join(",");
-    print(religious=RELIGIOUSLIST.join(","));
+    //religious=RELIGIOUSLIST.join(",");
+    //print(religious=RELIGIOUSLIST.join(","));
     _UpdatingrReligious();
   }
 
@@ -219,7 +221,7 @@ class _ReligiousInterestScreenState extends State<ReligiousInterestScreen> {
   Future<void> _UpdatingrReligious() async
   {
     final updatedItem = widget.userProfile[0].copyWith(
-        religious_interests: religious);
+        religious_interests: jsonEncode(RELIGIOUSLIST));
     await Amplify.DataStore.save(updatedItem);
     Navigator.pop(context,true);
   }

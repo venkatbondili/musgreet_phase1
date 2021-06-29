@@ -8,9 +8,15 @@ import 'package:mus_greet/core/widgets/tab_style_widget.dart';
 import 'package:mus_greet/models/FriendRequest.dart';
 import 'package:mus_greet/models/Friends.dart';
 import 'package:mus_greet/models/Users.dart';
+import 'package:mus_greet/pages/friend_search/friend_search.dart';
+//import 'package:mus_greet/pages/friend_search/friend_search1.dart';
 
 
 class FriendTab extends StatefulWidget {
+  final Users sessionUser;
+  
+  FriendTab({this.sessionUser});
+  
   @override
   _FriendTabState createState() => _FriendTabState();
 }
@@ -25,13 +31,13 @@ class _FriendTabState extends State<FriendTab> with SingleTickerProviderStateMix
   List<FriendRequest> RequestUsersList = [];
   Users sentUserObject;
   Users requestUserObject;
-  List<Users> userFriendObject;
-  List<String> intoFriendsList;
+  List<Users> userFriendObject = [];
+  List<String> intoFriendsList = [];
  // List<Friends> acceptedFriendsList;
   DateTime date=DateTime.now();
   TemporalDate temporalDate=new TemporalDate(DateTime.now());
   // String tabSelection="";
-  String loginUserId="19d1eb65-ae18-4619-b94b-4670abfd5196";
+  String loginUserId;
   @override
   void initState() {
     _tabFriendsController = TabController(length: 3, vsync: this);
@@ -53,6 +59,7 @@ class _FriendTabState extends State<FriendTab> with SingleTickerProviderStateMix
   Widget build(BuildContext context) {
     //friendRequestList();
     //getListOfFriends();
+    loginUserId = widget.sessionUser.id;
     return FutureBuilder<List<FriendRequest>>(
       future: friendRequestList(),
       builder: (ctx, snapshot) {
@@ -69,8 +76,7 @@ class _FriendTabState extends State<FriendTab> with SingleTickerProviderStateMix
 
   }
 
-  buildUi(List<FriendRequest> friendRequest)
-  {
+  buildUi(List<FriendRequest> friendRequest) {
     //getListOfUsers
     return FutureBuilder<List<Users>>(
       future: getListOfUsers(),
@@ -86,8 +92,7 @@ class _FriendTabState extends State<FriendTab> with SingleTickerProviderStateMix
     );
   }
 
-  buildUserList(List<Users> users)
-  {
+  buildUserList(List<Users> users) {
     //friendList();
    //getRequestMessages();
     return Container(
@@ -206,24 +211,38 @@ class _FriendTabState extends State<FriendTab> with SingleTickerProviderStateMix
 
   _getFriendsSentDataList() {
     _getSentUsersList();
-    return Container(
-      width: MediaQuery.of(context).size.width,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children:<Widget> [
-          ListView.builder(
-              shrinkWrap: true,
-              scrollDirection: Axis.vertical,
-              itemCount:SentUsersList.length,
-              itemBuilder: (context,index){
-                return _getSentFriendsUI(SentUsersList[index]);
-              }
-          ),
+    if(SentUsersList.isNotEmpty){
+      return Container(
+        width: MediaQuery.of(context).size.width,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children:<Widget> [
+            ListView.builder(
+                shrinkWrap: true,
+                scrollDirection: Axis.vertical,
+                itemCount:SentUsersList.length,
+                itemBuilder: (context,index){
+                  return _getSentFriendsUI(SentUsersList[index]);
+                }
+            ),
 
-        ],
-      ),
-    );
+          ],
+        ),
+      );
+    }
+    else{
+      return Container(
+        child: Text(
+          "No Requests Yet!!! Search friends near by and send requests!!",
+          //"himaja",
+          style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.normal,
+              color: AppColors.black),
+        ),
+      );
+    }
   }
 
   _getSentFriendsUI(FriendRequest sentFriendObject){
@@ -326,12 +345,13 @@ class _FriendTabState extends State<FriendTab> with SingleTickerProviderStateMix
   _getFriendsRequestDataList() {
     //getRequestMessages();
     getRequestFriendsList();
-    return Container(
-      width: MediaQuery.of(context).size.width,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
+    if(RequestUsersList.isNotEmpty){
+      return Container(
+          width: MediaQuery.of(context).size.width,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
               new ListView.builder(
                   shrinkWrap: true,
                   scrollDirection: Axis.vertical,
@@ -344,11 +364,23 @@ class _FriendTabState extends State<FriendTab> with SingleTickerProviderStateMix
               ),
             ],
           )
-    );
+      );
+    }
+   else{
+      return Container(
+        child: Text(
+          "No Friend Requests at present !!!",
+          //"himaja",
+          style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.normal,
+              color: AppColors.black),
+        ),
+      );
+    }
   }
 
-  getRequestFriendsList()
-  {
+  getRequestFriendsList() {
     RequestUsersList = [];
     for(var fr in friendRequest){
       if(fr.request_to_id == loginUserId){
@@ -357,8 +389,7 @@ class _FriendTabState extends State<FriendTab> with SingleTickerProviderStateMix
     }
   }
 
-  _getRequestUi(FriendRequest requestUsers)
-  {
+  _getRequestUi(FriendRequest requestUsers) {
     getRequestUserDetails(requestUsers.request_from_id);
     return Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -461,8 +492,7 @@ class _FriendTabState extends State<FriendTab> with SingleTickerProviderStateMix
         ]);
   }
 
-  getRequestUserDetails(String request_from_id)
-  {
+  getRequestUserDetails(String request_from_id) {
     for(var u in users){
       if(request_from_id == u.id){
         requestUserObject = u;
@@ -470,8 +500,7 @@ class _FriendTabState extends State<FriendTab> with SingleTickerProviderStateMix
     }
   }
 
- Future<void> requestRejected(FriendRequest requestUser) async
-  {
+ Future<void> requestRejected(FriendRequest requestUser) async {
     final updatedItem = requestUser.copyWith(
       //request_date: TemporalDate.fromString("1970-01-01Z"),
       //request_from_id: "a3f4095e-39de-43d2-baf4-f8c16f0f6f4d",
@@ -499,8 +528,7 @@ class _FriendTabState extends State<FriendTab> with SingleTickerProviderStateMix
     print(requestUser);
   }
 
-  Future<void> friendsTable() async
-  {
+  Future<void> friendsTable() async {
     print("Getting the data from Friends table");
     try {
       friends = await Amplify.DataStore.query(Friends.classType);
@@ -511,8 +539,7 @@ class _FriendTabState extends State<FriendTab> with SingleTickerProviderStateMix
     }
   }
   
-  checkingUserIdInFriendsTable(FriendRequest requestUser)
-  {
+  checkingUserIdInFriendsTable(FriendRequest requestUser) {
     print("checking the user id with friends user id");
     if(friends.isEmpty)
       {
@@ -587,8 +614,7 @@ class _FriendTabState extends State<FriendTab> with SingleTickerProviderStateMix
     await Amplify.DataStore.save(item);
   }
 
- Future<void> updateFriendsTable(String loginUserId, Friends friend) async
-  {
+ Future<void> updateFriendsTable(String loginUserId, Friends friend) async {
     String friendsList;
     if(friends.isEmpty)
     {
@@ -612,43 +638,56 @@ class _FriendTabState extends State<FriendTab> with SingleTickerProviderStateMix
     getAcceptedUserName();
     print(users);
     print("getting the user details");
-    return Container(
-      width: MediaQuery.of(context).size.width,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget> [
-          // Padding(padding: EdgeInsets.only(top: 30)),
-          // _getFriendsDataListItem(),
-          // Padding(padding: EdgeInsets.only(top: 30)),
-          // _getFriendsDataListItem(),
-          // Padding(padding: EdgeInsets.only(top: 30)),
-          // _getFriendsDataListItem(),
-          // Padding(padding: EdgeInsets.only(top: 30)),
-          // _getFriendsDataListItem(),
-          // Padding(padding: EdgeInsets.only(top: 30)),
-          // _getFriendsDataListItem(),
-          // Padding(padding: EdgeInsets.only(top: 30)),
-          // _getFriendsDataListItem(),
-          ListView.builder(
-              shrinkWrap: true,
-              scrollDirection: Axis.vertical,
-              itemCount:userFriendObject.length,
-              itemBuilder: (context,index){
-                return displayFriends(userFriendObject[index]);
-              }
-          ),
+    if(userFriendObject.isNotEmpty){
+      return Container(
+        width: MediaQuery.of(context).size.width,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget> [
+            // Padding(padding: EdgeInsets.only(top: 30)),
+            // _getFriendsDataListItem(),
+            // Padding(padding: EdgeInsets.only(top: 30)),
+            // _getFriendsDataListItem(),
+            // Padding(padding: EdgeInsets.only(top: 30)),
+            // _getFriendsDataListItem(),
+            // Padding(padding: EdgeInsets.only(top: 30)),
+            // _getFriendsDataListItem(),
+            // Padding(padding: EdgeInsets.only(top: 30)),
+            // _getFriendsDataListItem(),
+            // Padding(padding: EdgeInsets.only(top: 30)),
+            // _getFriendsDataListItem(),
+            ListView.builder(
+                shrinkWrap: true,
+                scrollDirection: Axis.vertical,
+                itemCount:userFriendObject.length,
+                itemBuilder: (context,index){
+                  return displayFriends(userFriendObject[index]);
+                }
+            ),
 
 
-        ],
-      ),
-    );
+          ],
+        ),
+      );
+    }
+    else{
+      return Container(
+        child: Text(
+         "No Friends Yet!!! Search friends near by!!",
+          //"himaja",
+          style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.normal,
+              color: AppColors.black),
+        ),
+      );
+    }
+
+
   }
 
-
-
-  displayFriends(Users userFriendObject)
-  {
+  displayFriends(Users userFriendObject) {
     print("inside the display method");
     print(userFriendObject.first_name);
     return Row(mainAxisSize: MainAxisSize.max, children: [
@@ -699,8 +738,8 @@ class _FriendTabState extends State<FriendTab> with SingleTickerProviderStateMix
     ]);
   }
 
-  getAcceptedUserName()
-  { displayTheFriends();
+  getAcceptedUserName() {
+    displayTheFriends();
     print("inside the get accepted user name");
          userFriendObject=[];
          for(int i=0;i<intoFriendsList.length ;i++)
@@ -715,8 +754,8 @@ class _FriendTabState extends State<FriendTab> with SingleTickerProviderStateMix
        }
   }
 
-  displayTheFriends()
-  { print("Displaying the Friends");
+  displayTheFriends() {
+    print("Displaying the Friends");
     intoFriendsList=[];
     for(int i=0; i<friends.length;i++)
       {
@@ -730,8 +769,6 @@ class _FriendTabState extends State<FriendTab> with SingleTickerProviderStateMix
       }
     print(intoFriendsList);
   }
-
-
 
   /// This will render all the friends item
   _getFriendsDataListItem() {
@@ -948,54 +985,70 @@ class _FriendTabState extends State<FriendTab> with SingleTickerProviderStateMix
                 Radius.circular(40),
               ),
             ),
-            child: Center(
-              child: getCommonPadding(
-                  15,
-                  3,
-                  3,
-                  15,
-                  Row(
-                    children: [
-                      Center(
-                        child: AssetImageWidget(
-                          image: ImageConstants.IC_SEARCH,
-                          height: 20,
-                          width: 20,
-                        ),
-                      ),
-                      Expanded(
-                        child: Center(
-                          child: getCommonPadding(
-                            11,
-                            15,
-                            0,
-                            0,
-                            TextFormField(
-                              showCursor: true,
-                              keyboardType: TextInputType.text,
-                              controller: _controller,
-                              focusNode: focusNode,
-                              decoration: InputDecoration(
-                                border: InputBorder.none,
-                                hintText: 'Search friend',
-                                hintStyle: TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.bold,
-                                    color: AppColors.black),
-                              ),
-                              style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold,
-                                  color: AppColors.black),
+            child:GestureDetector(
+                onTap: (){
+                  _navigatetoFriendSearch();
+                  //Navigation.intent(context, AppRoutes.CREATE_POST_SCREEN);
+                },//=> widget.callBack(),
+                child: Center(
+                  child: getCommonPadding(
+                      15,
+                      3,
+                      3,
+                      15,
+                      Row(
+                        children: [
+                          Center(
+                            child: AssetImageWidget(
+                              image: ImageConstants.IC_SEARCH,
+                              height: 20,
+                              width: 20,
                             ),
                           ),
-                        ),
-                      )
-                    ],
-                  )),
-            )));
+                          Expanded(
+                            child: Center(
+                              child: getCommonPadding(
+                                11,
+                                15,
+                                0,
+                                0,
+                                TextFormField(
+                                  showCursor: true,
+                                  keyboardType: TextInputType.text,
+                                  controller: _controller,
+                                  focusNode: focusNode,
+                                  decoration: InputDecoration(
+                                    border: InputBorder.none,
+                                    hintText: 'Search friend',
+                                    hintStyle: TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.bold,
+                                        color: AppColors.black),
+                                  ),
+                                  style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.bold,
+                                      color: AppColors.black),
+                                ),
+                              ),
+                            ),
+                          )
+                        ],
+                      )),
+                ))),
+        );
+
   }
 
+  _navigatetoFriendSearch(){
+    print("inside navigate to friend search");
+    print(widget.sessionUser.first_name);
+    Navigator.push(context,
+        MaterialPageRoute(
+          builder: (context) => FriendSearch(sessionUser:widget.sessionUser),
+        )
+    );
+  }
 
   /// for Rendering the tab bar for friends screen
   _getFriendsTabBar() {
@@ -1030,7 +1083,6 @@ class _FriendTabState extends State<FriendTab> with SingleTickerProviderStateMix
     );
   }
 
-
   ///This will render unfriedn button on screen
   _getIUnFriendButton() {
     return RoundedButtonWidget(
@@ -1056,10 +1108,9 @@ class _FriendTabState extends State<FriendTab> with SingleTickerProviderStateMix
     }
   }
 
-  Future<List<Users>> getListOfUsers() async
-  {
+  Future<List<Users>> getListOfUsers() async {
     try {
-      users = await Amplify.DataStore.query(Users.classType);
+      users = await Amplify.DataStore.query(Users.classType , where:Users.ID.eq(widget.sessionUser.id));
       print("list of users");
       print(users);
       return users;
@@ -1070,53 +1121,12 @@ class _FriendTabState extends State<FriendTab> with SingleTickerProviderStateMix
   }
 
   ///Create a common padding widget for the About Us View
-  Widget getCommonPadding(
-      double left, double top, double bottom, double right, Widget widget) {
+  Widget getCommonPadding(double left, double top, double bottom, double right, Widget widget) {
     return Padding(
       padding:
       EdgeInsets.only(left: left, top: top, bottom: bottom, right: right),
       child: widget,
     );
   }
-
-  //  friendList() {
-  //   FRIENDLISTID.clear();
-  //   FRIEND.clear();
-  //   print("inside the friends list");
-  //   for(int i=0; i<friendRequest.length ;i++) {
-  //       if(loginUserId == friendRequest[i].request_from_id) {
-  //         String friendToId = friendRequest[i].request_to_id;
-  //         String requestMessaage = friendRequest[i].request_message;
-  //         for (int i = 0; i < users.length; i++) {
-  //           if (friendToId == users[i].id) {
-  //             FRIENDLISTID.add(friendToId);
-  //             FRIEND.add(users[i].first_name + "" + users[i].last_name);
-  //             // REQUESTMESSAGE.add(requestMessaage);
-  //           }
-  //         }
-  //       }
-  //     }
-  //   print(FRIENDLISTID);
-  //   print(FRIENDLISTID.length);
-  //   print("inside the FRiends List Method");
-  // }
-
-  // getRequestMessages() {
-  //   REQUESTMESSAGE.clear();
-  //   for(int i=0;i<FRIENDLISTID.length;i++)
-  //     {
-  //       String friendRequestId=FRIENDLISTID[i];
-  //       for(int i=0;i<friendRequest.length;i++)
-  //         {print("inside the friendRequest list");
-  //           if(friendRequestId == friendRequest[i].request_to_id)
-  //             {print("if condition in request message");
-  //               REQUESTMESSAGE.add(friendRequest[i].request_message);
-  //             }
-  //         }
-  //     }
-  //   print(REQUESTMESSAGE);
-  // }
-
-
 
 }

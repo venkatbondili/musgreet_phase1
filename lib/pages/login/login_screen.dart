@@ -9,6 +9,19 @@ import 'package:mus_greet/core/widgets/login_screen_text_field_widget.dart';
 import 'package:mus_greet/core/widgets/password_field_widget.dart';
 import 'package:mus_greet/core/widgets/social_media_button_widget.dart';
 import 'package:mus_greet/core/config/navigation.dart';
+import 'package:amplify_auth_cognito/amplify_auth_cognito.dart';
+import 'package:amplify_flutter/amplify.dart';
+import 'package:mus_greet/models/UserProfile.dart';
+import 'package:mus_greet/models/Users.dart';
+import 'package:mus_greet/pages/address-verification/address_verification_view.dart';
+import 'package:mus_greet/pages/age/age_registration_page.dart';
+import 'package:mus_greet/pages/final/community_promise_page.dart';
+import 'package:mus_greet/pages/final/final_step_page.dart';
+import 'package:mus_greet/pages/final/nearly_finished_page.dart';
+import 'package:mus_greet/pages/otp/components/phone_otp_view.dart';
+import 'package:mus_greet/pages/registration/registration_screen.dart';
+import 'package:mus_greet/pages/smile/time_to_smile_page.dart';
+import 'package:mus_greet/pages/verify_email_screen/verify_email_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -32,8 +45,14 @@ class _LoginScreenState extends State<LoginScreen> {
   _getBody() {
     return SingleChildScrollView(
       child: Container(
-        width: MediaQuery.of(context).size.width,
-        height: MediaQuery.of(context).size.height,
+        width: MediaQuery
+            .of(context)
+            .size
+            .width,
+        height: MediaQuery
+            .of(context)
+            .size
+            .height,
         padding: EdgeInsets.only(left: 30, right: 30),
         child: Column(
           children: [
@@ -73,6 +92,9 @@ class _LoginScreenState extends State<LoginScreen> {
               height: 50,
             ),
             _getRegisterTextAndButton(),
+            CustomSpacerWidget(
+              height: 50,
+            ),
           ],
         ),
       ),
@@ -81,7 +103,10 @@ class _LoginScreenState extends State<LoginScreen> {
 
   _getLogoAndBack() {
     return Container(
-      width: MediaQuery.of(context).size.width,
+      width: MediaQuery
+          .of(context)
+          .size
+          .width,
       child: AssetImageWidget(
         image: ImageConstants.IC_LOGIN_LOGO,
         height: 125,
@@ -128,7 +153,10 @@ class _LoginScreenState extends State<LoginScreen> {
   _getForgotPasswordText() {
     return Container(
       alignment: Alignment.centerRight,
-      width: MediaQuery.of(context).size.width,
+      width: MediaQuery
+          .of(context)
+          .size
+          .width,
       child: GestureDetector(
         onTap: () {
           ///Forgot password
@@ -149,7 +177,10 @@ class _LoginScreenState extends State<LoginScreen> {
 
   _getSocialMediaText() {
     return Container(
-      width: MediaQuery.of(context).size.width,
+      width: MediaQuery
+          .of(context)
+          .size
+          .width,
       alignment: Alignment.center,
       child: Text(
         AppTexts.SOCIAL_ACCOUNT_TO_LOGIN,
@@ -196,7 +227,7 @@ class _LoginScreenState extends State<LoginScreen> {
         text: AppTexts.LOGIN_TEXT,
         isFilled: true,
         callBack: () {
-          Navigation.intentWithClearAllRoutes(context, AppRoutes.HOME);
+          _loginUser();
         },
       ),
     );
@@ -225,7 +256,8 @@ class _LoginScreenState extends State<LoginScreen> {
                 color: AppColors.green,
                 decoration: TextDecoration.underline,
               ),
-              recognizer: TapGestureRecognizer()..onTap = () => _registerUser(),
+              recognizer: TapGestureRecognizer()
+                ..onTap = () => _registerUser(),
             ),
           ]),
     );
@@ -235,6 +267,125 @@ class _LoginScreenState extends State<LoginScreen> {
     ///register user
     print('register link clicked');
     Navigation.intentWithClearAllRoutes(context, AppRoutes.REGISTER);
+  }
+
+  _loginUser() async {
+    print('inside loginuser');
+    try {
+      //Temporarily disabling Cognito verification
+    // SignInResult res = await Amplify.Auth.signIn(
+      //   username: _emailController.text,
+      //   password: _passwordController.text,
+      // );
+
+      print('hi');
+      //if (res.isSignedIn) {
+      if (true) {
+        print("Sign in succeeded");
+
+        List<Users> users = await Amplify.DataStore.query(
+            Users.classType, where: Users.EMAIL.eq(_emailController.text));
+        await Future.delayed(Duration(seconds: 2));
+
+        if (users != null) {
+          print(users);
+
+          Users loggedUser = users[0];
+
+          //Checking user profile
+
+          List<UserProfile> userProfile = await Amplify.DataStore.query(UserProfile.classType,where: UserProfile.USERSID.eq(loggedUser.id));
+          await Future.delayed(Duration(seconds: 2));
+
+          // Users x = Users(first_name: 'Venkat');
+          // UserProfile c = UserProfile(sect: sect, usersID: x.id);
+
+            //email_verification check
+          if (loggedUser.email_verification == false) {
+
+            //send email with code and then navigate user to email verification page
+            Navigation.intentWithData(context, AppRoutes.VERIFYEMAIL,RegistrationArgumentClass(users[0]));
+
+            //phone_verification check
+          } else if (loggedUser.phone_verification == false) {
+
+              Navigation.intentWithData(context, AppRoutes.PHONEINPUT,VerifyEmailArgumentClass(loggedUser));
+
+            //age check
+          } else if (loggedUser.age == null) {
+
+            Navigation.intentWithData(context, AppRoutes.AGEREGISTER,PhoneOTPArgumentClass(loggedUser));
+
+            //parent verification check
+          } else if (int.parse(loggedUser.age) < 16 && loggedUser.parent_verification == false) {
+
+            //if (loggedUser.age as int < 16) {
+              Navigation.intentWithData(context, AppRoutes.PARENTEMAIL,AgeRegistrationArgumentClass(loggedUser));
+              // } else {
+              //   Navigation.intentWithData(context, AppRoutes.VERIFYADDRESS,AgeRegistrationArgumentClass(loggedUser));
+              // }
+            //}
+            //address verification check
+          } else if (loggedUser.address_verification == false) {
+
+              if (loggedUser.address_verification_mode == 'Manual') {
+
+                if (loggedUser.manual_address_taken_date == null) {
+                  //send user to address verification screen, so that again he/she can get both manual and auto options
+                  //Navigation.intentWithData(context, AppRoutes.MANUALADDRESS1,AgeRegistrationArgumentClass(sessionUser));
+                  Navigation.intentWithData(context, AppRoutes.VERIFYADDRESS,AgeRegistrationArgumentClass(loggedUser));
+
+                } else if (loggedUser.manual_address_code_sent_date == null) {
+                  //user confirmed his/her address manually, but code not yet sent via post by admin user
+
+                } else {
+                  //Need to allow user to input code sent via post
+                  Navigation.intentWithData(context, AppRoutes.MANUALADDRESSOTP,AddressVerificationArgumentClass(loggedUser));
+
+                }
+              } else {
+                Navigation.intentWithData(context, AppRoutes.VERIFYADDRESS,AgeRegistrationArgumentClass(loggedUser));
+              }
+
+            //user profile check
+          } else if (userProfile.length == 0) {
+            //print(userProfile.length);
+            Navigation.intentWithData(context, AppRoutes.NEARLYFINISHED,AddressVerificationArgumentClass(loggedUser));
+
+            //photo verification check
+          } else if (loggedUser.photo_verification == false) {
+
+            Navigation.intentWithData(context, AppRoutes.TIMETOSMILE,NearlyFinishedArgumentClass(loggedUser));
+
+            //terms, privacy policy agreement check
+          } else if (loggedUser.terms_privacy_policy_agree == null) {
+
+            Navigation.intentWithData(context, AppRoutes.FINALSTEP,TimetoSmileArgumentClass(loggedUser));
+
+            //community promise check
+        } else if (loggedUser.community_promise_agree == null) {
+
+            //Navigation.intentWithData(context, AppRoutes.FINALSTEP,TimetoSmileArgumentClass(loggedUser));
+            Navigation.intentWithData(context, AppRoutes.ACCOUNTSUCCESS,FinalStepArgumentClass(loggedUser));
+          }
+          //if all the verifications are done, then take user to Home screen
+          else {
+            Navigation.intentWithData(context, AppRoutes.HOME,CommunityPromiseArgumentClass(loggedUser));
+          }
+
+        }
+        else {
+          //user doesn't exist in the DB");
+        }
+      }
+      else {
+        //applies only when using cognito: user exists in cognito but not yet confirmed
+        print("Sign in failed");
+      }
+    } catch (e) {
+      print("Error in Sign in function");
+      print(e.message);
+    }
   }
 }
 
@@ -280,3 +431,38 @@ class _ActionButtonWidgetState extends State<LoginAndRegisterScreenButton> {
     );
   }
 }
+
+// class RegistrationArgumentClass {
+//   final Users sessionUser;
+//   RegistrationArgumentClass(this.sessionUser);
+// }
+
+// class PhoneVerificationArgumentClass {
+//   final Users sessionUser;
+//   PhoneVerificationArgumentClass(this.sessionUser);
+// }
+//
+// class PhoneOTPArgumentClass {
+//   final Users sessionUser;
+//   PhoneOTPArgumentClass(this.sessionUser);
+// }
+//
+// class AgeRegistrationArgumentClass {
+//   final Users sessionUser;
+//   AgeRegistrationArgumentClass(this.sessionUser);
+// }
+
+// class VerifyEmailArgumentClass {
+//   final Users sessionUser;
+//   VerifyEmailArgumentClass(this.sessionUser);
+// }
+
+// class NearlyFinishedArgumentClass {
+//   final Users sessionUser;
+//   NearlyFinishedArgumentClass(this.sessionUser);
+// }
+
+// class CommunityPromiseArgumentClass {
+//   final Users sessionUser;
+//   CommunityPromiseArgumentClass(this.sessionUser);
+// }

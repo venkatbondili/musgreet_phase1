@@ -525,7 +525,6 @@ class _InterestTabState extends State<InterestTab> {
             where: UserProfile.USERSID.eq(widget.sessionUser.id));
         print(userProfile);
         print("Inside the User Profile");
-
         return userProfile;
       } catch(e)
      {
@@ -533,8 +532,7 @@ class _InterestTabState extends State<InterestTab> {
      }
    }
 
-   getIntrests()
-  { //idIntrest.clear();
+   getIntrests() { //idIntrest.clear();
     //try {
     print("Inside the get Intrest");
     print(masterIntrest.length);
@@ -543,84 +541,98 @@ class _InterestTabState extends State<InterestTab> {
       RELIGIOUS_LIST.clear();
       print("Inside the User Profile data store");
        var  intrestId=userProfile[0].community_interests;
-       print(intrestId);
-       print(intrestId.runtimeType);
-       List<dynamic> intrest=jsonDecode(intrestId);
-       print(intrest);
-       var intrestString=intrest.join(",");
-       var intrestList=intrestString.split(",");
-       print(intrestList);
+       if(intrestId != null){
+         print(intrestId);
+         print(intrestId.runtimeType);
+         List<dynamic> intrest=jsonDecode(intrestId);
+         print(intrest);
+         var intrestString=intrest.join(",");
+         var intrestList=intrestString.split(",");
+         print(intrestList);
+         idIntrest=intrestList;
+
+         for(int i=0;i<idIntrest.length;i++) {
+           String hobbieList=idIntrest[i];
+           print("Inside the For loop");
+           for(int i=0;i<masterIntrest.length;i++) {
+             print(hobbieList);
+             if (hobbieList == masterIntrest[i].id) {
+               print("inside the master");
+               INTRESTS.addAll({
+                 masterIntrest[i].intrest_name :masterIntrest[i].photo_path,
+               });
+             }
+           }
+         }
+
+       }else{
+        INTRESTS = {};
+       }
+
+
 
        print("------------Skills-------------");
        var  skillsId=userProfile[0].skills;
-       print(skillsId);
-       print(skillsId.runtimeType);
-       List<dynamic> skills=jsonDecode(skillsId);
-       print(skills);
-       var SkillsString=skills.join(",");
-       var skilldList=SkillsString.split(",");
-       print(skilldList);
+       if(skillsId != null){
+         print(skillsId);
+         print(skillsId.runtimeType);
+         List<dynamic> skills=jsonDecode(skillsId);
+         print(skills);
+         var SkillsString=skills.join(",");
+         var skilldList=SkillsString.split(",");
+         print(skilldList);
+         IdSkill=skilldList;
+
+         for(int i=0;i<IdSkill.length;i++) {
+           String skillList=IdSkill[i];
+           print("Inside the For loop for skills");
+           for(int i=0;i<masterIntrest.length;i++) {
+             print(skillList);
+             if (skillList == masterIntrest[i].id) {
+               print("inside the master skills");
+               SKILLS.addAll({
+                 masterIntrest[i].intrest_name :masterIntrest[i].photo_path,
+               });
+             }
+           }
+         }
+
+       }
+       else{
+         SKILLS = {};
+       }
+
 
        print("-----------------Religious -----------");
 
         var  religious=userProfile[0].religious_interests;
-         print(religious);
-         print(religious.runtimeType);
-         List<dynamic> religiousDecode=jsonDecode(religious);
+        if(religious != null){
+          print(religious);
+          print(religious.runtimeType);
+          List<dynamic> religiousDecode=jsonDecode(religious);
           print(religiousDecode);
           var religiousString=religiousDecode.join(",");
-         var religiousList=religiousString.split(",");
-        print(religiousList);
-
-
-      idIntrest=intrestList;
-      IdSkill=skilldList;
-      idReligious=religiousList;
-      print(idIntrest[0]);
-
-      for(int i=0;i<idIntrest.length;i++) {
-        String hobbieList=idIntrest[i];
-        print("Inside the For loop");
-        for(int i=0;i<masterIntrest.length;i++) {
-          print(hobbieList);
-          if (hobbieList == masterIntrest[i].id) {
-            print("inside the master");
-           INTRESTS.addAll({
-             masterIntrest[i].intrest_name :masterIntrest[i].photo_path,
-           });
-        }
-        }
-      }
-
-      for(int i=0;i<IdSkill.length;i++) {
-        String skillList=IdSkill[i];
-        print("Inside the For loop for skills");
-        for(int i=0;i<masterIntrest.length;i++) {
-          print(skillList);
-          if (skillList == masterIntrest[i].id) {
-            print("inside the master skills");
-            SKILLS.addAll({
-              masterIntrest[i].intrest_name :masterIntrest[i].photo_path,
-            });
-          }
-        }
-      }
-
-
-      for(int i=0;i<idReligious.length;i++) {
-        String religiousList=idReligious[i];
-        print("Inside the For loop for skills");
-        for(int i=0;i<masterIntrest.length;i++) {
+          var religiousList=religiousString.split(",");
           print(religiousList);
-          if (religiousList == masterIntrest[i].id) {
-            print("inside the master religious");
-            RELIGIOUS_LIST.addAll({
-              masterIntrest[i].intrest_name :masterIntrest[i].photo_path,
-            });
+          idReligious=religiousList;
+
+          for(int i=0;i<idReligious.length;i++) {
+            String religiousList=idReligious[i];
+            print("Inside the For loop for skills");
+            for(int i=0;i<masterIntrest.length;i++) {
+              print(religiousList);
+              if (religiousList == masterIntrest[i].id) {
+                print("inside the master religious");
+                RELIGIOUS_LIST.addAll({
+                  masterIntrest[i].intrest_name :masterIntrest[i].photo_path,
+                });
+              }
+            }
           }
+        } else{
+          RELIGIOUS_LIST = {};
         }
-      }
-      print(INTRESTS);
+
       print("end of the list");
 
     //}catch(e)

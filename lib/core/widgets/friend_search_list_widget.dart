@@ -1,3 +1,4 @@
+import 'package:amplify_flutter/amplify.dart';
 import 'package:flutter/material.dart';
 import 'package:mus_greet/core/utils/constants.dart';
 import 'package:mus_greet/core/widgets/custom_spacer_widget.dart';
@@ -12,42 +13,63 @@ import 'asset_image_widget.dart';
 class FriendSearchListWidget extends StatefulWidget {
   final int index;
   final Users UserObject;
-
-  const FriendSearchListWidget({Key key, this.index, this.UserObject}) : super(key: key);
+  final String loginUserId;
+  const FriendSearchListWidget({Key key, this.index,this.loginUserId, this.UserObject}) : super(key: key);
   @override
   _FriendSearchListWidgetState createState() => _FriendSearchListWidgetState();
 }
 
 class _FriendSearchListWidgetState extends State<FriendSearchListWidget> {
+  bool status=false;
+  List<FriendRequest> friendRequest=[];
   @override
   Widget build(BuildContext context) {
-    return Material(
-      elevation: 2,
-      shadowColor: AppColors.black,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12.0),
-      ),
-      child: Container(
-        padding: EdgeInsets.only(left: 10, top: 10, bottom: 10, right: 10),
-        decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10), color: AppColors.white),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            _getUserDetails(),
-            CustomSpacerWidget(
-              width: 5,
-            ),
-            Flexible(
-              child: _getRemoveButton(),
-            ),
-          ],
-        ),
-      ),
+    //friendRequestList();
+
+    return FutureBuilder<List<FriendRequest>>(
+      future: friendRequestList(),
+      builder: (ctx, snapshot) {
+        switch (snapshot.connectionState) {
+          case ConnectionState.done:
+            friendRequest = snapshot.data;
+            return buildUi(friendRequest);
+          default:
+            return _buildLoadingScreen();
+        }
+      },
     );
   }
 
+   buildUi(List<FriendRequest> friendRequest)
+   {
+     _getStatus();
+     return Material(
+       elevation: 2,
+       shadowColor: AppColors.black,
+       shape: RoundedRectangleBorder(
+         borderRadius: BorderRadius.circular(12.0),
+       ),
+       child: Container(
+         padding: EdgeInsets.only(left: 10, top: 10, bottom: 10, right: 10),
+         decoration: BoxDecoration(
+             borderRadius: BorderRadius.circular(10), color: AppColors.white),
+         child: Row(
+           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+           children: [
+             _getUserDetails(),
+             CustomSpacerWidget(
+               width: 5,
+             ),
+             Flexible(
+               child: status ? _getRequestSent() :_getAddFriendButton(),
+               //fit:0,
 
+             ),
+           ],
+         ),
+       ),
+     );
+   }
   _getUserDetails() {
     return Row(
       children: [
@@ -55,8 +77,19 @@ class _FriendSearchListWidgetState extends State<FriendSearchListWidget> {
         CustomSpacerWidget(
           width: 10,
         ),
+        //print("Inisde the Name and Relatioship ");
         _getNameAndLocation(),
       ],
+    );
+  }
+
+  Widget _buildLoadingScreen() {
+    return Center(
+      child: Container(
+        width: 50,
+        height: 50,
+        child: CircularProgressIndicator(),
+      ),
     );
   }
 
@@ -118,7 +151,7 @@ class _FriendSearchListWidgetState extends State<FriendSearchListWidget> {
               width: 4,
             ),
             Text(
-              widget.UserObject.city +" , "+ widget.UserObject.country,
+              widget.UserObject.city ,
               //AppTexts.MOSQUE_LOCATION,
               style: TextStyle(
                 fontFamily: FontConstants.FONT,
@@ -150,22 +183,70 @@ class _FriendSearchListWidgetState extends State<FriendSearchListWidget> {
     );
   }
 
-  _getRemoveButton() {
+  _getStatus(){
+    print("Checking the REquest status");
+    print(friendRequest.isNotEmpty);
+    //if (friendRequest.isNotEmpty) {
+      print("inside the friend request if condition");
+      print(friendRequest);
+      for (int i = 0; i < friendRequest.length; i++) {
+        if (friendRequest[i].request_status == "Sent") {
+          status = true;
+        } else {
+          status = false;
+        }
+      }
+   // }else {
+         // status=false;
+      //}
+    print(status);
+   }
+
+  _getRequestSent(){
     return MosqueFollowButton(
       radius: 30,
-      callBack: () {
-        print("Handle CallBack");
-        _handleSearch();
-      },
-      text: widget.index==0 ? AppTexts.REQUEST_SENT_TEXT :AppTexts.ADD_FRIEND_TEXT,
-      isFilled: widget.index==0 ? true : false,
+      // callBack: () {
+      //   print("inside the request sent");
+      //   _handleSearch();
+      // },
+      text: AppTexts.REQUEST_SENT_TEXT,
+      //text: widget.index==0 ? AppTexts.REQUEST_SENT_TEXT :AppTexts.ADD_FRIEND_TEXT,
+      //isFilled: widget.index==0 ? true : false,
+      isFilled: true,
     );
+  }
+
+  _getAddFriendButton() {
+    return MosqueFollowButton(
+              radius: 30,
+              callBack: () {
+                print("Handle CallBack");
+                _handleSearch();
+              },
+              text: AppTexts.ADD_FRIEND_TEXT,
+              //text: widget.index==0 ? AppTexts.REQUEST_SENT_TEXT :AppTexts.ADD_FRIEND_TEXT,
+              //isFilled: widget.index==0 ? true : false,
+              isFilled: false,
+            );
   }
 
   _handleSearch() {
     print("Handle Search!!");
     showDialog(context: context, builder: (context){
-      return SendRequestDialogWidget();
+      print(widget.UserObject);
+      return SendRequestDialogWidget(userObject:widget.UserObject ,loginUserId:widget.loginUserId);
     });
+  }
+
+  Future<List<FriendRequest>> friendRequestList() async{
+    try{
+      friendRequest = await Amplify.DataStore.query(FriendRequest.classType);
+      print(friendRequest);
+      print("Inside the Friend Request");
+      return friendRequest;
+    }catch(e)
+    {
+
+    }
   }
 }

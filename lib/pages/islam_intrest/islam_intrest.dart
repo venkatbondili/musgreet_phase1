@@ -28,6 +28,7 @@ class _MyIslamIntrestScreenState extends State<IslamIntrest> {
   List<UserProfile> userProfile;
   bool member;
   String loggedInUser;
+  final _islamIntrest = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
@@ -55,7 +56,18 @@ class _MyIslamIntrestScreenState extends State<IslamIntrest> {
                   CustomSpacerWidget(
                     height: 30,
                   ),
-                  _getIslamIntrest(),
+                  // _getIslamIntrest(),
+                  Container(
+                    child: Form(
+                      key: _islamIntrest,
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
+                      child: Column(
+                        children: [
+                          _getIslamIntrest(),
+                        ],
+                      ),
+                    ),
+                  ),
                   CustomSpacerWidget(
                     height: 30,
                   ),
@@ -142,8 +154,10 @@ class _MyIslamIntrestScreenState extends State<IslamIntrest> {
           child: ActionButtonWidget(
             callBack: () {
               print("updating the database");
-              updateUserProfile(member);
-              Navigator.pop(context,true);
+              if(_islamIntrest.currentState.validate()) {
+                updateUserProfile(member);
+                Navigator.pop(context, true);
+              }
             },
             text: AppTexts.SAVE,
             isFilled: true,

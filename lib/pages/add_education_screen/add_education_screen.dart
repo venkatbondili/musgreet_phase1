@@ -28,6 +28,11 @@ class _AddEducationScreenState extends State<AddEducationScreen> {
   String addDateFrom;
   String addDateTo;
   String loggedInUser;
+  int count=0;
+  final _educationKey = GlobalKey<FormState>();
+  final _degreekey = GlobalKey<FormState>();
+  final _fromKey = GlobalKey<FormState>();
+
 
   @override
   Widget build(BuildContext context) {
@@ -93,15 +98,49 @@ class _AddEducationScreenState extends State<AddEducationScreen> {
   _getListOfInfo() {
     return Column(
       children: [
-        _getSchoolCollegeDropDown(),
+        Container(
+          child: Form(
+            key: _educationKey,
+            autovalidateMode: AutovalidateMode.onUserInteraction,
+            child: Column(
+              children: [
+                _getSchoolCollegeDropDown(),
+              ],
+            ),
+          ),
+        ),
+
+        //_getSchoolCollegeDropDown(),
         CustomSpacerWidget(
           height: 15,
         ),
-        _getDegreeDropDown(),
+       // _getDegreeDropDown(),
+        Container(
+          child: Form(
+            key: _degreekey,
+            autovalidateMode: AutovalidateMode.onUserInteraction,
+            child: Column(
+              children: [
+                _getDegreeDropDown(),
+              ],
+            ),
+          ),
+        ),
         CustomSpacerWidget(
           height: 15,
         ),
-        _getFromAndToDates(),
+        //_getFromAndToDates(),
+        Container(
+          child: Form(
+            key: _fromKey,
+            autovalidateMode: AutovalidateMode.onUserInteraction,
+            child: Column(
+              children: [
+                _getFromAndToDates(),
+              ],
+            ),
+          ),
+        ),
       ],
     );
   }
@@ -242,8 +281,32 @@ class _AddEducationScreenState extends State<AddEducationScreen> {
           child: ActionButtonWidget(
             callBack: () {
               print("inside the call back");
-                educationList(widget.sessionUser);
-                Navigator.pop(context,true);
+              if (_educationKey.currentState.validate()) {
+                // educationList(widget.sessionUser);
+                // Navigator.pop(context, true);
+                if(_degreekey.currentState.validate())
+                  {
+                     if(_fromKey.currentState.validate())
+                       {
+                         educationList(widget.sessionUser);
+                          Navigator.pop(context, true);
+                       }
+                  }
+                 }else  if(_degreekey.currentState.validate())
+                       {
+                         if(_fromKey.currentState.validate())
+                         {
+                           educationList(widget.sessionUser);
+                           Navigator.pop(context, true);
+                         }
+                       }else
+                         {
+                           if(_fromKey.currentState.validate())
+                           {
+                             educationList(widget.sessionUser);
+                             Navigator.pop(context, true);
+                           }
+                         }
                 },
             text: AppTexts.SAVE,
             isFilled: true,
@@ -255,19 +318,29 @@ class _AddEducationScreenState extends State<AddEducationScreen> {
 
   educationList(Users sessionUser)
   {
+
+    print("inside the educationlist method");
     if(userEducation.isEmpty)
       {
+        print("inside the create method");
         createUserEducationTable(sessionUser);
       }else
         {
           for(int i=0;i<userEducation.length;i++)
           {
             if (loggedInUser== userEducation[i].usersID) {
+              count ++;
               print("inside the callback method");
               updateUserEducation(widget.sessionUser);
             }
           }
         }
+
+    if(count==0)
+      {
+        print("if logged in user is not present in education table");
+        createUserEducationTable(sessionUser);
+      }
   }
 
   _handleOnTap() {
@@ -300,7 +373,7 @@ class _AddEducationScreenState extends State<AddEducationScreen> {
   }
 
   createUserEducationTable(Users sessionUser) async{
-
+    print(college + "" +degree + " " + addDateFrom + "" + addDateTo);
     final item = UserEducation(
         institution: college,
         course: degree,
@@ -308,5 +381,6 @@ class _AddEducationScreenState extends State<AddEducationScreen> {
         to: addDateTo,
        usersID :sessionUser.id);
     await Amplify.DataStore.save(item);
+    await Future.delayed(Duration(seconds: 5));
   }
 }

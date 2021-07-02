@@ -31,6 +31,8 @@ class _MyFamilyScreenState extends State<MyFamilyScreen> {
   String userid;
 
   final List<RelationShipData> members = [];
+  final _familyRelation = GlobalKey<FormState>();
+  final _nameOffamily =GlobalKey<FormState>();
 
   @override
   void initState() {
@@ -65,11 +67,33 @@ class _MyFamilyScreenState extends State<MyFamilyScreen> {
             CustomSpacerWidget(
               height: 40,
             ),
-            _getFamilyMemberRelationShip(),
+            Container(
+              child: Form(
+                key: _familyRelation,
+                autovalidateMode: AutovalidateMode.onUserInteraction,
+                child: Column(
+                  children: [
+                    _getFamilyMemberRelationShip(),
+                  ],
+                ),
+              ),
+            ),
+            //_getFamilyMemberRelationShip(),
             CustomSpacerWidget(
               height: 15,
             ),
-            _getNameOfMember(),
+            Container(
+              child: Form(
+                key: _nameOffamily,
+                autovalidateMode: AutovalidateMode.onUserInteraction,
+                child: Column(
+                  children: [
+                    _getNameOfMember(),
+                  ],
+                ),
+              ),
+            ),
+            //_getNameOfMember(),
             CustomSpacerWidget(
               height: 40,
             ),
@@ -221,8 +245,20 @@ class _MyFamilyScreenState extends State<MyFamilyScreen> {
             callBack: () {
              // Navigation.back(context);
               print("updating the database");
-              updatingFamilyDataBase();
-              Navigator.pop(context,true);
+              if(_familyRelation.currentState.validate()) {
+                if (_nameOffamily.currentState.validate()) {
+                  updatingFamilyDataBase();
+                  Navigator.pop(context, true);
+                }else if(_nameOffamily.currentState.validate())
+                  {
+                    updatingFamilyDataBase();
+                    Navigator.pop(context, true);
+                  }
+              }
+              //   }else {
+              //   updatingFamilyDataBase();
+              //   Navigator.pop(context, true);
+              // }
             },
             text: AppTexts.SAVE,
             isFilled: true,

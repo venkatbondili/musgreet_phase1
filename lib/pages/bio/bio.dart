@@ -13,6 +13,7 @@ import 'package:mus_greet/core/widgets/my_family_text_field_heading_widget.dart'
 import 'package:mus_greet/models/ModelProvider.dart';
 import 'package:mus_greet/models/UserProfile.dart';
 import 'package:mus_greet/pages/create_post_screen/create_post_screen.dart';
+import 'package:form_field_validator/form_field_validator.dart';
 
 import '../../main.dart';
 
@@ -28,6 +29,9 @@ class _BioState extends State<Bio> {
   final TextEditingController _controller = TextEditingController();
 
   List<UserProfile> userProfile;
+  final _firstnameKey = GlobalKey<FormState>();
+  String fieldVlidator;
+  String fieldErrorMessage;
 
   @override
   Widget build(BuildContext context) {
@@ -56,7 +60,18 @@ class _BioState extends State<Bio> {
                   CustomSpacerWidget(
                     height: 30,
                   ),
-                  _getTextSection(),
+                  Container(
+                    child: Form(
+                      key: _firstnameKey,
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
+                      child: Column(
+                        children: [
+                          _getTextSection(),
+                        ],
+                      ),
+                    ),
+                  ),
+                  //_getTextSection(),
                   CustomSpacerWidget(
                     height: 30,
                   ),
@@ -136,10 +151,24 @@ class _BioState extends State<Bio> {
           child: ActionButtonWidget(
             callBack: () {
               //Navigation.back(context);
-              print(_controller.text);
-              print("updating the database");
-              updateUserProfile(userProfile);
-              Navigator.pop(context,true);
+              if (_controller.text.trim().length == 0) {
+                print('email empty case');
+                fieldErrorMessage= "First name field is required";
+              }
+
+              if (fieldErrorMessage.length > 0) {
+                setState(() {
+                  fieldVlidator = fieldErrorMessage;
+                });
+
+                if (_firstnameKey.currentState.validate()) {
+                  print(_controller.text);
+                  print("updating the database");
+                  updateUserProfile(userProfile);
+                  Navigator.pop(context,true);
+                }
+              }
+
             },
             text: AppTexts.SAVE,
             isFilled: true,

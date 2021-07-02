@@ -14,7 +14,7 @@ class AppColors{
   static const Color black = Color(0xff1d1d1d);
   static const Color green = Colors.green;
   static const Color vertical_divider=Color(0xff707070);
-  static const Color comment_wall_color=Color(0xffE8E8E8);
+  //static const Color comment_wall_color=Color(0xffE8E8E8);
   static const Color background_color=Color(0xff278034);
   static const Color light_grey = Color(0xffcecece);
   static const Color black_50 = Color(0x50000000);
@@ -22,6 +22,7 @@ class AppColors{
   static const Color header_black= Color(0xff1d1d1d);
   static const Color white_shade= Color(0xfff2f2f2);
   static const Color red_shade =Color(0xFFEF9A9A);
+  static const Color comment_wall_color=Color(0xfff4f4f4);
 
 }
 const kPrimaryColor = Color(0xFFFF7643);
@@ -378,18 +379,22 @@ class AppTexts {
   ];
 
   static const List<String> COLLEGE_CATEGORIES = [
-    "London school of economics",
-    "IIT Delhi",
-    "IIM Delhi",
-    "Kolkata University ",
-    "Academy of Technology",
-    "IIM Dhanbad",
-    "IIIT Bhopal",
-    "Duke University",
+    "University of Oxford",
+    "University of Cambridge",
+    "Imperial College London",
+    "UCL ",
+    "London School of Economics and Political Science",
+    "University of Edinburgh",
+    "King's College London",
+    "University of Manchester",
+    "University of Warwick",
+    "University of Bristol",
+    "University of Hertfordshire",
+     "Kingston University",
   ];
 
   static const List<String> DEGREE_CATEGORIES = [
-    "Biomedical engineering",
+    "Master's degree",
     "Occupational therapy",
     "Structural engineering",
     "Web development",

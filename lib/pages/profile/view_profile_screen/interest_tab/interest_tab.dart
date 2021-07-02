@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+//import 'package:mus_greet/models/MasterIntrests.dart';
 import 'package:mus_greet/core/config/navigation.dart';
 import 'package:mus_greet/core/utils/constants.dart';
 import 'package:mus_greet/core/utils/routes.dart';
@@ -33,6 +34,9 @@ class _InterestTabState extends State<InterestTab> {
   Map<String,dynamic> INTRESTS ={};
   Map<String,dynamic> SKILLS={};
   Map<String,dynamic> RELIGIOUS_LIST={};
+  List<String> intrestData=[];
+  List<String> skillsData=[];
+  List<String> religiousData=[];
 
   @override
   Widget build(BuildContext context) {
@@ -501,21 +505,21 @@ class _InterestTabState extends State<InterestTab> {
   _navigateToInterestScreen(List<UserProfile> userProfile) {
     //Navigation.intent(context, AppRoutes.INTEREST_SCREEN);
    //Navigator.push(context, MaterialPageRoute(builder: (context)=>InterestScreen(userProfile:widget.userProfile),));
-   Navigator.of(context).push(new MaterialPageRoute(builder: (_)=>new InterestScreen(userProfile: userProfile)),).then((value) => value?build(context):null);
+   Navigator.of(context).push(new MaterialPageRoute(builder: (_)=>new InterestScreen(userProfile: userProfile ,intrestData :intrestData)),).then((value) => value?build(context):null);
   }
 
   ///This will edit the interest and navigate to add interest screen
   _navigateToEditSkillsScreen(List<UserProfile> userProfile) {
     //Navigation.intent(context, AppRoutes.ADD_SKILLS_IMAGES);
     //Navigation.intent(context, AppRoutes.ADD_SKILLS);
-    Navigator.of(context).push(new MaterialPageRoute(builder: (_)=>new AddSkillsScreen(userProfile: userProfile)),).then((value) => value?build(context):null);
+    Navigator.of(context).push(new MaterialPageRoute(builder: (_)=>new AddSkillsScreen(userProfile: userProfile,skillsData:skillsData)),).then((value) => value?build(context):null);
   }
 
 
    _navigateToReligiousScreen(List<UserProfile> userProfile)
    {
      //Navigation.intent(context, AppRoutes.ADD_RELIGIOUS_INTERESTS_SCREEN);
-     Navigator.of(context).push(new MaterialPageRoute(builder: (_)=>new ReligiousInterestScreen(userProfile: userProfile)),).then((value) => value?build(context):null);
+     Navigator.of(context).push(new MaterialPageRoute(builder: (_)=>new ReligiousInterestScreen(userProfile: userProfile,religiousData:religiousData)),).then((value) => value?build(context):null);
    }
 
    Future<List<UserProfile>>getUserProfile() async{
@@ -539,6 +543,9 @@ class _InterestTabState extends State<InterestTab> {
       INTRESTS.clear();
       SKILLS.clear();
       RELIGIOUS_LIST.clear();
+    intrestData.clear();
+    skillsData.clear();
+    religiousData.clear();
       print("Inside the User Profile data store");
        var  intrestId=userProfile[0].community_interests;
        if(intrestId != null){
@@ -557,6 +564,7 @@ class _InterestTabState extends State<InterestTab> {
            for(int i=0;i<masterIntrest.length;i++) {
              print(hobbieList);
              if (hobbieList == masterIntrest[i].id) {
+               intrestData.add(masterIntrest[i].intrest_name);
                print("inside the master");
                INTRESTS.addAll({
                  masterIntrest[i].intrest_name :masterIntrest[i].photo_path,
@@ -589,6 +597,7 @@ class _InterestTabState extends State<InterestTab> {
            for(int i=0;i<masterIntrest.length;i++) {
              print(skillList);
              if (skillList == masterIntrest[i].id) {
+               skillsData.add(masterIntrest[i].intrest_name);
                print("inside the master skills");
                SKILLS.addAll({
                  masterIntrest[i].intrest_name :masterIntrest[i].photo_path,
@@ -622,6 +631,7 @@ class _InterestTabState extends State<InterestTab> {
             for(int i=0;i<masterIntrest.length;i++) {
               print(religiousList);
               if (religiousList == masterIntrest[i].id) {
+                religiousData.add(masterIntrest[i].intrest_name);
                 print("inside the master religious");
                 RELIGIOUS_LIST.addAll({
                   masterIntrest[i].intrest_name :masterIntrest[i].photo_path,

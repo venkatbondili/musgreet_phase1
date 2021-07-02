@@ -28,6 +28,7 @@ class _ReliationPrivacyState extends State<Reliationship> {
   List<UserProfile> userProfile;
   String status;
   String loggedInUser;
+  final _relationKey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
@@ -55,7 +56,18 @@ class _ReliationPrivacyState extends State<Reliationship> {
                   CustomSpacerWidget(
                     height: 30,
                   ),
-                  _getProfilePolicy(),
+                  Container(
+                    child: Form(
+                      key: _relationKey,
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
+                      child: Column(
+                        children: [
+                          _getProfilePolicy(),
+                        ],
+                      ),
+                    ),
+                  ),
+                  //_getProfilePolicy(),
                   CustomSpacerWidget(
                     height: 30,
                   ),
@@ -141,9 +153,11 @@ class _ReliationPrivacyState extends State<Reliationship> {
           child: ActionButtonWidget(
             callBack: () {
               // Navigation.back(context);
-              print("updating the database");
-              updateUserProfile(status);
-              Navigator.pop(context,true);
+              if(_relationKey.currentState.validate()) {
+                print("updating the database");
+                updateUserProfile(status);
+                Navigator.pop(context, true);
+              }
             },
             text: AppTexts.SAVE,
             isFilled: true,

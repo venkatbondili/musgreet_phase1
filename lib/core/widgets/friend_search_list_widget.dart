@@ -216,10 +216,12 @@ class _FriendSearchListWidgetState extends State<FriendSearchListWidget> {
       print(friendRequest);
       for (int i = 0; i < friendRequest.length; i++) {
         print("inside the list");
-        if (friendRequest[i].request_status == "Sent" &&  widget.UserObject.id==friendRequest[i].request_to_id) {
-          status = true;
-        } else {
-          status = false;
+        if(widget.loginUserId == friendRequest[i].request_from_id  && widget.UserObject.id== friendRequest[i].request_to_id) {
+          if (friendRequest[i].request_status == "Sent") {
+            status = true;
+          } else {
+            status = false;
+          }
         }
       }
    // }else {

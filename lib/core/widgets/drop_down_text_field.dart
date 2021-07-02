@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mus_greet/core/utils/constants.dart';
 import 'package:mus_greet/core/widgets/custom_spacer_widget.dart';
+import 'package:form_field_validator/form_field_validator.dart';
 
 class DropDownTextField extends StatefulWidget {
   final List<String> data;
@@ -40,6 +41,7 @@ class _DropDownTextFieldState extends State<DropDownTextField> {
             border: Border.all(color: AppColors.vertical_divider, width: 1),
           ),
           child: DropdownButtonFormField(
+            // validator: RequiredValidator(errorText: "This field is required"),
             iconSize: 24,
             isExpanded: true,
             //dropdownColor: AppColors.white,
@@ -63,7 +65,19 @@ class _DropDownTextFieldState extends State<DropDownTextField> {
                 widget.callBack(_category);
               });
             },
+            // validator: MultiValidator(
+            //     [
+            //       RequiredValidator(errorText: 'Password field is required'),
+            //     ]
+            // ),
             value: _category,
+
+            validator: (value) => value == null ?   widget.fieldName + '  field is required' : null,
+            // validator: MultiValidator(
+            //     [
+            //       RequiredValidator(errorText: 'Password field is required'),
+            //     ]
+            // ),
             dropdownColor: AppColors.white,
             style: TextStyle(
               fontSize: 14,

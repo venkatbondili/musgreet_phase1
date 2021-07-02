@@ -28,6 +28,7 @@ class _ProfilePrivacyState extends State<ProfilePrivacy> {
   List<UserProfile> userProfile;
   String member;
   String loggedInUser;
+  final _profilePrivacy =GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
@@ -55,7 +56,18 @@ class _ProfilePrivacyState extends State<ProfilePrivacy> {
                   CustomSpacerWidget(
                     height: 30,
                   ),
-                  _getProfilePolicy(),
+                  Container(
+                    child: Form(
+                      key: _profilePrivacy,
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
+                      child: Column(
+                        children: [
+                          _getProfilePolicy(),
+                        ],
+                      ),
+                    ),
+                  ),
+                  //_getProfilePolicy(),
                   CustomSpacerWidget(
                     height: 30,
                   ),
@@ -142,8 +154,10 @@ class _ProfilePrivacyState extends State<ProfilePrivacy> {
             callBack: () {
               // Navigation.back(context);
               print("updating the database");
-              updateUserProfile(member);
-              Navigator.pop(context,true);
+              if(_profilePrivacy.currentState.validate()) {
+                updateUserProfile(member);
+                Navigator.pop(context, true);
+              }
             },
             text: AppTexts.SAVE,
             isFilled: true,

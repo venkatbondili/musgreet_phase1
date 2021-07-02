@@ -205,7 +205,7 @@ class _MyDBState extends State<MyDB> {
     //createPost();
     //clearData();
     //deleteUserProfile();
-    throw UnimplementedError();
+    //throw UnimplementedError();
   }
 
 }
@@ -562,7 +562,7 @@ Future<void> deleteUserProfile() async {
 }
 
 Future<void> createMasterData() async{
-  //clearData();
+  clearData();
   await Future.delayed(Duration(seconds: 2));
   createMasterIntrest();
   await Future.delayed(Duration(seconds: 2));

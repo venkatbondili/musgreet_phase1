@@ -16,8 +16,11 @@
 // ignore_for_file: public_member_api_docs
 
 import 'package:amplify_datastore_plugin_interface/amplify_datastore_plugin_interface.dart';
+import 'Facilitiesmaster.dart';
 import 'FriendRequest.dart';
 import 'Friends.dart';
+import 'Languagespoken.dart';
+import 'MasterIntrests.dart';
 import 'Mosque.dart';
 import 'MosqueFollowers.dart';
 import 'MosquePhotos.dart';
@@ -27,12 +30,16 @@ import 'PostComments.dart';
 import 'PostLikes.dart';
 import 'Posts.dart';
 import 'UserEducation.dart';
+import 'UserFamily.dart';
 import 'UserPhotos.dart';
 import 'UserProfile.dart';
 import 'Users.dart';
 
+export 'Facilitiesmaster.dart';
 export 'FriendRequest.dart';
 export 'Friends.dart';
+export 'Languagespoken.dart';
+export 'MasterIntrests.dart';
 export 'Mosque.dart';
 export 'MosqueFollowers.dart';
 export 'MosquePhotos.dart';
@@ -42,17 +49,21 @@ export 'PostComments.dart';
 export 'PostLikes.dart';
 export 'Posts.dart';
 export 'UserEducation.dart';
+export 'UserFamily.dart';
 export 'UserPhotos.dart';
 export 'UserProfile.dart';
 export 'Users.dart';
 
 class ModelProvider implements ModelProviderInterface {
   @override
-  String version = "7da5cfadf5ad194ba6cd3bf3f3527492";
+  String version = "aae05148b3755d1de86f8fd217ddcfbc";
   @override
   List<ModelSchema> modelSchemas = [
+    Facilitiesmaster.schema,
     FriendRequest.schema,
     Friends.schema,
+    Languagespoken.schema,
+    MasterIntrests.schema,
     Mosque.schema,
     MosqueFollowers.schema,
     MosquePhotos.schema,
@@ -62,6 +73,7 @@ class ModelProvider implements ModelProviderInterface {
     PostLikes.schema,
     Posts.schema,
     UserEducation.schema,
+    UserFamily.schema,
     UserPhotos.schema,
     UserProfile.schema,
     Users.schema
@@ -72,6 +84,11 @@ class ModelProvider implements ModelProviderInterface {
 
   ModelType getModelTypeByModelName(String modelName) {
     switch (modelName) {
+      case "Facilitiesmaster":
+        {
+          return Facilitiesmaster.classType;
+        }
+        break;
       case "FriendRequest":
         {
           return FriendRequest.classType;
@@ -80,6 +97,16 @@ class ModelProvider implements ModelProviderInterface {
       case "Friends":
         {
           return Friends.classType;
+        }
+        break;
+      case "Languagespoken":
+        {
+          return Languagespoken.classType;
+        }
+        break;
+      case "MasterIntrests":
+        {
+          return MasterIntrests.classType;
         }
         break;
       case "Mosque":
@@ -125,6 +152,11 @@ class ModelProvider implements ModelProviderInterface {
       case "UserEducation":
         {
           return UserEducation.classType;
+        }
+        break;
+      case "UserFamily":
+        {
+          return UserFamily.classType;
         }
         break;
       case "UserPhotos":

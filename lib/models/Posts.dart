@@ -29,10 +29,10 @@ class Posts extends Model {
   final String post_image_path;
   final String description;
   final String visibility;
-  final String usersID;
   final String mosquesID;
   final List<PostComments> Post_Comments;
   final List<PostLikes> Post_Likes;
+  final String usersID;
 
   @override
   getInstanceType() => classType;
@@ -48,10 +48,10 @@ class Posts extends Model {
       this.post_image_path,
       this.description,
       this.visibility,
-      this.usersID,
       this.mosquesID,
       this.Post_Comments,
-      this.Post_Likes});
+      this.Post_Likes,
+      this.usersID});
 
   factory Posts(
       {String id,
@@ -59,23 +59,23 @@ class Posts extends Model {
       String post_image_path,
       String description,
       String visibility,
-      String usersID,
       String mosquesID,
       List<PostComments> Post_Comments,
-      List<PostLikes> Post_Likes}) {
+      List<PostLikes> Post_Likes,
+      String usersID}) {
     return Posts._internal(
         id: id == null ? UUID.getUUID() : id,
         post: post,
         post_image_path: post_image_path,
         description: description,
         visibility: visibility,
-        usersID: usersID,
         mosquesID: mosquesID,
         Post_Comments: Post_Comments != null
             ? List.unmodifiable(Post_Comments)
             : Post_Comments,
         Post_Likes:
-            Post_Likes != null ? List.unmodifiable(Post_Likes) : Post_Likes);
+            Post_Likes != null ? List.unmodifiable(Post_Likes) : Post_Likes,
+        usersID: usersID);
   }
 
   bool equals(Object other) {
@@ -91,10 +91,10 @@ class Posts extends Model {
         post_image_path == other.post_image_path &&
         description == other.description &&
         visibility == other.visibility &&
-        usersID == other.usersID &&
         mosquesID == other.mosquesID &&
         DeepCollectionEquality().equals(Post_Comments, other.Post_Comments) &&
-        DeepCollectionEquality().equals(Post_Likes, other.Post_Likes);
+        DeepCollectionEquality().equals(Post_Likes, other.Post_Likes) &&
+        usersID == other.usersID;
   }
 
   @override
@@ -110,8 +110,8 @@ class Posts extends Model {
     buffer.write("post_image_path=" + "$post_image_path" + ", ");
     buffer.write("description=" + "$description" + ", ");
     buffer.write("visibility=" + "$visibility" + ", ");
-    buffer.write("usersID=" + "$usersID" + ", ");
-    buffer.write("mosquesID=" + "$mosquesID");
+    buffer.write("mosquesID=" + "$mosquesID" + ", ");
+    buffer.write("usersID=" + "$usersID");
     buffer.write("}");
 
     return buffer.toString();
@@ -123,20 +123,20 @@ class Posts extends Model {
       String post_image_path,
       String description,
       String visibility,
-      String usersID,
       String mosquesID,
       List<PostComments> Post_Comments,
-      List<PostLikes> Post_Likes}) {
+      List<PostLikes> Post_Likes,
+      String usersID}) {
     return Posts(
         id: id ?? this.id,
         post: post ?? this.post,
         post_image_path: post_image_path ?? this.post_image_path,
         description: description ?? this.description,
         visibility: visibility ?? this.visibility,
-        usersID: usersID ?? this.usersID,
         mosquesID: mosquesID ?? this.mosquesID,
         Post_Comments: Post_Comments ?? this.Post_Comments,
-        Post_Likes: Post_Likes ?? this.Post_Likes);
+        Post_Likes: Post_Likes ?? this.Post_Likes,
+        usersID: usersID ?? this.usersID);
   }
 
   Posts.fromJson(Map<String, dynamic> json)
@@ -145,7 +145,6 @@ class Posts extends Model {
         post_image_path = json['post_image_path'],
         description = json['description'],
         visibility = json['visibility'],
-        usersID = json['usersID'],
         mosquesID = json['mosquesID'],
         Post_Comments = json['Post_Comments'] is List
             ? (json['Post_Comments'] as List)
@@ -158,7 +157,8 @@ class Posts extends Model {
                 .map(
                     (e) => PostLikes.fromJson(new Map<String, dynamic>.from(e)))
                 .toList()
-            : null;
+            : null,
+        usersID = json['usersID'];
 
   Map<String, dynamic> toJson() => {
         'id': id,
@@ -166,10 +166,10 @@ class Posts extends Model {
         'post_image_path': post_image_path,
         'description': description,
         'visibility': visibility,
-        'usersID': usersID,
         'mosquesID': mosquesID,
         'Post_Comments': Post_Comments?.map((e) => e?.toJson())?.toList(),
-        'Post_Likes': Post_Likes?.map((e) => e?.toJson())?.toList()
+        'Post_Likes': Post_Likes?.map((e) => e?.toJson())?.toList(),
+        'usersID': usersID
       };
 
   static final QueryField ID = QueryField(fieldName: "posts.id");
@@ -178,7 +178,6 @@ class Posts extends Model {
       QueryField(fieldName: "post_image_path");
   static final QueryField DESCRIPTION = QueryField(fieldName: "description");
   static final QueryField VISIBILITY = QueryField(fieldName: "visibility");
-  static final QueryField USERSID = QueryField(fieldName: "usersID");
   static final QueryField MOSQUESID = QueryField(fieldName: "mosquesID");
   static final QueryField POST_COMMENTS = QueryField(
       fieldName: "Post_Comments",
@@ -188,6 +187,7 @@ class Posts extends Model {
       fieldName: "Post_Likes",
       fieldType: ModelFieldType(ModelFieldTypeEnum.model,
           ofModelName: (PostLikes).toString()));
+  static final QueryField USERSID = QueryField(fieldName: "usersID");
   static var schema =
       Model.defineSchema(define: (ModelSchemaDefinition modelSchemaDefinition) {
     modelSchemaDefinition.name = "Posts";
@@ -225,11 +225,6 @@ class Posts extends Model {
         ofType: ModelFieldType(ModelFieldTypeEnum.string)));
 
     modelSchemaDefinition.addField(ModelFieldDefinition.field(
-        key: Posts.USERSID,
-        isRequired: false,
-        ofType: ModelFieldType(ModelFieldTypeEnum.string)));
-
-    modelSchemaDefinition.addField(ModelFieldDefinition.field(
         key: Posts.MOSQUESID,
         isRequired: false,
         ofType: ModelFieldType(ModelFieldTypeEnum.string)));
@@ -245,6 +240,11 @@ class Posts extends Model {
         isRequired: false,
         ofModelName: (PostLikes).toString(),
         associatedKey: PostLikes.POSTSID));
+
+    modelSchemaDefinition.addField(ModelFieldDefinition.field(
+        key: Posts.USERSID,
+        isRequired: false,
+        ofType: ModelFieldType(ModelFieldTypeEnum.string)));
   });
 }
 

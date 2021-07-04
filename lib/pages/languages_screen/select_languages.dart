@@ -253,6 +253,8 @@ class _MultiSelectChipState extends State<MultiSelectChip> {
                       : selectedChoices.add(item);
                   widget.onSelectionChanged(selectedChoices); // +added
                 });
+
+                //validator: (value) => value == null ? 'field required' : null;
               },
             ),
           ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mus_greet/core/utils/constants.dart';
 
 import 'custom_spacer_widget.dart';
+import 'package:form_field_validator/form_field_validator.dart';
 
 
 class MyFamilyTextFieldHeadingWidget extends StatefulWidget {
@@ -39,8 +40,13 @@ class _MyFamilyTextFieldHeadingWidgetState extends State<MyFamilyTextFieldHeadin
               borderRadius: BorderRadius.circular(10),
               border: Border.all(color: AppColors.vertical_divider,)
           ),
-          child: TextField(
+          child: TextFormField(
             controller: widget.controller,
+            validator: MultiValidator(
+                [
+                  RequiredValidator(errorText:  widget.fieldName + ' field is required'),
+                ]
+            ),
             style: TextStyle(
               fontFamily: FontConstants.FONT,
               fontWeight: FontWeight.w500,

@@ -22,17 +22,21 @@ class AddEducationScreen extends StatefulWidget {
 class _AddEducationScreenState extends State<AddEducationScreen> {
   final List<Widget> fieldList = List.empty(growable: true);
   List<UserEducation> userEducation;
-  List<Users> user;
+  //List<Users> user;
   String college;
   String degree;
   String addDateFrom;
   String addDateTo;
   String loggedInUser;
+  int count=0;
+  final _educationKey = GlobalKey<FormState>();
+  final _degreekey = GlobalKey<FormState>();
+  final _fromKey = GlobalKey<FormState>();
+
 
   @override
   Widget build(BuildContext context) {
     loggedInUser =widget.sessionUser.id;
-    userList();
     education();
     return SafeArea(
       child: Scaffold(
@@ -94,15 +98,49 @@ class _AddEducationScreenState extends State<AddEducationScreen> {
   _getListOfInfo() {
     return Column(
       children: [
-        _getSchoolCollegeDropDown(),
+        Container(
+          child: Form(
+            key: _educationKey,
+            autovalidateMode: AutovalidateMode.onUserInteraction,
+            child: Column(
+              children: [
+                _getSchoolCollegeDropDown(),
+              ],
+            ),
+          ),
+        ),
+
+        //_getSchoolCollegeDropDown(),
         CustomSpacerWidget(
           height: 15,
         ),
-        _getDegreeDropDown(),
+       // _getDegreeDropDown(),
+        Container(
+          child: Form(
+            key: _degreekey,
+            autovalidateMode: AutovalidateMode.onUserInteraction,
+            child: Column(
+              children: [
+                _getDegreeDropDown(),
+              ],
+            ),
+          ),
+        ),
         CustomSpacerWidget(
           height: 15,
         ),
-        _getFromAndToDates(),
+        //_getFromAndToDates(),
+        Container(
+          child: Form(
+            key: _fromKey,
+            autovalidateMode: AutovalidateMode.onUserInteraction,
+            child: Column(
+              children: [
+                _getFromAndToDates(),
+              ],
+            ),
+          ),
+        ),
       ],
     );
   }
@@ -242,16 +280,33 @@ class _AddEducationScreenState extends State<AddEducationScreen> {
         Expanded(
           child: ActionButtonWidget(
             callBack: () {
-
-              for(int i=0;i<user.length ;i++)
-                { print("inside the save button");
-                  if(user[i].id == userEducation[i].usersID)
-                    {
-                      print("himaja");
-                      updateUserEducation();
-                    }
-                }
-                Navigator.pop(context,true);
+              print("inside the call back");
+              if (_educationKey.currentState.validate()) {
+                // educationList(widget.sessionUser);
+                // Navigator.pop(context, true);
+                if(_degreekey.currentState.validate())
+                  {
+                     if(_fromKey.currentState.validate())
+                       {
+                         educationList(widget.sessionUser);
+                          Navigator.pop(context, true);
+                       }
+                  }
+                 }else  if(_degreekey.currentState.validate())
+                       {
+                         if(_fromKey.currentState.validate())
+                         {
+                           educationList(widget.sessionUser);
+                           Navigator.pop(context, true);
+                         }
+                       }else
+                         {
+                           if(_fromKey.currentState.validate())
+                           {
+                             educationList(widget.sessionUser);
+                             Navigator.pop(context, true);
+                           }
+                         }
                 },
             text: AppTexts.SAVE,
             isFilled: true,
@@ -261,41 +316,71 @@ class _AddEducationScreenState extends State<AddEducationScreen> {
     );
   }
 
+  educationList(Users sessionUser)
+  {
+
+    print("inside the educationlist method");
+    if(userEducation.isEmpty)
+      {
+        print("inside the create method");
+        createUserEducationTable(sessionUser);
+      }else
+        {
+          for(int i=0;i<userEducation.length;i++)
+          {
+            if (loggedInUser== userEducation[i].usersID) {
+              count ++;
+              print("inside the callback method");
+              updateUserEducation(widget.sessionUser);
+            }
+          }
+        }
+
+    if(count==0)
+      {
+        print("if logged in user is not present in education table");
+        createUserEducationTable(sessionUser);
+      }
+  }
+
   _handleOnTap() {
     fieldList.add(_getListOfInfo());
     setState(() {});
   }
 
-  Future<void> userList() async{
-    try {
-      user= await Amplify.DataStore.query(Users.classType,where: Users.ID.eq(loggedInUser));
-      print(user);
-      print("inside the user");
-    }catch(e)
-    {
-      print("Could not query DataStore: " + e);
-    }
-  }
 
   Future<void> education() async
   {
     try {
       userEducation= await Amplify.DataStore.query(UserEducation.classType);
       print(userEducation);
-      print("inside the user");
+      print("inside the education");
     }catch(e)
     {
       print("Could not query DataStore: " + e);
     }
   }
 
-  updateUserEducation() async{
+  updateUserEducation(Users sessionUser) async{
+    print("inside the updated education");
     final updatedItem = userEducation[0].copyWith(
         institution: college,
         course: degree,
         from: addDateFrom,
         to: addDateTo,
-        usersID: userEducation[0].usersID);
+        usersID: sessionUser.id);
     await Amplify.DataStore.save(updatedItem);
+  }
+
+  createUserEducationTable(Users sessionUser) async{
+    print(college + "" +degree + " " + addDateFrom + "" + addDateTo);
+    final item = UserEducation(
+        institution: college,
+        course: degree,
+        from: addDateFrom,
+        to: addDateTo,
+       usersID :sessionUser.id);
+    await Amplify.DataStore.save(item);
+    await Future.delayed(Duration(seconds: 5));
   }
 }

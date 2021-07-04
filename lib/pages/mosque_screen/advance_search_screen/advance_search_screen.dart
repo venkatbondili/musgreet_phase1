@@ -120,7 +120,7 @@ class _AdvanceSearchScreenState extends State<AdvanceSearchScreen> {
         ),
         MultiSelectChip(
           categories,
-          //_selected,
+          _selected,
           onSelectionChanged: (val) {
             // print(val);
             setState(() {

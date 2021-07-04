@@ -50,7 +50,6 @@ class Users extends Model {
   final bool photo_verification;
   final TemporalDate joined_date;
   final bool active_status;
-  final List<Posts> User_Posts;
   final List<PostComments> User_Comments;
   final List<PostLikes> User_PostLikes;
   final List<MosqueFollowers> User_MosqueFollowers;
@@ -58,6 +57,11 @@ class Users extends Model {
   final List<UserPhotos> User_Photos;
   final List<UserEducation> User_Educations;
   final List<UserProfile> User_Profiles;
+  final List<Posts> User_Posts;
+  final String address_verification_mode;
+  final int manul_address_code;
+  final TemporalDate manual_address_taken_date;
+  final TemporalDate manual_address_code_sent_date;
 
   @override
   getInstanceType() => classType;
@@ -94,14 +98,18 @@ class Users extends Model {
       this.photo_verification,
       this.joined_date,
       this.active_status,
-      this.User_Posts,
       this.User_Comments,
       this.User_PostLikes,
       this.User_MosqueFollowers,
       this.User_Friends,
       this.User_Photos,
       this.User_Educations,
-      this.User_Profiles});
+      this.User_Profiles,
+      this.User_Posts,
+      this.address_verification_mode,
+      this.manul_address_code,
+      this.manual_address_taken_date,
+      this.manual_address_code_sent_date});
 
   factory Users(
       {String id,
@@ -130,14 +138,18 @@ class Users extends Model {
       bool photo_verification,
       TemporalDate joined_date,
       bool active_status,
-      List<Posts> User_Posts,
       List<PostComments> User_Comments,
       List<PostLikes> User_PostLikes,
       List<MosqueFollowers> User_MosqueFollowers,
       List<Friends> User_Friends,
       List<UserPhotos> User_Photos,
       List<UserEducation> User_Educations,
-      List<UserProfile> User_Profiles}) {
+      List<UserProfile> User_Profiles,
+      List<Posts> User_Posts,
+      String address_verification_mode,
+      int manul_address_code,
+      TemporalDate manual_address_taken_date,
+      TemporalDate manual_address_code_sent_date}) {
     return Users._internal(
         id: id == null ? UUID.getUUID() : id,
         first_name: first_name,
@@ -165,8 +177,6 @@ class Users extends Model {
         photo_verification: photo_verification,
         joined_date: joined_date,
         active_status: active_status,
-        User_Posts:
-            User_Posts != null ? List.unmodifiable(User_Posts) : User_Posts,
         User_Comments: User_Comments != null
             ? List.unmodifiable(User_Comments)
             : User_Comments,
@@ -186,7 +196,13 @@ class Users extends Model {
             : User_Educations,
         User_Profiles: User_Profiles != null
             ? List.unmodifiable(User_Profiles)
-            : User_Profiles);
+            : User_Profiles,
+        User_Posts:
+            User_Posts != null ? List.unmodifiable(User_Posts) : User_Posts,
+        address_verification_mode: address_verification_mode,
+        manul_address_code: manul_address_code,
+        manual_address_taken_date: manual_address_taken_date,
+        manual_address_code_sent_date: manual_address_code_sent_date);
   }
 
   bool equals(Object other) {
@@ -223,7 +239,6 @@ class Users extends Model {
         photo_verification == other.photo_verification &&
         joined_date == other.joined_date &&
         active_status == other.active_status &&
-        DeepCollectionEquality().equals(User_Posts, other.User_Posts) &&
         DeepCollectionEquality().equals(User_Comments, other.User_Comments) &&
         DeepCollectionEquality().equals(User_PostLikes, other.User_PostLikes) &&
         DeepCollectionEquality()
@@ -232,7 +247,12 @@ class Users extends Model {
         DeepCollectionEquality().equals(User_Photos, other.User_Photos) &&
         DeepCollectionEquality()
             .equals(User_Educations, other.User_Educations) &&
-        DeepCollectionEquality().equals(User_Profiles, other.User_Profiles);
+        DeepCollectionEquality().equals(User_Profiles, other.User_Profiles) &&
+        DeepCollectionEquality().equals(User_Posts, other.User_Posts) &&
+        address_verification_mode == other.address_verification_mode &&
+        manul_address_code == other.manul_address_code &&
+        manual_address_taken_date == other.manual_address_taken_date &&
+        manual_address_code_sent_date == other.manual_address_code_sent_date;
   }
 
   @override
@@ -297,7 +317,22 @@ class Users extends Model {
         (joined_date != null ? joined_date.format() : "null") +
         ", ");
     buffer.write("active_status=" +
-        (active_status != null ? active_status.toString() : "null"));
+        (active_status != null ? active_status.toString() : "null") +
+        ", ");
+    buffer.write(
+        "address_verification_mode=" + "$address_verification_mode" + ", ");
+    buffer.write("manul_address_code=" +
+        (manul_address_code != null ? manul_address_code.toString() : "null") +
+        ", ");
+    buffer.write("manual_address_taken_date=" +
+        (manual_address_taken_date != null
+            ? manual_address_taken_date.format()
+            : "null") +
+        ", ");
+    buffer.write("manual_address_code_sent_date=" +
+        (manual_address_code_sent_date != null
+            ? manual_address_code_sent_date.format()
+            : "null"));
     buffer.write("}");
 
     return buffer.toString();
@@ -330,14 +365,18 @@ class Users extends Model {
       bool photo_verification,
       TemporalDate joined_date,
       bool active_status,
-      List<Posts> User_Posts,
       List<PostComments> User_Comments,
       List<PostLikes> User_PostLikes,
       List<MosqueFollowers> User_MosqueFollowers,
       List<Friends> User_Friends,
       List<UserPhotos> User_Photos,
       List<UserEducation> User_Educations,
-      List<UserProfile> User_Profiles}) {
+      List<UserProfile> User_Profiles,
+      List<Posts> User_Posts,
+      String address_verification_mode,
+      int manul_address_code,
+      TemporalDate manual_address_taken_date,
+      TemporalDate manual_address_code_sent_date}) {
     return Users(
         id: id ?? this.id,
         first_name: first_name ?? this.first_name,
@@ -368,14 +407,21 @@ class Users extends Model {
         photo_verification: photo_verification ?? this.photo_verification,
         joined_date: joined_date ?? this.joined_date,
         active_status: active_status ?? this.active_status,
-        User_Posts: User_Posts ?? this.User_Posts,
         User_Comments: User_Comments ?? this.User_Comments,
         User_PostLikes: User_PostLikes ?? this.User_PostLikes,
         User_MosqueFollowers: User_MosqueFollowers ?? this.User_MosqueFollowers,
         User_Friends: User_Friends ?? this.User_Friends,
         User_Photos: User_Photos ?? this.User_Photos,
         User_Educations: User_Educations ?? this.User_Educations,
-        User_Profiles: User_Profiles ?? this.User_Profiles);
+        User_Profiles: User_Profiles ?? this.User_Profiles,
+        User_Posts: User_Posts ?? this.User_Posts,
+        address_verification_mode:
+            address_verification_mode ?? this.address_verification_mode,
+        manul_address_code: manul_address_code ?? this.manul_address_code,
+        manual_address_taken_date:
+            manual_address_taken_date ?? this.manual_address_taken_date,
+        manual_address_code_sent_date: manual_address_code_sent_date ??
+            this.manual_address_code_sent_date);
   }
 
   Users.fromJson(Map<String, dynamic> json)
@@ -407,11 +453,6 @@ class Users extends Model {
             ? TemporalDate.fromString(json['joined_date'])
             : null,
         active_status = json['active_status'],
-        User_Posts = json['User_Posts'] is List
-            ? (json['User_Posts'] as List)
-                .map((e) => Posts.fromJson(new Map<String, dynamic>.from(e)))
-                .toList()
-            : null,
         User_Comments = json['User_Comments'] is List
             ? (json['User_Comments'] as List)
                 .map((e) =>
@@ -452,7 +493,21 @@ class Users extends Model {
                 .map((e) =>
                     UserProfile.fromJson(new Map<String, dynamic>.from(e)))
                 .toList()
-            : null;
+            : null,
+        User_Posts = json['User_Posts'] is List
+            ? (json['User_Posts'] as List)
+                .map((e) => Posts.fromJson(new Map<String, dynamic>.from(e)))
+                .toList()
+            : null,
+        address_verification_mode = json['address_verification_mode'],
+        manul_address_code = json['manul_address_code'],
+        manual_address_taken_date = json['manual_address_taken_date'] != null
+            ? TemporalDate.fromString(json['manual_address_taken_date'])
+            : null,
+        manual_address_code_sent_date =
+            json['manual_address_code_sent_date'] != null
+                ? TemporalDate.fromString(json['manual_address_code_sent_date'])
+                : null;
 
   Map<String, dynamic> toJson() => {
         'id': id,
@@ -481,7 +536,6 @@ class Users extends Model {
         'photo_verification': photo_verification,
         'joined_date': joined_date?.format(),
         'active_status': active_status,
-        'User_Posts': User_Posts?.map((e) => e?.toJson())?.toList(),
         'User_Comments': User_Comments?.map((e) => e?.toJson())?.toList(),
         'User_PostLikes': User_PostLikes?.map((e) => e?.toJson())?.toList(),
         'User_MosqueFollowers':
@@ -489,7 +543,12 @@ class Users extends Model {
         'User_Friends': User_Friends?.map((e) => e?.toJson())?.toList(),
         'User_Photos': User_Photos?.map((e) => e?.toJson())?.toList(),
         'User_Educations': User_Educations?.map((e) => e?.toJson())?.toList(),
-        'User_Profiles': User_Profiles?.map((e) => e?.toJson())?.toList()
+        'User_Profiles': User_Profiles?.map((e) => e?.toJson())?.toList(),
+        'User_Posts': User_Posts?.map((e) => e?.toJson())?.toList(),
+        'address_verification_mode': address_verification_mode,
+        'manul_address_code': manul_address_code,
+        'manual_address_taken_date': manual_address_taken_date?.format(),
+        'manual_address_code_sent_date': manual_address_code_sent_date?.format()
       };
 
   static final QueryField ID = QueryField(fieldName: "users.id");
@@ -527,10 +586,6 @@ class Users extends Model {
   static final QueryField JOINED_DATE = QueryField(fieldName: "joined_date");
   static final QueryField ACTIVE_STATUS =
       QueryField(fieldName: "active_status");
-  static final QueryField USER_POSTS = QueryField(
-      fieldName: "User_Posts",
-      fieldType: ModelFieldType(ModelFieldTypeEnum.model,
-          ofModelName: (Posts).toString()));
   static final QueryField USER_COMMENTS = QueryField(
       fieldName: "User_Comments",
       fieldType: ModelFieldType(ModelFieldTypeEnum.model,
@@ -559,6 +614,18 @@ class Users extends Model {
       fieldName: "User_Profiles",
       fieldType: ModelFieldType(ModelFieldTypeEnum.model,
           ofModelName: (UserProfile).toString()));
+  static final QueryField USER_POSTS = QueryField(
+      fieldName: "User_Posts",
+      fieldType: ModelFieldType(ModelFieldTypeEnum.model,
+          ofModelName: (Posts).toString()));
+  static final QueryField ADDRESS_VERIFICATION_MODE =
+      QueryField(fieldName: "address_verification_mode");
+  static final QueryField MANUL_ADDRESS_CODE =
+      QueryField(fieldName: "manul_address_code");
+  static final QueryField MANUAL_ADDRESS_TAKEN_DATE =
+      QueryField(fieldName: "manual_address_taken_date");
+  static final QueryField MANUAL_ADDRESS_CODE_SENT_DATE =
+      QueryField(fieldName: "manual_address_code_sent_date");
   static var schema =
       Model.defineSchema(define: (ModelSchemaDefinition modelSchemaDefinition) {
     modelSchemaDefinition.name = "Users";
@@ -701,12 +768,6 @@ class Users extends Model {
         ofType: ModelFieldType(ModelFieldTypeEnum.bool)));
 
     modelSchemaDefinition.addField(ModelFieldDefinition.hasMany(
-        key: Users.USER_POSTS,
-        isRequired: false,
-        ofModelName: (Posts).toString(),
-        associatedKey: Posts.USERSID));
-
-    modelSchemaDefinition.addField(ModelFieldDefinition.hasMany(
         key: Users.USER_COMMENTS,
         isRequired: false,
         ofModelName: (PostComments).toString(),
@@ -747,6 +808,32 @@ class Users extends Model {
         isRequired: false,
         ofModelName: (UserProfile).toString(),
         associatedKey: UserProfile.USERSID));
+
+    modelSchemaDefinition.addField(ModelFieldDefinition.hasMany(
+        key: Users.USER_POSTS,
+        isRequired: false,
+        ofModelName: (Posts).toString(),
+        associatedKey: Posts.USERSID));
+
+    modelSchemaDefinition.addField(ModelFieldDefinition.field(
+        key: Users.ADDRESS_VERIFICATION_MODE,
+        isRequired: false,
+        ofType: ModelFieldType(ModelFieldTypeEnum.string)));
+
+    modelSchemaDefinition.addField(ModelFieldDefinition.field(
+        key: Users.MANUL_ADDRESS_CODE,
+        isRequired: false,
+        ofType: ModelFieldType(ModelFieldTypeEnum.int)));
+
+    modelSchemaDefinition.addField(ModelFieldDefinition.field(
+        key: Users.MANUAL_ADDRESS_TAKEN_DATE,
+        isRequired: false,
+        ofType: ModelFieldType(ModelFieldTypeEnum.date)));
+
+    modelSchemaDefinition.addField(ModelFieldDefinition.field(
+        key: Users.MANUAL_ADDRESS_CODE_SENT_DATE,
+        isRequired: false,
+        ofType: ModelFieldType(ModelFieldTypeEnum.date)));
   });
 }
 

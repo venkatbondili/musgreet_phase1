@@ -6,11 +6,12 @@ import 'package:mus_greet/core/utils/constants.dart';
 
 class MultiSelectChip extends StatefulWidget {
   final List<String> reportList;
+  final List<String> intrestData;
   final Function(List<String>) onSelectionChanged;
   final double width;
   final double fontSize;
 
-  MultiSelectChip(this.reportList, {this.onSelectionChanged,this.fontSize=12,this.width=1});
+  MultiSelectChip(this.reportList,this.intrestData, {this.onSelectionChanged,this.fontSize=12,this.width=1});
 
   @override
   _MultiSelectChipState createState() => _MultiSelectChipState();
@@ -18,9 +19,21 @@ class MultiSelectChip extends StatefulWidget {
 
 class _MultiSelectChipState extends State<MultiSelectChip> {
   List<String> selectedChoices = List.empty(growable: true);
+ // List<String> selectedChoices=
+
+  void initState()
+  {
+    selectedChoices.clear();
+    print("inisde the init state");
+    selectedChoices =widget.intrestData;
+    print(widget.intrestData);
+    print(selectedChoices);
+  }
+
 
   _buildChoiceList() {
     List<Widget> choices = List.empty(growable: true);
+    choices.clear();
     widget.reportList.forEach(
           (item) {
         choices.add(
@@ -56,7 +69,7 @@ class _MultiSelectChipState extends State<MultiSelectChip> {
                   selectedChoices.contains(item)
                       ? selectedChoices.remove(item)
                       : selectedChoices.add(item);
-                  widget.onSelectionChanged(selectedChoices); // +added
+                  widget.onSelectionChanged(selectedChoices); //+added
                 });
               },
             ),
@@ -64,6 +77,8 @@ class _MultiSelectChipState extends State<MultiSelectChip> {
         );
       },
     );
+    print(choices);
+    print("List of choices");
     return choices;
   }
 

@@ -19,6 +19,8 @@ import 'package:mus_greet/core/widgets/s3_bucket_image_widget.dart';
 import 'package:mus_greet/models/ModelProvider.dart';
 import 'package:mus_greet/pages/home_screen/home_screen.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:form_field_validator/form_field_validator.dart';
+
 
 
 class CreatePostScreen extends StatefulWidget {
@@ -28,6 +30,7 @@ class CreatePostScreen extends StatefulWidget {
   //final String UserName;
   //CreatePostScreen({this.UserProfileImage, this.UserName});
   final Users sessionUser;
+
   CreatePostScreen({this.sessionUser});
   @override
   _CreatePostScreenState createState() => _CreatePostScreenState();
@@ -531,10 +534,11 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
 
 /// this will render text field on the screen
 class CreatePostTextFieldWidget extends StatefulWidget {
+  //final String fieldVlidator;
   final TextEditingController controller;
   final String hintText;
 
-  CreatePostTextFieldWidget({this.controller, this.hintText});
+  CreatePostTextFieldWidget( {this.controller, this.hintText});
 
   @override
   _TextFieldWidgetState createState() => _TextFieldWidgetState();
@@ -542,40 +546,50 @@ class CreatePostTextFieldWidget extends StatefulWidget {
 
 class _TextFieldWidgetState extends State<CreatePostTextFieldWidget> {
   //final ctrlText = TextEditingController();
-
   @override
   Widget build(BuildContext context) {
     print(widget.controller.text);
     return Container(
       padding: EdgeInsets.only(left: 5, right: 5, top: 5),
-      child: TextField(
-        controller: widget.controller,
-        maxLines: null,
-        expands: true,
-        style: TextStyle(
-          fontWeight: FontWeight.w900,
-          fontFamily: FontConstants.FONT,
-          fontSize: 16,
-          color: AppColors.black,
+      child: Container(
+        child: TextFormField(
+          controller: widget.controller,
+          maxLines: null,
+          expands: true,
+          validator: MultiValidator(
+          [
+            RequiredValidator(errorText: 'Bio field is required'),
+          ]
+           ),
+          style: TextStyle(
+            fontWeight: FontWeight.w900,
+            fontFamily: FontConstants.FONT,
+            fontSize: 16,
+            color: AppColors.black,
+          ),
+          decoration: InputDecoration(
+              hintText: widget.hintText,
+              hintStyle: TextStyle(
+                fontFamily: FontConstants.FONT,
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+                color: AppColors.light_grey,
+              ),
+
+              border: InputBorder.none,
+              focusedBorder: InputBorder.none,
+              enabledBorder: InputBorder.none,
+              errorBorder: InputBorder.none,
+              contentPadding: EdgeInsets.only(bottom: 10)),
+          onFieldSubmitted: (String str){
+            print("inside on submitted");
+
+            print(str);
+          },
         ),
-        decoration: InputDecoration(
-            hintText: widget.hintText,
-            hintStyle: TextStyle(
-              fontFamily: FontConstants.FONT,
-              fontSize: 16,
-              fontWeight: FontWeight.w500,
-              color: AppColors.light_grey,
-            ),
-            border: InputBorder.none,
-            focusedBorder: InputBorder.none,
-            enabledBorder: InputBorder.none,
-            errorBorder: InputBorder.none,
-            contentPadding: EdgeInsets.only(bottom: 10)),
-        onSubmitted: (String str){
-          print("inside on submitted");
-          print(str);
-        },
       ),
     );
   }
+
+
 }

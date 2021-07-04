@@ -22,6 +22,9 @@ class FriendSearchListWidget extends StatefulWidget {
 class _FriendSearchListWidgetState extends State<FriendSearchListWidget> {
   bool status=false;
   List<FriendRequest> friendRequest=[];
+  String firstname="";
+  String lastname="";
+  String city="";
   @override
   Widget build(BuildContext context) {
     //friendRequestList();
@@ -43,6 +46,7 @@ class _FriendSearchListWidgetState extends State<FriendSearchListWidget> {
    buildUi(List<FriendRequest> friendRequest)
    {
      _getStatus();
+     print(status);
      return Material(
        elevation: 2,
        shadowColor: AppColors.black,
@@ -121,12 +125,13 @@ class _FriendSearchListWidgetState extends State<FriendSearchListWidget> {
   }
 
   _getNameAndLocation() {
+    getNameLocationCity();
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          widget.UserObject.first_name + " " + widget.UserObject.last_name,
+          firstname+ " " + lastname,
           //AppTexts.FRIEND_NAME,
           style: TextStyle(
             fontFamily: FontConstants.FONT,
@@ -151,7 +156,7 @@ class _FriendSearchListWidgetState extends State<FriendSearchListWidget> {
               width: 4,
             ),
             Text(
-              widget.UserObject.city ,
+              city,
               //AppTexts.MOSQUE_LOCATION,
               style: TextStyle(
                 fontFamily: FontConstants.FONT,
@@ -183,6 +188,26 @@ class _FriendSearchListWidgetState extends State<FriendSearchListWidget> {
     );
   }
 
+
+  getNameLocationCity()
+  {
+    if( widget.UserObject.first_name == null ||  widget.UserObject.first_name == "")
+      {
+        firstname="Please enter the first name and last name";
+        lastname="";
+      }else{
+      firstname=widget.UserObject.first_name;
+      lastname=widget.UserObject.last_name;
+    }
+
+    if(widget.UserObject.city == null ||  widget.UserObject.city == "")
+      {
+        city="Please enter the city";
+      }else
+        {
+          city=widget.UserObject.city;
+        }
+  }
   _getStatus(){
     print("Checking the REquest status");
     print(friendRequest.isNotEmpty);
@@ -190,10 +215,13 @@ class _FriendSearchListWidgetState extends State<FriendSearchListWidget> {
       print("inside the friend request if condition");
       print(friendRequest);
       for (int i = 0; i < friendRequest.length; i++) {
-        if (friendRequest[i].request_status == "Sent") {
-          status = true;
-        } else {
-          status = false;
+        print("inside the list");
+        if(widget.loginUserId == friendRequest[i].request_from_id  && widget.UserObject.id== friendRequest[i].request_to_id) {
+          if (friendRequest[i].request_status == "Sent") {
+            status = true;
+          } else {
+            status = false;
+          }
         }
       }
    // }else {

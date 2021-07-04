@@ -11,13 +11,15 @@ import 'package:mus_greet/core/widgets/custom_spacer_widget.dart';
 import 'package:mus_greet/models/MasterIntrests.dart';
 import 'package:mus_greet/models/UserProfile.dart';
 import 'package:mus_greet/pages/profile/view_profile_screen/view_profile_screen.dart';
+import 'package:mus_greet/pages/interest_screen/multi_line_chip.dart';
 
 import '../../main.dart';
 
 
 class ReligiousInterestScreen extends StatefulWidget {
   List<UserProfile> userProfile;
-  ReligiousInterestScreen({this.userProfile});
+  List<String> religiousData;
+  ReligiousInterestScreen({this.userProfile,this.religiousData});
   @override
   _ReligiousInterestScreenState createState() => _ReligiousInterestScreenState();
 }
@@ -143,6 +145,7 @@ class _ReligiousInterestScreenState extends State<ReligiousInterestScreen> {
   _getChipListOfReligions() {
     return MultiSelectChip(
       RELIGIOUS_INTRESTS,
+      widget.religiousData,
       onSelectionChanged: (val) {
         // print(val);
         //setState(() {
@@ -247,82 +250,95 @@ class _ReligiousInterestScreenState extends State<ReligiousInterestScreen> {
 
   }
 }
-class MultiSelectChip extends StatefulWidget {
-  final List<String> reportList;
-  final Function(List<String>) onSelectionChanged;
 
-  MultiSelectChip(this.reportList, {this.onSelectionChanged});
 
-  @override
-  _MultiSelectChipState createState() => _MultiSelectChipState();
-}
-class _MultiSelectChipState extends State<MultiSelectChip> {
-  List<String> selectedChoices = [];
-
-  _buildChoiceList() {
-    List<Widget> choices = List.empty(growable: true);
-    widget.reportList.forEach(
-          (item) {
-        choices.add(
-          Theme(
-            data: ThemeData(canvasColor: Colors.transparent),
-            child: ChoiceChip(
-              padding: EdgeInsets.only(left: 5, right: 5),
-              side: BorderSide(
-                  width: 1,
-                  color: selectedChoices.contains(item)
-                      ? AppColors.background_color
-                      : AppColors.background_color),
-              label: Text(item),
-              labelStyle: selectedChoices.contains(item)
-                  ? TextStyle(
-                fontFamily: FontConstants.FONT,
-                fontSize: 12,
-                color: AppColors.white,
-                fontWeight: FontWeight.w900,
-              )
-                  : TextStyle(
-                  fontFamily: FontConstants.FONT,
-                  fontSize: 12,
-                  color: AppColors.black,
-                  fontWeight: FontWeight.w500),
-              //selected: selectedChoices.contains(item),
-              selected:  selectedChoices.contains(item),
-              backgroundColor: selectedChoices.contains(item)
-                  ? AppColors.background_color
-                  : AppColors.white,
-              selectedColor: AppColors.background_color,
-              onSelected: (selected) {
-                setState(() {
-                  // selectedChoices.contains(item)
-                  //     ? selectedChoices.remove(item)
-                  //     : selectedChoices.add(item);
-                  print("inside the set state");
-                  print(selectedChoices.contains(item));
-                  if(!selectedChoices.contains(item))
-                    {
-                      print(item);
-                      print("selecting the item");
-                      selectedChoices.add(item);
-                      print(selectedChoices);
-                    }
-                  widget.onSelectionChanged(selectedChoices); // +added
-                });
-              },
-            ),
-          ),
-        );
-      },
-    );
-    return choices;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    //selectedChoices.add(widget.reportList.first);
-    return Wrap(
-      spacing: 10.0, // spacing between adjacent chips
-      children: _buildChoiceList(),
-    );
-  }
-}
+// class MultiSelectChip extends StatefulWidget {
+//   final List<String> reportList;
+//   final List<String> religiousData;
+//   final Function(List<String>) onSelectionChanged;
+//
+//   MultiSelectChip(this.reportList, this.religiousData, {this.onSelectionChanged});
+//
+//   @override
+//   _MultiSelectChipState createState() => _MultiSelectChipState();
+// }
+// class _MultiSelectChipState extends State<MultiSelectChip> {
+//   List<String> selectedChoices = [];
+//
+//   void initState()
+//   {
+//     selectedChoices.clear();
+//     print("inisde the init state");
+//     selectedChoices =widget.religiousData;
+//     print(widget.religiousData);
+//     print(selectedChoices);
+//   }
+//
+//
+//   _buildChoiceList() {
+//     List<Widget> choices = List.empty(growable: true);
+//     widget.reportList.forEach(
+//           (item) {
+//         choices.add(
+//           Theme(
+//             data: ThemeData(canvasColor: Colors.transparent),
+//             child: ChoiceChip(
+//               padding: EdgeInsets.only(left: 5, right: 5),
+//               side: BorderSide(
+//                   width: 1,
+//                   color: selectedChoices.contains(item)
+//                       ? AppColors.background_color
+//                       : AppColors.background_color),
+//               label: Text(item),
+//               labelStyle: selectedChoices.contains(item)
+//                   ? TextStyle(
+//                 fontFamily: FontConstants.FONT,
+//                 fontSize: 12,
+//                 color: AppColors.white,
+//                 fontWeight: FontWeight.w900,
+//               )
+//                   : TextStyle(
+//                   fontFamily: FontConstants.FONT,
+//                   fontSize: 12,
+//                   color: AppColors.black,
+//                   fontWeight: FontWeight.w500),
+//               //selected: selectedChoices.contains(item),
+//               selected:  selectedChoices.contains(item),
+//               backgroundColor: selectedChoices.contains(item)
+//                   ? AppColors.background_color
+//                   : AppColors.white,
+//               selectedColor: AppColors.background_color,
+//               onSelected: (selected) {
+//                 setState(() {
+//                   // selectedChoices.contains(item)
+//                   //     ? selectedChoices.remove(item)
+//                   //     : selectedChoices.add(item);
+//                   print("inside the set state");
+//                   print(selectedChoices.contains(item));
+//                   if(!selectedChoices.contains(item))
+//                     {
+//                       print(item);
+//                       print("selecting the item");
+//                       selectedChoices.add(item);
+//                       print(selectedChoices);
+//                     }
+//                   widget.onSelectionChanged(selectedChoices); // +added
+//                 });
+//               },
+//             ),
+//           ),
+//         );
+//       },
+//     );
+//     return choices;
+//   }
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     //selectedChoices.add(widget.reportList.first);
+//     return Wrap(
+//       spacing: 10.0, // spacing between adjacent chips
+//       children: _buildChoiceList(),
+//     );
+//   }
+// }

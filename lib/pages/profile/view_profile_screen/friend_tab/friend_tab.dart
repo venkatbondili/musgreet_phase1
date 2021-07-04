@@ -1,5 +1,6 @@
 import 'package:amplify_datastore/amplify_datastore.dart';
 import 'package:amplify_flutter/amplify.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mus_greet/core/utils/constants.dart';
 import 'package:mus_greet/core/widgets/asset_image_widget.dart';
@@ -168,7 +169,7 @@ class _FriendTabState extends State<FriendTab> with SingleTickerProviderStateMix
       child: Column(
         children: [
           _getFriendSearchBar(),
-          SizedBox(height: 10.0),
+          SizedBox(height: 2.0),
           _getFriendsSentDataList(),
         ],
       ),
@@ -177,11 +178,12 @@ class _FriendTabState extends State<FriendTab> with SingleTickerProviderStateMix
   _getSentUsersList(){
     SentUsersList = [];
     for(var fr in friendRequest){
-      if(fr.request_from_id == loginUserId){
+      if(fr.request_from_id == loginUserId && fr.request_status == "Sent"){
         SentUsersList.add(fr);
       }
     }
-
+   print("the sent list in friend request table");
+    print(SentUsersList);
   }
 
   /// This will render all the friends request list
@@ -247,7 +249,6 @@ class _FriendTabState extends State<FriendTab> with SingleTickerProviderStateMix
 
   _getSentFriendsUI(FriendRequest sentFriendObject){
     _getUserObject(sentFriendObject.request_to_id);
-
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.max,
@@ -383,7 +384,7 @@ class _FriendTabState extends State<FriendTab> with SingleTickerProviderStateMix
   getRequestFriendsList() {
     RequestUsersList = [];
     for(var fr in friendRequest){
-      if(fr.request_to_id == loginUserId){
+      if(fr.request_to_id == loginUserId && fr.request_status=="Sent"){
         RequestUsersList.add(fr);
       }
     }
@@ -494,7 +495,7 @@ class _FriendTabState extends State<FriendTab> with SingleTickerProviderStateMix
 
   getRequestUserDetails(String request_from_id) {
     for(var u in users){
-      if(request_from_id == u.id){
+      if(request_from_id == u.id ){
         requestUserObject = u;
       }
     }
@@ -1097,8 +1098,7 @@ class _FriendTabState extends State<FriendTab> with SingleTickerProviderStateMix
 
   Future<List<FriendRequest>> friendRequestList() async{
     try{
-      friendRequest = await Amplify.DataStore.query(FriendRequest.classType , where:FriendRequest.REQUEST_STATUS.eq("Sent"));
-     // print("////////////////");
+      friendRequest = await Amplify.DataStore.query(FriendRequest.classType );
       print(friendRequest);
       print("Inside the Friend Request in friends tab");
      return friendRequest;
@@ -1110,7 +1110,7 @@ class _FriendTabState extends State<FriendTab> with SingleTickerProviderStateMix
 
   Future<List<Users>> getListOfUsers() async {
     try {
-      users = await Amplify.DataStore.query(Users.classType , where:Users.ID.eq(widget.sessionUser.id));
+      users = await Amplify.DataStore.query(Users.classType);
       print("list of users");
       print(users);
       return users;

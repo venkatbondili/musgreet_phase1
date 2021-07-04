@@ -16,7 +16,8 @@ import 'package:mus_greet/pages/interest_screen/multi_line_chip.dart';
 
 class InterestScreen extends StatefulWidget {
   List<UserProfile> userProfile;
-  InterestScreen({this.userProfile});
+  List<String> intrestData;
+  InterestScreen({this.userProfile, this.intrestData});
   @override
   _InterestScreenState createState() => _InterestScreenState();
 }
@@ -33,6 +34,13 @@ class _InterestScreenState extends State<InterestScreen> {
   List<String> COMMUNITY_INVOLVEMENT_CATEGORIES=[];
   String communityIntrest="";
    final List<String> _selectedIntrests = [];
+  final List<String> _selectedSports = [];
+  final List<String> _selectedFamily = [];
+  final List<String> _selectedVolunteer= [];
+  final List<String> _selectedCommunity= [];
+  List<String> intrestData=[];
+
+
    //List<String> _selectedSportsAndExercise =List.empty(growable: true);//final List<String> _selectedFamilyAndOutDoors = List.empty(growable: true);
   //final List<String> _selectedVolunteer = List.empty(growable: true);
   //final List<String> _selectedCommunityInvolvement = List.empty(growable: true);
@@ -97,19 +105,19 @@ class _InterestScreenState extends State<InterestScreen> {
                 _getChipsAndHeaders(
                     header: AppTexts.INTEREST_SPORTS_EXERCISE,
                     categories: SPORTS_EXERCISE_CATEGORIES,
-                    data: _selectedIntrests),
+                    data: _selectedSports),
                 _getChipsAndHeaders(
                     header: AppTexts.INTEREST_FAMILY_OUTDOOR,
                     categories: FAMILY_OUTDOORS_CATEGORIES,
-                    data: _selectedIntrests),
+                    data: _selectedFamily),
                 _getChipsAndHeaders(
                     header: AppTexts.INTEREST_VOLUNTEER,
                     categories: VOLUNTEER_CATEGORIES,
-                    data: _selectedIntrests),
+                    data: _selectedVolunteer),
                 _getChipsAndHeaders(
                     header: AppTexts.INTEREST_COMMUNITY_INVOLVEMENT,
                     categories: COMMUNITY_INVOLVEMENT_CATEGORIES,
-                    data: _selectedIntrests),
+                    data: _selectedCommunity),
                 CustomSpacerWidget(
                   height: 30,
                 ),
@@ -197,6 +205,8 @@ class _InterestScreenState extends State<InterestScreen> {
         // ),
         MultiSelectChip(
           categories,
+          widget.intrestData,
+         //communityIntrest,
           onSelectionChanged: (val) {
             print("inisde the on selection changed");
              print(val);
@@ -212,6 +222,8 @@ class _InterestScreenState extends State<InterestScreen> {
       ],
     );
   }
+
+
 
 
   _getAddAndCancelButton() {
@@ -244,6 +256,7 @@ class _InterestScreenState extends State<InterestScreen> {
       ),
     );
   }
+
 
   // Future<void> getIntrests() async
   // {
@@ -291,12 +304,15 @@ class _InterestScreenState extends State<InterestScreen> {
     }
     else if(intrests[i].category_name =="Family And Outdoors")
     {
+
       FAMILY_OUTDOORS_CATEGORIES.add(intrests[i].intrest_name);
     }else if(intrests[i].category_name == "Volunteer")
     {
+
       VOLUNTEER_CATEGORIES.add(intrests[i].intrest_name);
     }else if(intrests[i].category_name == "Community Involvement")
     {
+
       COMMUNITY_INVOLVEMENT_CATEGORIES.add(intrests[i].intrest_name);
     }
     }
@@ -305,6 +321,8 @@ class _InterestScreenState extends State<InterestScreen> {
 
   _generatingListId()
   {
+    print("checkig the list of selected data");
+    print(_selectedIntrests);
     for(int i=0;i<_selectedIntrests.length;i++)
       {
         String nameOfHobby=_selectedIntrests[i];
@@ -319,6 +337,70 @@ class _InterestScreenState extends State<InterestScreen> {
               }
           }
       }
+
+    for(int i=0;i<_selectedSports.length;i++)
+    {
+
+      String nameOfSports=_selectedSports[i];
+      for(int i=0;i<intrests.length;i++)
+      {
+        if(nameOfSports ==intrests[i].intrest_name)
+        {
+          COMMUNITYINTREST.add(intrests[i].id);
+          print("Inside the List");
+          print(COMMUNITYINTREST);
+          print(intrests[i].id);
+        }
+      }
+    }
+
+    for(int i=0;i<_selectedFamily.length;i++)
+    {
+
+      String nameOfFamily=_selectedFamily[i];
+      for(int i=0;i<intrests.length;i++)
+      {
+        if(nameOfFamily ==intrests[i].intrest_name)
+        {
+          COMMUNITYINTREST.add(intrests[i].id);
+          print("Inside the List");
+          print(COMMUNITYINTREST);
+          print(intrests[i].id);
+        }
+      }
+    }
+
+    for(int i=0;i<_selectedVolunteer.length;i++)
+    {
+
+      String nameOfVolunteer=_selectedVolunteer[i];
+      for(int i=0;i<intrests.length;i++)
+      {
+        if(nameOfVolunteer ==intrests[i].intrest_name)
+        {
+          COMMUNITYINTREST.add(intrests[i].id);
+          print("Inside the List");
+          print(COMMUNITYINTREST);
+          print(intrests[i].id);
+        }
+      }
+    }
+
+    for(int i=0;i<_selectedCommunity.length;i++)
+    {
+
+      String nameOfCommunity=_selectedCommunity[i];
+      for(int i=0;i<intrests.length;i++)
+      {
+        if(nameOfCommunity ==intrests[i].intrest_name)
+        {
+          COMMUNITYINTREST.add(intrests[i].id);
+          print("Inside the List");
+          print(COMMUNITYINTREST);
+          print(intrests[i].id);
+        }
+      }
+    }
 
   }
 
@@ -363,6 +445,8 @@ class _InterestScreenState extends State<InterestScreen> {
   void addValuesToIntrests() {
      print("Add Button");
     _generatingListId();
+     print("List of the Intest");
+     print(intrestData);
     print("Before the Intrest");
     print(COMMUNITYINTREST);
     //communityIntrest=COMMUNITYINTREST.join(",");

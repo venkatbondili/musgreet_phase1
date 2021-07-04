@@ -173,8 +173,9 @@ class _HomeTabState extends State<HomeTab> {
                         Padding(
                           padding: const EdgeInsets.only(top: 3.0, left: 5),
                           child: Text(
-                            //'${DateFormat('hh:mm').format(mosquePrayers[index].begin_time.getDateTime())}',
-                            "DateFormate",
+                            "",
+                           // '${DateFormat('hh:mm').format(mosquePrayers[index].begin_time.getDateTime())}',
+                            //"DateFormate",
                             style: TextStyle(
                                 fontSize: 10,
                                 fontFamily: FontConstants.FONT,

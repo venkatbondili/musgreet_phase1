@@ -66,7 +66,7 @@ class _AboutTabState extends State<AboutTab> {
   String city="";
   String country="";
   String postCode="";
-
+  bool educationValue=true;
   ViewProfileScreen args;
   Users sessionUser;
 
@@ -251,6 +251,7 @@ class _AboutTabState extends State<AboutTab> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
+
             Text(
               AppTexts.BIO,
               style: TextStyle(
@@ -292,6 +293,9 @@ class _AboutTabState extends State<AboutTab> {
               Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    CustomSpacerWidget(
+                      height: 10,
+                    ),
                     Row(
                         children:[
                           _getContactInfoData(
@@ -303,7 +307,7 @@ class _AboutTabState extends State<AboutTab> {
               _isBioExpanded
                   ? Padding(
                 padding: EdgeInsets.only(right: 25, top: 15),
-                //_getLockDetails(),
+
                 child: _getEditDetails(callBack: (){
                   //_navigateToEditEducationScreen(route: AppRoutes.BIO);
                   Navigator.of(context).push(new MaterialPageRoute(builder: (_)=>new Bio(sessionUser:widget.sessionUser)),).then((value) => value?build(context):null);
@@ -321,7 +325,7 @@ class _AboutTabState extends State<AboutTab> {
   _getBioDetails()
   {
     if(userProfile[0].bio == "" || userProfile[0].bio == null){
-      bio = "Add your bio here";
+      //bio = "Add your bio here";
     }else{
       bio=userProfile[0].bio;
     }
@@ -337,7 +341,9 @@ class _AboutTabState extends State<AboutTab> {
       },
       child: Container(
         padding: EdgeInsets.only(left: 15, right: 15, top: 5, bottom: 5),
-        child: Row(
+        child:Column(
+          children: [
+         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
@@ -349,34 +355,17 @@ class _AboutTabState extends State<AboutTab> {
                 color: AppColors.header_black,
               ),
             ),
+
             _isEducationExpanded
                 ? RotatedBox(
                     quarterTurns: 2,
-                    child: _getArrowDownAndUp(_isEducationExpanded),
+                    child: _getArrowDownAndUpEducation(_isEducationExpanded),
                   )
-                : _getArrowDownAndUp(_isEducationExpanded),
+                : _getArrowDownAndUpEducation(_isEducationExpanded),
           ],
         ),
-      ),
-    );
-  }
-
-  _navigateToEditEducationScreen({String route}) {
-    if (route != null) {
-      Navigation.intent(context, route);
-    }
-  }
-
-  _getIconDetails()
-  {
-    return GestureDetector(
-      child: Padding(
-        padding: const EdgeInsets.all(5.0),
-        child: AssetImageWidget(
-          image: ImageConstants.IC_EYE,
-          height: 20,
-          width: 20,
-        ),
+        ]
+        )
       ),
     );
   }
@@ -385,9 +374,23 @@ class _AboutTabState extends State<AboutTab> {
   {
     return GestureDetector(
       child: Padding(
-        padding: EdgeInsets.only(left:10, top: 15),
+        padding: EdgeInsets.only(left:2, top: 15),
         child: AssetImageWidget(
           image: ImageConstants.IC_LOCK,
+          height: 20,
+          width: 20,
+        ),
+      ),
+    );
+  }
+
+  _getEyeDetails()
+  {
+    return GestureDetector(
+      child: Padding(
+        padding: EdgeInsets.only(right:0, top: 15),
+        child: AssetImageWidget(
+          image: ImageConstants.IC_EYE,
           height: 20,
           width: 20,
         ),
@@ -411,6 +414,21 @@ class _AboutTabState extends State<AboutTab> {
 
   }
 
+  _getEditDetailsForEducation({Function callBack}) {
+    return GestureDetector(
+      onTap: () => callBack(),
+      child: Padding(
+        padding: EdgeInsets.only(left: 270, top: 0),
+        child: AssetImageWidget(
+          image: ImageConstants.IC_EDIT,
+          height: 20,
+          width: 20,
+        ),
+      ),
+    );
+
+  }
+
   _getArrowDownAndUp(bool isExpanded) {
     return Padding(
       padding: const EdgeInsets.all(5.0),
@@ -423,15 +441,39 @@ class _AboutTabState extends State<AboutTab> {
     );
   }
 
+  _getArrowDownAndUpEducation(bool isExpanded) {
+    return Padding(
+      padding: EdgeInsets.only(top: 10, bottom: 10),
+      child: AssetImageWidget(
+        image: ImageConstants.IC_DOWN,
+        height: 15,
+        width: 15,
+        color: isExpanded ? AppColors.black : null,
+      ),
+    );
+  }
+
   _getEducationExpandedContainer() {
+
     _getEducationList();
     print("inside the user education");
     print(userEducationUsers.length);
+    print("length of the education");
+      if(userEducationUsers.isEmpty) {
+        print("the value");
+        print(userEducationUsers.length);
+        educationValue=true;
+      }else
+        {
+          educationValue=false;
+        }
+
     return Container(
       padding: EdgeInsets.only(top: 10, bottom: 10),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(15),
         color: AppColors.comment_wall_color,
+        //color:AppColors.Grey_Light,
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
@@ -450,19 +492,32 @@ class _AboutTabState extends State<AboutTab> {
                               institution: userEducationUsers[index].institution,
                               dept: userEducationUsers[index].course,
                               years: userEducationUsers[index].from + "," + userEducationUsers[index].to,
-                              editIcon: true,
+                              //editIcon: true,
+                              number:index,
                             );
                    }
-
                  )
-               ],
+                ]
              ),
-
+             educationValue?_getEditDetailsForEducation(
+                 callBack: (){
+                   //_navigateToEditEducationScreen(
+                   //route: AppRoutes.ADD_EDUCATION,
+                   Navigator.of(context).push(new MaterialPageRoute(builder: (_)=> AddEducationScreen(sessionUser:widget.sessionUser)),).then((value) => value?build(context):null);
+                 }
+             )
+                 : Container(),
         ],
+
       ),
+
     );
   }
 
+  getPrint()
+  {
+    print("no user education");
+  }
   _getEducationList()
   { print("get educationlist");
   userEducationUsers.clear();
@@ -480,11 +535,13 @@ class _AboutTabState extends State<AboutTab> {
   }
 
   _getEducationInfo(
-      {String institution, String dept, String years, bool editIcon = false}) {
+      {String institution, String dept, String years, bool editIcon = false, int number}) {
     return Container(
       alignment: Alignment.centerLeft,
       padding: EdgeInsets.only(left: 25, right: 25, top: 8, bottom: 8),
-      child: Row(
+      child:Column(
+        children:[
+       Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Flexible(
@@ -502,7 +559,7 @@ class _AboutTabState extends State<AboutTab> {
                 CustomSpacerWidget(
                   height: 2,
                 ),
-                Text(
+                    Text(
                   dept,
                   style: TextStyle(
                       fontFamily: FontConstants.FONT,
@@ -510,9 +567,11 @@ class _AboutTabState extends State<AboutTab> {
                       fontWeight: FontWeight.bold,
                       color: AppColors.black),
                 ),
+
                 CustomSpacerWidget(
                   height: 2,
                 ),
+
                 Text(
                   years,
                   style: TextStyle(
@@ -521,21 +580,25 @@ class _AboutTabState extends State<AboutTab> {
                     color: AppColors.black,
                     fontWeight: FontWeight.w500,
                   ),
-                ),
+                 )
               ],
             ),
           ),
-          editIcon
-              ? _getEditDetails(
-                  callBack: (){
-                    //_navigateToEditEducationScreen(
-                      //route: AppRoutes.ADD_EDUCATION,
-                        Navigator.of(context).push(new MaterialPageRoute(builder: (_)=> AddEducationScreen(sessionUser:widget.sessionUser)),).then((value) => value?build(context):null);
-                  }
-                )
+          number==0? _getEditDetails(
+              callBack: (){
+                //_navigateToEditEducationScreen(
+                //route: AppRoutes.ADD_EDUCATION,
+                Navigator.of(context).push(new MaterialPageRoute(builder: (_)=> AddEducationScreen(sessionUser:widget.sessionUser)),).then((value) => value?build(context):null);
+              }
+          )
               : Container(),
         ],
+        ),
+
+      ]
       ),
+
+
     );
   }
 
@@ -655,11 +718,12 @@ class _AboutTabState extends State<AboutTab> {
                               details: widget.sessionUser.phone),
                         ]
                     ),
+
                   ]
               ),
               GestureDetector(
                 child: Padding(
-                  padding: EdgeInsets.only(left: 0, top: 15),
+                  padding: EdgeInsets.only(left: 0, top: 30),
                   child: AssetImageWidget(
                     image: ImageConstants.IC_EYE,
                     height: 20,
@@ -669,14 +733,13 @@ class _AboutTabState extends State<AboutTab> {
               ),
               _isContactInfoExpanded
                   ? Padding(
-                padding: EdgeInsets.only(right: 25, top: 15),
+                padding: EdgeInsets.only(right:22, top: 15),
                 child:
                 _getLockDetails(
                  // _navigateToEditEducationScreen(route: AppRoutes.MY_FAMILY);
                 ),
               )
                   : Container(),
-
             ],
 
           ),
@@ -684,6 +747,8 @@ class _AboutTabState extends State<AboutTab> {
       ),
     );
   }
+
+
 
 
   _getContactInfoData({
@@ -718,6 +783,7 @@ class _AboutTabState extends State<AboutTab> {
             ),
           ],
         ),
+
       ),
     );
   }
@@ -827,7 +893,7 @@ class _AboutTabState extends State<AboutTab> {
                   padding: EdgeInsets.only(right: 25, top: 15),
                   child: _getEditDetails(callBack: (){
                     //_navigateToEditEducationScreen(route: AppRoutes.LANGUAGES_SCREEN);
-                    Navigator.of(context).push(new MaterialPageRoute(builder: (_)=>new Relationship(sessionId: widget.sessionUser,)),).then((value) => value?build(context):null);
+                    Navigator.of(context).push(new MaterialPageRoute(builder: (_)=>new Reliationship(sessionId: widget.sessionUser,)),).then((value) => value?build(context):null);
                   }),
                 )
                     : Container(),
@@ -875,7 +941,7 @@ class _AboutTabState extends State<AboutTab> {
                           children: [
                             _getContactInfoData(
                                 contactType: AppTexts.ADDRESS,
-                                details: houseNumber + " " + street + "\n " + city+ " " + country + " " + postCode),
+                                details: houseNumber + " ," + street + "\n " + city+ ", " + country + ", " + postCode),
                           ]
                       ),
                     ]
@@ -921,7 +987,7 @@ class _AboutTabState extends State<AboutTab> {
        relationshipStatus = "No data available";
      }
     if(houseNumber == "" || houseNumber == null){
-      houseNumber = "No data available";
+      //houseNumber = "No data available";
     }
     if(street == "" || street == null){
       street = "No data available";
@@ -1001,7 +1067,7 @@ class _AboutTabState extends State<AboutTab> {
               ),
               GestureDetector(
                 child: Padding(
-                  padding: EdgeInsets.only(right:0,left:0, top: 20),
+                  padding: EdgeInsets.only(left: 0, top: 30),
                   child: AssetImageWidget(
                     image: ImageConstants.IC_EYE,
                     height: 20,
@@ -1011,7 +1077,7 @@ class _AboutTabState extends State<AboutTab> {
               ),
               _isFaithInfoExpanded
                   ? Padding(
-                padding: EdgeInsets.only(right: 25, top: 15),
+                padding: EdgeInsets.only(right: 22, top: 15),
                 child: _getLockDetails(),
               )
                   : Container(),
@@ -1141,8 +1207,9 @@ class _AboutTabState extends State<AboutTab> {
                   ),
                   for(int i=0;i<FAMILY_MEMBER.length;i++)
                   _getMemberDetails(
-                      name: FAMILY_MEMBER.keys.elementAt(i), relationShip: FAMILY_MEMBER.values.elementAt(i)),
-                    //name:"" ,relationShip: ""),
+                      name: FAMILY_MEMBER.keys.elementAt(i), relationShip: FAMILY_MEMBER.values.elementAt(i)
+                  ),
+
                 ],
               ),
               _isFamilyInfoExpanded
@@ -1174,8 +1241,12 @@ class _AboutTabState extends State<AboutTab> {
             width: 15,
           ),
           _getNameAndRelationShip(name: name, relationShip: relationShip),
+          SizedBox(
+            height: 50,
+          )
         ],
       ),
+
     );
   }
 
@@ -1183,9 +1254,8 @@ class _AboutTabState extends State<AboutTab> {
     var image = _getImageAccordingToRelationShip(relationShip: relationShip);
     return Image.asset(
       image,
-      //"",
-      height: 0,
-      width: 0,
+      height: 30,
+      width: 30,
     );
   }
 

@@ -459,25 +459,33 @@ class _NearlyFinishedPageState extends State<NearlyFinishedPage> {
   void updateUserProfile() async {
     try {
       if (sessionUser != null) {
-        userProfile = await Amplify.DataStore.query(UserProfile.classType,where: UserProfile.USERSID.eq(sessionUser.id));
-        await Future.delayed(Duration(seconds: 2));
-
-        Users x = Users(first_name: 'Venkat');
-        UserProfile c = UserProfile(sect: sect, usersID: x.id);
+        // userProfile = await Amplify.DataStore.query(UserProfile.classType,where: UserProfile.USERSID.eq(sessionUser.id));
 
 
-        if (userProfile != null) {
-          final updatedItem = userProfile[0].copyWith(
+        // Users x = Users(first_name: 'Venkat');
+        // UserProfile c = UserProfile(sect: sect, usersID: x.id);
+
+        //if (userProfile != null) {
+          final Item = UserProfile(
+              usersID: sessionUser.id,
               languages_spoken: "" ,
               sect: sect,
               are_you_revert: revert,
               islam_interest: intrest);
-          await Amplify.DataStore.save(updatedItem);
-        }
+          await Amplify.DataStore.save(Item);
+          await Future.delayed(Duration(seconds: 2));
+
+          print('record saved');
+        //}
       }
     }
     catch(e) {
       print(e.message);
+      print('error nearly finished update');
+      print(sessionUser.id);
+      print(sect);
+      print(revert);
+      print(intrest);
     }
   }
 

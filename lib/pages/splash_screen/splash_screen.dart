@@ -1,4 +1,3 @@
-import 'package:amplify_api/amplify_api.dart';
 import 'package:flutter/material.dart';
 import 'package:mus_greet/models/UserProfile.dart';
 import 'package:mus_greet/models/Users.dart';

@@ -63,17 +63,17 @@ class _LoginScreenTextFieldState extends State<LoginScreenTextField> {
           ),
           suffixIcon: widget.suffixIcon != null
               ? GestureDetector(
-                  onTap: () {},
-                  child: Padding(
-                    padding:
-                        EdgeInsetsDirectional.only(start: 6, end: 20, top: 5),
-                    child: AssetImageWidget(
-                      image: widget.suffixIcon,
-                      height: 10,
-                      width: 10,
-                    ),
-                  ),
-                )
+            onTap: () {},
+            child: Padding(
+              padding:
+              EdgeInsetsDirectional.only(start: 6, end: 20, top: 5),
+              child: AssetImageWidget(
+                image: widget.suffixIcon,
+                height: 10,
+                width: 10,
+              ),
+            ),
+          )
               : null,
           hintText: widget.hintText,
           hintStyle: TextStyle(

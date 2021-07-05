@@ -19,6 +19,7 @@ import 'package:mus_greet/core/widgets/social_media_button_widget.dart';
 import 'package:mus_greet/models/Users.dart';
 import 'package:mus_greet/pages/login/login_screen.dart';
 import 'package:mus_greet/pages/verify_email_screen/verify_email_screen.dart';
+import 'package:flutter_pw_validator/flutter_pw_validator.dart';
 
 class RegistrationScreen extends StatefulWidget {
   @override
@@ -32,6 +33,17 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _reTypePasswordController = TextEditingController();
   List<Users> users = [];
+  bool _isObscure = true;
+  final _firstnameKey = GlobalKey<FormState>();
+  final _lastnameKey = GlobalKey<FormState>();
+  final _emailKey = GlobalKey<FormState>();
+  final _passwordKey = GlobalKey<FormState>();
+  final _retypepasswordKey = GlobalKey<FormState>();
+  String firstnameValidator;
+  String lastnameValidator;
+  String emailValidator;
+  String passwordValidator;
+  String retypepasswordValidator;
 
   @override
   Widget build(BuildContext context) {
@@ -58,23 +70,61 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
             CustomSpacerWidget(
               height: 15,
             ),
-            _getFirstNameField(),
-            CustomSpacerWidget(
-              height: 15,
+            Container(
+              child: Form(
+                key: _firstnameKey,
+                autovalidateMode: AutovalidateMode.onUserInteraction,
+                child: Column(
+                  children: [
+                    _getFirstNameField(),
+                  ],
+                ),
+              ),
             ),
-            _getLastNameField(),
-            CustomSpacerWidget(
-              height: 15,
+            Container(
+              child: Form(
+                key: _lastnameKey,
+                autovalidateMode: AutovalidateMode.onUserInteraction,
+                child: Column(
+                  children: [
+                    _getLastNameField(),
+                  ],
+                ),
+              ),
             ),
-            _getTextField(),
-            CustomSpacerWidget(
-              height: 15,
+            Container(
+              child: Form(
+                key: _emailKey,
+                autovalidateMode: AutovalidateMode.onUserInteraction,
+                child: Column(
+                  children: [
+                    _getEmailField(),
+                  ],
+                ),
+              ),
             ),
-            _getPasswordField(),
-            CustomSpacerWidget(
-              height: 15,
+            Container(
+              child: Form(
+                key: _passwordKey,
+                autovalidateMode: AutovalidateMode.onUserInteraction,
+                child: Column(
+                  children: [
+                    _getPasswordField(),
+                  ],
+                ),
+              ),
             ),
-            _getReEnterPassword(),
+            Container(
+              child: Form(
+                key: _retypepasswordKey,
+                autovalidateMode: AutovalidateMode.onUserInteraction,
+                child: Column(
+                  children: [
+                    _getReEnterPassword(),
+                  ],
+                ),
+              ),
+            ),
             CustomSpacerWidget(
               height: 5,
             ),
@@ -153,49 +203,406 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   }
 
   _getFirstNameField() {
-    return LoginScreenTextField(
-      leadingIcon: ImageConstants.IC_PROFILE,
-      controller: _firstNameController,
-      hintText: AppTexts.FIRST_NAME,
-      isPasswordField: false,
+    // return LoginScreenTextField(
+    //   leadingIcon: ImageConstants.IC_PROFILE,
+    //   controller: _firstNameController,
+    //   hintText: AppTexts.FIRST_NAME,
+    //   isPasswordField: false,
+    // );
+
+    return Container(
+      child: Column(
+        children: [
+          SizedBox(
+            height: 20,
+          ),
+          Container(
+            child: TextFormField(
+              controller: _firstNameController,
+              keyboardType: TextInputType.emailAddress,
+              validator: (value) {
+                return firstnameValidator;
+              },
+              // validator: MultiValidator(
+              //     [
+              //       RequiredValidator(errorText: 'Email field is required'),
+              //       EmailValidator(errorText: 'Please enter valid email'),
+              //       loginValidator(
+              //           errorText: "Email doesn't exist, please check",
+              //           email: _emailController.text,
+              //           pwd: _passwordController.text,
+              //           fldEmail: true
+              //       ),
+              //     ]
+              // ),
+              decoration: InputDecoration(
+                  border: new OutlineInputBorder(
+                      borderRadius: const BorderRadius.all(
+                        const Radius.circular(12.0),
+                      ),
+                      borderSide:
+                      BorderSide(color: AppColors.green_light, width: 2.0)),
+
+                  //contentPadding: EdgeInsetsDirectional.only(bottom: 7),
+                  contentPadding: new EdgeInsets.symmetric(
+                      vertical: 5.0, horizontal: 10.0),
+
+                  prefixIcon: Padding(
+                    padding: EdgeInsetsDirectional.only(
+                        start: 10, end: 20, top: 0, bottom: 3),
+                    child: AssetImageWidget(
+                      image: ImageConstants.IC_PROFILE,
+                      height: 25,
+                      width: 25,
+                    ),
+                  ),
+
+                  hintText: 'First Name',
+                  hintStyle: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w900,
+                    color: AppColors.light_grey,
+                  )
+              ),
+            ),
+          ),
+        ],
+      ),
+
     );
   }
 
   _getLastNameField() {
-    return LoginScreenTextField(
-      leadingIcon: ImageConstants.IC_PROFILE,
-      controller: _lastNameController,
-      hintText: AppTexts.LAST_NAME,
-      isPasswordField: false,
+    // return LoginScreenTextField(
+    //   leadingIcon: ImageConstants.IC_PROFILE,
+    //   controller: _lastNameController,
+    //   hintText: AppTexts.LAST_NAME,
+    //   isPasswordField: false,
+    // );
+
+    return Container(
+      child: Column(
+        children: [
+          SizedBox(
+            height: 20,
+          ),
+          Container(
+            child: TextFormField(
+              controller: _lastNameController,
+              keyboardType: TextInputType.emailAddress,
+              validator: (value) {
+                return lastnameValidator;
+              },
+              // validator: MultiValidator(
+              //     [
+              //       RequiredValidator(errorText: 'Email field is required'),
+              //       EmailValidator(errorText: 'Please enter valid email'),
+              //       loginValidator(
+              //           errorText: "Email doesn't exist, please check",
+              //           email: _emailController.text,
+              //           pwd: _passwordController.text,
+              //           fldEmail: true
+              //       ),
+              //     ]
+              // ),
+              decoration: InputDecoration(
+                  border: new OutlineInputBorder(
+                      borderRadius: const BorderRadius.all(
+                        const Radius.circular(12.0),
+                      ),
+                      borderSide:
+                      BorderSide(color: AppColors.green_light, width: 2.0)),
+
+                  //contentPadding: EdgeInsetsDirectional.only(bottom: 7),
+                  contentPadding: new EdgeInsets.symmetric(
+                      vertical: 5.0, horizontal: 10.0),
+
+                  prefixIcon: Padding(
+                    padding: EdgeInsetsDirectional.only(
+                        start: 10, end: 20, top: 0, bottom: 3),
+                    child: AssetImageWidget(
+                      image: ImageConstants.IC_PROFILE,
+                      height: 25,
+                      width: 25,
+                    ),
+                  ),
+
+                  hintText: 'Last Name',
+                  hintStyle: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w900,
+                    color: AppColors.light_grey,
+                  )
+              ),
+            ),
+          ),
+        ],
+      ),
+
     );
   }
 
-  _getTextField() {
-    return LoginScreenTextField(
-      leadingIcon: ImageConstants.IC_LOGIN_EMAIL,
-      controller: _emailController,
-      suffixIcon: ImageConstants.IC_VERIFIED,
-      hintText: AppTexts.EMAIL,
-      isPasswordField: false,
+  _getEmailField() {
+    // return LoginScreenTextField(
+    //   leadingIcon: ImageConstants.IC_LOGIN_EMAIL,
+    //   controller: _emailController,
+    //   suffixIcon: ImageConstants.IC_VERIFIED,
+    //   hintText: AppTexts.EMAIL,
+    //   isPasswordField: false,
+    // );
+
+    return Container(
+      child: Column(
+        children: [
+          SizedBox(
+            height: 20,
+          ),
+          Container(
+            child: TextFormField(
+              controller: _emailController,
+              keyboardType: TextInputType.emailAddress,
+              validator: (value) {
+                return emailValidator;
+              },
+              // validator: MultiValidator(
+              //     [
+              //       RequiredValidator(errorText: 'Email field is required'),
+              //       EmailValidator(errorText: 'Please enter valid email'),
+              //       loginValidator(
+              //           errorText: "Email doesn't exist, please check",
+              //           email: _emailController.text,
+              //           pwd: _passwordController.text,
+              //           fldEmail: true
+              //       ),
+              //     ]
+              // ),
+              decoration: InputDecoration(
+                  border: new OutlineInputBorder(
+                      borderRadius: const BorderRadius.all(
+                        const Radius.circular(12.0),
+                      ),
+                      borderSide:
+                      BorderSide(color: AppColors.green_light, width: 2.0)),
+
+                  //contentPadding: EdgeInsetsDirectional.only(bottom: 7),
+                  contentPadding: new EdgeInsets.symmetric(
+                      vertical: 5.0, horizontal: 10.0),
+
+                  prefixIcon: Padding(
+                    padding: EdgeInsetsDirectional.only(
+                        start: 10, end: 20, top: 0, bottom: 3),
+                    child: AssetImageWidget(
+                      image: ImageConstants.IC_LOGIN_EMAIL,
+                      height: 25,
+                      width: 25,
+                    ),
+                  ),
+
+                  hintText: 'Email',
+                  hintStyle: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w900,
+                    color: AppColors.light_grey,
+                  )
+              ),
+            ),
+          ),
+        ],
+      ),
+
     );
   }
 
   _getPasswordField() {
-    return PasswordFieldWidget(
-      leadingIcon: ImageConstants.IC_LOCK,
-      controller: _passwordController,
-      hintText: AppTexts.PASSWORD_TEXT,
-      isPasswordField: true,
+    // return PasswordFieldWidget(
+    //   leadingIcon: ImageConstants.IC_LOCK,
+    //   controller: _passwordController,
+    //   hintText: AppTexts.PASSWORD_TEXT,
+    //   isPasswordField: true,
+    // );
+
+    return Container(
+      child: Column(
+        children: [
+          SizedBox(
+            height: 20,
+          ),
+          Container(
+            child: TextFormField(
+              controller: _passwordController,
+              keyboardType: TextInputType.emailAddress,
+              obscureText: _isObscure,
+              validator: (value) {
+                return passwordValidator;
+              },
+
+              // validator: loginValidator(
+              //     errorText: "Invalid credentials, please try again",
+              //     email: _emailController.text,
+              //     pwd: _passwordController.text,
+              //     fldEmail: false
+              // ),
+              // validator: loginValidator(
+              //   errorText: "Email doesn't exist, please check",
+              //   email: _emailController.text
+              // ),
+              // validator: MultiValidator(
+              //     [
+              //       RequiredValidator(errorText: 'Password field is required'),
+              //       //PasswordV(errorText: 'Please enter valid password')
+              //     ]
+              // ),
+              decoration: InputDecoration(
+                  border: new OutlineInputBorder(
+                      borderRadius: const BorderRadius.all(
+                        const Radius.circular(12.0),
+                      ),
+                      borderSide:
+                      BorderSide(color: AppColors.green_light, width: 2.0)),
+
+                  //contentPadding: EdgeInsetsDirectional.only(bottom: 7),
+                  contentPadding: new EdgeInsets.symmetric(
+                      vertical: 5.0, horizontal: 10.0),
+
+                  prefixIcon: Padding(
+                    padding: EdgeInsetsDirectional.only(
+                        start: 10, end: 20, top: 0, bottom: 3),
+                    child: AssetImageWidget(
+                      image: ImageConstants.IC_LOCK,
+                      height: 20,
+                      width: 20,
+                    ),
+                  ),
+
+                  suffixIcon: true
+                      ? GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        _isObscure = !_isObscure;
+                      });
+                    },
+                    child: Padding(
+                      padding:
+                      EdgeInsetsDirectional.only(start: 6, end: 20, top: 5),
+                      child: AssetImageWidget(
+                        image: _isObscure
+                            ? ImageConstants.IC_INVISIBLE
+                            : ImageConstants.IC_VISIBLE,
+                        height: 10,
+                        width: 10,
+                      ),
+                    ),
+                  )
+                      : Container(
+                    height: 10,
+                    width: 10,
+                  ),
+
+                  hintText: 'Password',
+                  hintStyle: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w900,
+                    color: AppColors.light_grey,
+                  )
+              ),
+            ),
+          ),
+          new SizedBox(
+            height: 5,
+          ),
+          new FlutterPwValidator(
+            controller: _passwordController,
+            minLength: 8,
+            uppercaseCharCount: 1,
+            numericCharCount: 1,
+            specialCharCount: 1,
+            width: 400,
+            height: 140,
+            onSuccess: () {
+              print("Matched");
+              // Scaffold.of(context).showSnackBar(new SnackBar(
+              //     content: new Text("Password is matched")));
+            },
+          ),
+        ],
+      ),
+
     );
   }
 
   _getReEnterPassword() {
-    return PasswordFieldWidget(
-      leadingIcon: ImageConstants.IC_LOCK,
-      controller: _reTypePasswordController,
-      hintText: AppTexts.RE_ENTER_PASSWORD,
-      isPasswordField: true,
-      isSuffix: false,
+    // return PasswordFieldWidget(
+    //   leadingIcon: ImageConstants.IC_LOCK,
+    //   controller: _reTypePasswordController,
+    //   hintText: AppTexts.RE_ENTER_PASSWORD,
+    //   isPasswordField: true,
+    //   isSuffix: false,
+    // );
+
+    return Container(
+      child: Column(
+        children: [
+          SizedBox(
+            height: 20,
+          ),
+          Container(
+            child: TextFormField(
+              controller: _reTypePasswordController,
+              keyboardType: TextInputType.emailAddress,
+              obscureText: true,
+              validator: (value) {
+                return retypepasswordValidator;
+              },
+              // validator: loginValidator(
+              //     errorText: "Invalid credentials, please try again",
+              //     email: _emailController.text,
+              //     pwd: _passwordController.text,
+              //     fldEmail: false
+              // ),
+              // validator: loginValidator(
+              //   errorText: "Email doesn't exist, please check",
+              //   email: _emailController.text
+              // ),
+              // validator: MultiValidator(
+              //     [
+              //       RequiredValidator(errorText: 'Password field is required'),
+              //       //PasswordV(errorText: 'Please enter valid password')
+              //     ]
+              // ),
+              decoration: InputDecoration(
+                  border: new OutlineInputBorder(
+                      borderRadius: const BorderRadius.all(
+                        const Radius.circular(12.0),
+                      ),
+                      borderSide:
+                      BorderSide(color: AppColors.green_light, width: 2.0)),
+
+                  //contentPadding: EdgeInsetsDirectional.only(bottom: 7),
+                  contentPadding: new EdgeInsets.symmetric(
+                      vertical: 5.0, horizontal: 10.0),
+
+                  prefixIcon: Padding(
+                    padding: EdgeInsetsDirectional.only(
+                        start: 10, end: 20, top: 0, bottom: 3),
+                    child: AssetImageWidget(
+                      image: ImageConstants.IC_LOCK,
+                      height: 20,
+                      width: 20,
+                    ),
+                  ),
+
+                  hintText: 'Re-Type Password',
+                  hintStyle: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w900,
+                    color: AppColors.light_grey,
+                  )
+              ),
+            ),
+          ),
+        ],
+      ),
+
     );
   }
 
@@ -391,41 +798,194 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   }
 
   Future<void> _registerUser() async {
+    print('inside registeruser');
+    String firstnameErrorMessage = '';
+    String lastnameErrorMessage = '';
+    String emailErrorMessage = '';
+    String passwordErrorMessage = '';
+    String retypepasswordErrorMessage = '';
+
+
     try {
-      Map<String, String> userAttributes = {
-        'email': _emailController.text,
-        'phone_number': '+447448479715',
-        // additional attributes as needed
-      };
-      SignUpResult res = await Amplify.Auth.signUp(
-          username: _emailController.text,
-          password: _passwordController.text,
-          options: CognitoSignUpOptions(
-              userAttributes: userAttributes
-          )
-      );
+      print(_emailController.text);
+      print(_passwordController.text);
 
-      if (res.isSignUpComplete) {
-      //if (true) {
-        print('User registration successful');
+      users = null;
 
-        //Add user to DB
-        insertUser();
+      _firstnameKey.currentState.reset();
+      _lastnameKey.currentState.reset();
+      _emailKey.currentState.reset();
+      _passwordKey.currentState.reset();
+      _retypepasswordKey.currentState.reset();
 
-        if (users != null) {
-          Navigation.intentWithData(context, AppRoutes.VERIFYEMAIL,RegistrationArgumentClass(users[0]));
+      if (_firstNameController.text.trim().length == 0) {
+        print('firstname empty case');
+        firstnameErrorMessage = "First name field is required";
+
+      } else if (_lastNameController.text.trim().length == 0) {
+        print('lastname empty case');
+        lastnameErrorMessage = "Last name field is required";
+
+      } else if (_emailController.text.trim().length == 0) {
+        print('email empty case');
+        emailErrorMessage = "Email field is required";
+
+      // } else if (_passwordController.text.trim().length == 0) {
+      //   print('password empty case');
+      //   passwordErrorMessage = "Password field is required";
+
+      } else { //other checks
+        //bool emailValid = RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+").hasMatch(_emailController.text.trim());
+        bool emailValid = RegExp(
+            r'^.+@[a-zA-Z]+\.{1}[a-zA-Z]+(\.{0,1}[a-zA-Z]+)$').hasMatch(
+            _emailController.text.trim());
+        print('email check case');
+        print(emailValid);
+        if (!emailValid) {
+          //invalid email case
+          emailErrorMessage = "Please provide valid email";
+
+        } else if (_passwordController.text.trim().length == 0) {
+            print('password empty case');
+            passwordErrorMessage = "Password field is required";
+
+        } else if (_passwordController.text.trim() !=
+            _reTypePasswordController.text.trim()) {
+          //password and retype password do not match case
+          retypepasswordErrorMessage = "Password and re-type password do not match";
+
+        } else {
+          //email already exist
+          //valid password
+
+          users = await Amplify.DataStore.query(
+              Users.classType,
+              where: Users.EMAIL.eq(_emailController.text.trim()));
+          await Future.delayed(Duration(seconds: 1));
+
+          print('after querying db');
+
+          print(users);
+
+          if (users != null) {
+            if (users.length > 0) {
+              //user already exists case
+              emailErrorMessage = "Email already exists";
+            } else {
+              //all validations succeeded
+              print('length zero case');
+
+              //signing up user in Cognito
+              Map<String, String> userAttributes = {
+                'email': _emailController.text.trim(),
+                'phone_number': '+447448479715',
+                // additional attributes as needed
+              };
+
+              SignUpResult res = await Amplify.Auth.signUp(
+                  username: _emailController.text.trim(),
+                  password: _passwordController.text.trim(),
+                  options: CognitoSignUpOptions(
+                      userAttributes: userAttributes
+                  )
+              );
+
+              if (res.isSignUpComplete) {
+                print('User registration successful');
+                //Add user to DB
+                insertUser();
+
+                if (users != null) {
+                  Navigation.intentWithData(context, AppRoutes.VERIFYEMAIL,RegistrationArgumentClass(users[0]));
+                  return;
+                }
+              }
+            }
+          } else {
+            //all validations succeeded
+            print('null case');
+            //Add user to DB
+            insertUser();
+
+            if (users != null) {
+              Navigation.intentWithData(context, AppRoutes.VERIFYEMAIL,RegistrationArgumentClass(users[0]));
+              return;
+            }
+          }
         }
       }
-      else {
-        print('User registration failed');
+      print('before checking email error msg length');
+
+
+      if (firstnameErrorMessage.length > 0) {
+        setState(() {
+          firstnameValidator = firstnameErrorMessage;
+        });
+
+        if (_firstnameKey.currentState.validate()) {}
       }
-      // setState(() {
-      //   //isSignUpComplete = res.isSignUpComplete;
-      // }
-      //);
-    } on AuthException catch (e) {
+      if (lastnameErrorMessage.length > 0) {
+        setState(() {
+          lastnameValidator = lastnameErrorMessage;
+        });
+
+        if (_lastnameKey.currentState.validate()) {}
+      }
+      if (emailErrorMessage.length > 0) {
+        setState(() {
+          emailValidator = emailErrorMessage;
+        });
+
+        if (_emailKey.currentState.validate()) {}
+      }
+      if (passwordErrorMessage.length > 0) {
+        print(_passwordController.text.trim().length);
+        setState(() {
+          print(passwordErrorMessage);
+          passwordValidator = passwordErrorMessage;
+        });
+
+        if (_passwordKey.currentState.validate()) {}
+      }
+      if (retypepasswordErrorMessage.length > 0) {
+        setState(() {
+          retypepasswordValidator = retypepasswordErrorMessage;
+        });
+
+        if (_retypepasswordKey.currentState.validate()) {}
+      }
+
+    } catch (e) {
+      print("Error in _registerUser function");
       print(e.message);
     }
+
+
+
+    // try {
+    //
+    //
+    //   //if (res.isSignUpComplete) {
+    //   if (true) {
+    //     print('User registration successful');
+    //
+    //     //Add user to DB
+    //     insertUser();
+    //
+    //     if (users != null) {
+    //       Navigation.intentWithData(context, AppRoutes.VERIFYEMAIL,RegistrationArgumentClass(users[0]));
+    //     }
+    //   }
+    //   else {
+    //     print('User registration failed');
+    //   }
+    //   // setState(() {
+    //   //   //isSignUpComplete = res.isSignUpComplete;
+    //   // }
+    //   //);
+    // } catch (e) {
+    //   print(e.message);
+    // }
 
   }
 
@@ -436,6 +996,11 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
         last_name: _lastNameController.text,
         email: _emailController.text,
         password: _passwordController.text,
+        email_verification: false,
+        phone_verification: false,
+        parent_verification: false,
+        address_verification: false,
+        photo_verification: false,
         // phone: "",
         // age: "25",
         // gender: "male",

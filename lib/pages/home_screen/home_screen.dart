@@ -16,6 +16,7 @@ import 'package:mus_greet/core/widgets/post_card_widget.dart';
 import 'package:mus_greet/core/widgets/send_request_dialog_widget.dart';
 import 'package:mus_greet/core/widgets/upload_image_bottom_sheet_widget.dart';
 import 'package:mus_greet/models/ModelProvider.dart';
+import 'package:mus_greet/pages/final/community_promise_page.dart';
 import 'package:mus_greet/pages/home_screen/comment_screen/comment_screen.dart';
 import 'package:amplify_storage_s3/amplify_storage_s3.dart';
 
@@ -36,10 +37,17 @@ class _HomeScreenState extends State<HomeScreen> {
   Users UserObject;
   //int   CommentsCount = 0;
   int  LikesCount = 0;
-  @override
 
+  CommunityPromiseArgumentClass args;
+  Users sessionUser;
+
+  @override
   /// Future builder to get list of posts
   Widget build(BuildContext context) {
+    print('Inside Home Build');
+    args = ModalRoute.of(context).settings.arguments as CommunityPromiseArgumentClass;
+    sessionUser = args.sessionUser;
+    print(sessionUser);
     print("Hello welcome to home screen build");
     //queryPosts();
     print("after Timer");

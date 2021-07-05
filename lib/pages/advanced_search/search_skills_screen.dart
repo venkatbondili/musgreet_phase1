@@ -11,7 +11,7 @@ import 'package:mus_greet/core/widgets/drop_down_text_field.dart';
 import 'package:mus_greet/models/ModelProvider.dart';
 import 'package:mus_greet/pages/add_skills_screen/add_skills_screen.dart';
 import 'package:mus_greet/pages/languages_screen/select_languages.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+//import 'package:shared_preferences/shared_preferences.dart';
 
 class SearchSkillsScreen extends StatefulWidget {
   @override

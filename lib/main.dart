@@ -1,9 +1,28 @@
 // Amplify Flutter Packages
 
 import 'dart:io';
+import 'package:flutter_session/flutter_session.dart';
+import 'package:mus_greet/pages/address-verification/address_verification_view.dart';
+import 'package:mus_greet/pages/address-verification/confirm_address_2_view.dart';
+import 'package:mus_greet/pages/address-verification/confirm_address_view.dart';
+import 'package:mus_greet/pages/address-verification/confirm_address_otp_screen.dart';
+import 'package:mus_greet/pages/age/age_registration_page.dart';
+import 'package:mus_greet/pages/final/account_verification_success.dart';
+import 'package:mus_greet/pages/final/community_promise_page.dart';
+import 'package:mus_greet/pages/final/final_step_page.dart';
+import 'package:mus_greet/pages/final/nearly_finished_page.dart';
+import 'package:mus_greet/pages/login/login_screen.dart';
+import 'package:mus_greet/pages/otp/components/parent_email_verification_view.dart';
+import 'package:mus_greet/pages/otp/components/phone_otp_view.dart';
+import 'package:mus_greet/pages/otp/components/phone_verification_view.dart';
+import 'package:mus_greet/pages/otp/phone_verification_screen.dart';
+import 'package:mus_greet/pages/parent/parent_verification.dart';
+import 'package:mus_greet/pages/registration/registration_screen.dart';
+import 'package:mus_greet/pages/smile/time_to_smile_page.dart';
+import 'package:mus_greet/pages/verify_email_screen/verify_email_screen.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:amplify_flutter/amplify.dart';
-import 'package:amplify_api/amplify_api.dart'; // UNCOMMENT this line once backend is deployed
+//import 'package:amplify_api/amplify_api.dart'; // UNCOMMENT this line once backend is deployed
 import 'package:amplify_datastore/amplify_datastore.dart';
 import 'package:amplify_auth_cognito/amplify_auth_cognito.dart';
 import 'package:amplify_storage_s3/amplify_storage_s3.dart';
@@ -46,6 +65,20 @@ class MyApp extends StatefulWidget {
   _MyAppState createState() => _MyAppState();
 }
 
+class Data {
+  final int id;
+  final String data;
+
+  Data({this.data, this.id});
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = Map<String, dynamic>();
+    data["id"] = id;
+    data["data"] = this.data;
+    return data;
+  }
+}
+
 ///This is the root of our widget tree
 class _MyAppState extends State<MyApp> {
   bool _amplifyConfigured = false;
@@ -53,30 +86,35 @@ class _MyAppState extends State<MyApp> {
   @override
   initState() {
     super.initState();
-    //_configureAmplify();
+    _configureAmplify();
   }
 
   void _configureAmplify() async {
-
-    Amplify.addPlugin(AmplifyAuthCognito());
-
-    Amplify.addPlugin(AmplifyAPI()); // UNCOMMENT this line once backend is deployed
-    Amplify.addPlugin(AmplifyDataStore(modelProvider: ModelProvider.instance));
-    Amplify.addPlugin(AmplifyStorageS3());
-
-    // Once Plugins are added, configure Amplify
-    await Amplify.configure(amplifyconfig);
     try {
-      setState(() {
-        print('Plugins configured successfully!');
-        _amplifyConfigured = true;
-      });
+
+      if (_amplifyConfigured == false) {
+        Amplify.addPlugin(AmplifyAuthCognito());
+
+        //Amplify.addPlugin(AmplifyAPI()); // UNCOMMENT this line once backend is deployed
+        Amplify.addPlugin(AmplifyDataStore(modelProvider: ModelProvider.instance));
+        Amplify.addPlugin(AmplifyStorageS3());
+
+        // Once Plugins are added, configure Amplify
+        await Amplify.configure(amplifyconfig);
+
+        setState(() {
+          print('Plugins configured successfully!');
+          _amplifyConfigured = true;
+
+          //Amplify.DataStore.clear();
+        });
+      }
 
       //insertUsers();
       //listUsers();
       //createPosts();
      //queryPosts();
-      uploadFile();
+      //uploadFile();
 
     } catch (e) {
       print('Error in amplify configure');
@@ -84,14 +122,21 @@ class _MyAppState extends State<MyApp> {
     }
   }
 
+  Future<void> setSession() async {
+    var session = FlutterSession();
+    Data myData = Data(data: "Lorem ipsum, something, something...", id: 1);
+  }
+
   @override
   Widget build(BuildContext context) {
+    //setSession();
     return MaterialApp(
       title: Constants.APP_NAME,
       locale: Locale("en"),
       debugShowCheckedModeBanner: false,
       //home: MyDB(),
-      initialRoute: AppRoutes.SPLASH,
+      //initialRoute: AppRoutes.SPLASH,
+      initialRoute: AppRoutes.REGISTER,
       routes: _registerRoutes(),
     );
   }
@@ -118,8 +163,23 @@ class _MyAppState extends State<MyApp> {
       AppRoutes.LANGUAGES_SCREEN:(context) => LanguagesScreen(),
       AppRoutes.ADD_SKILLS_IMAGES :(context) => AddSkillsImagesScreen(),
       AppRoutes.FRIEND_SEARCH :(context) => FriendSearch(),
-
-
+      AppRoutes.REGISTER :(context) => RegistrationScreen(),
+      AppRoutes.VERIFYEMAIL :(context) => VerifyEmailScreen(),
+      AppRoutes.PHONEINPUT :(context) => PhoneVerificationView(),
+      AppRoutes.VERIFYPHONE :(context) => PhoneOtpView(),
+      AppRoutes.AGEREGISTER :(context) => AgeRegistrationPage(),
+      AppRoutes.PARENTEMAIL :(context) => ParentVerificationPage(),
+      AppRoutes.VERIFYADDRESS :(context) => AddressVerificationView(),
+      AppRoutes.PARENTVERIFYEMAIL :(context) => ParentEmailVerificationView(),
+      AppRoutes.NEARLYFINISHED :(context) => NearlyFinishedPage(),
+      AppRoutes.TIMETOSMILE :(context) => TimeToSmilePage(),
+      AppRoutes.FINALSTEP :(context) => FinalStepPage(),
+      AppRoutes.ACCOUNTSUCCESS :(context) => AccountVerificationSuccessPage(),
+      AppRoutes.COMMUNITYPROMISE :(context) => CommunityPromisePage(),
+      AppRoutes.MANUALADDRESS1 :(context) => ConfirmAddressView(),
+      AppRoutes.MANUALADDRESS2 :(context) => ConfirmAddress2View(),
+      AppRoutes.MANUALADDRESSOTP :(context) => VerifyAddressOTPScreen(),
+      AppRoutes.LOGIN :(context) => LoginScreen(),
     };
   }
 }
@@ -148,13 +208,15 @@ class _MyDBState extends State<MyDB> {
   Widget build(BuildContext context) {
     // TODO: implement build
     print("Hello welcome");
+    //testRelationalAPISync();
     //insertUsers();
     //listUsers();
     //uploadFile();
     //updateUsers();
     //createPosts();
     //queryPosts();
-    throw UnimplementedError();
+    //throw UnimplementedError();
+    return Container();
   }
 }
 
@@ -242,13 +304,16 @@ Future<void> insertUsers() async {
 
 Future<void> listUsers() async{
   try {
+    print('In list users');
     List<Users> Userss = await Amplify.DataStore.query(Users.classType);
+    await Future.delayed(Duration(seconds: 2));
+    print(Userss.length);
     print(Userss);
-    print(Userss[0]);
-    print(Userss[0].first_name);
+    //print(Userss[0]);
+    //print(Userss[0].first_name);
     //print(Userss.first);
     //print(Userss.length);
-    print(Userss[0].first_name);
+    //print(Userss[0].first_name);
 
   } catch (e) {
     print("Could not query DataStore: " + e);
@@ -275,4 +340,34 @@ Future<void> queryPosts() async{
   } catch (e) {
     print("Could not query DataStore: " + e);
   }
+}
+
+Future<void> testRelationalAPISync() async {
+  try {
+    print('inside testRelationalAPISync');
+    final userProfileData = UserProfile(
+      //languages_spoken: "" ,
+        sect: 'shia',
+        are_you_revert: false,
+        islam_interest: false);
+
+    final newUser = Users(
+        first_name: "Sally",
+        last_name: "Robert",
+        email: "sallyr@gmail.com",
+        password: "sally@123",
+        User_Profiles: [userProfileData]);
+
+    print('before db update');
+    await Amplify.DataStore.save(newUser);
+    await Future.delayed(Duration(seconds: 2));
+    print('after db update');
+
+
+  } catch (e) {
+    print('error in testRelationalAPISync method');
+    print(e);
+  }
+
+
 }

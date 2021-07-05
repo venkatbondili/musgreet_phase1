@@ -27,6 +27,7 @@ class _AddressVerificationViewState extends State<AddressVerificationView> {
   @override
   Widget build(BuildContext context) {
     print('inside address build');
+    SizeConfig().init(context);
     args = ModalRoute.of(context).settings.arguments as AgeRegistrationArgumentClass;
     sessionUser = args.sessionUser;
     print(sessionUser);

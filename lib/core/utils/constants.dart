@@ -289,14 +289,15 @@ class AppTexts {
   static const Map<String,String> SPORTS_EXERCISE_CATEGORIES = const {
     "Archery" : "assets/images/archery.png",
     "Badminton" :"assets/images/badminton.png",
-    "Basketball" :"assets/images/basketball",
-    "Boxing" :"assets/images/boxing",
+    "Basketball" :"assets/images/basketball.png",
+    "Boxing" :"assets/images/boxing.png",
+
     "Cricket" :"assets/images/cricket.png",
     "Cycling" :"assets/images/cycling.png",
     "Football" :"assets/images/football.png",
     "Hockey" : "assets/images/hockey.png",
     "Horse Riding" :"assets/images/horse_riding.png",
-    "Martial Arts/MMA" : "assets/images/martail_arts.png",
+    "Martial Arts/MMA" : "assets/images/martial_arts.png",
     "Pilates/Yoga" : "assets/images/pilates_yoga.png",
     "Running/Athletics" :"assets/images/running_athletics.png",
     "Swimming" :"assets/images/swimming.png",
@@ -307,7 +308,7 @@ class AppTexts {
 
   static const Map<String,String> FAMILY_OUTDOORS_CATEGORIES = const {
     "Camping" : "assets/images/camping.png",
-    "Gardening" : "assets/images/gardening",
+    "Gardening" : "assets/images/gardening.png",
     "Horse Riding" : "assets/images/horse_riding.png",
     "Museums" : "assets/images/museums.png",
     "Park/PlayGrounds" : "assets/images/parks_playgrounds.png",
@@ -332,11 +333,11 @@ class AppTexts {
   static const Map<String,String> COMMUNITY_INVOLVEMENT_CATEGORIES = const {
     "Coaching" : "assets/images/coaching.png",
     "Collecting For Donations" : "assets/images/collecting_for_donations_e_g_school_supplies_food_items_hygiene_products.png",
-    "Kids & Youth Development" : "assets/images/youth_development",
+    "Kids & Youth Development" : "assets/images/youth_development.png",
     "Mentoring" : "assets/images/mentoring.png",
     "Making/Sending Handmade Gifts" : "assets/images/making_or_sending_handmade_gifts_e_g_for_hospitals_care_homes_family_shelters_etc.png",
-    "Teaching" : "assets/images/teaching_e_g_it_for_adults_cpr_etc",
-    "Participating In Local Park Clean Up" : "assets/images/participating_in_local_park_clean_up",
+    "Teaching" : "assets/images/teaching_e_g_it_for_adults_cpr_etc.png",
+    "Participating In Local Park Clean Up" : "assets/images/participating_in_local_park_clean_up.png",
   };
 
   static const Map<String,String> RELIGIONS_INTEREST_CATEGORIES = const{

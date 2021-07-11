@@ -74,7 +74,7 @@ class _PostTabState extends State<PostTab> {
               //Navigation.intent(context, AppRoutes.CREATE_POST_SCREEN);
             },//=> widget.callBack(),
             child: Container(
-              padding: EdgeInsets.only(left: 15,right: 15,top: 8,bottom: 8),
+              padding: EdgeInsets.only(left: 2,right: 0,top: 8,bottom: 8),
               decoration: BoxDecoration(
                   border: Border.all(color: AppColors.background_color),
                   borderRadius: BorderRadius.circular(30)

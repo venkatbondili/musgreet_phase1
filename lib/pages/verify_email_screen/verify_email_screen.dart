@@ -2,6 +2,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:amplify_auth_cognito/amplify_auth_cognito.dart';
 import 'package:amplify_flutter/amplify.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -176,7 +177,7 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
 
   _getOTPField() {
     return Container(
-      padding: EdgeInsets.only(left: 40, right: 40),
+      padding: EdgeInsets.only(left: 15, right: 15),
       child: OTPFieldWidget(
         callBack: () {},
         controller: _codeController,
@@ -232,24 +233,26 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
     print('In verify function : ${_codeController.text}');
     print(_codeController.text);
     try {
-    //  SignUpResult res = await Amplify.Auth.confirmSignUp(
-      //  username: email,
-        //confirmationCode: _codeController.text,
-      //);
+     SignUpResult res = await Amplify.Auth.confirmSignUp(
+       username: email,
+       confirmationCode: _codeController.text,
+      );
 
-      String emailCode = '123456';
+     if (res.isSignUpComplete) {
+       //String emailCode = '123456';
 
-      if (_codeController.text == emailCode) {
-        print('Email code verification successful');
-        updateEmailUser();
+       //if (_codeController.text == emailCode) {
+         print('Email code verification successful');
+         updateEmailUser();
          //Navigator.of(context)
-           //  .push(MaterialPageRoute(builder: (context) => OtpSuccessScreen()));
-       // builder:(BuildContext context) =>_buildContent(context);
-        _showDialog();
-      }
-       else {
-           _showDialogFailed();
-         }
+         //  .push(MaterialPageRoute(builder: (context) => OtpSuccessScreen()));
+         // builder:(BuildContext context) =>_buildContent(context);
+         _showDialog();
+       //}
+     }
+    else {
+    _showDialogFailed();
+    }
       // setState(() {
       //   //isSignUpComplete = res.isSignUpComplete;
       // }

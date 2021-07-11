@@ -157,7 +157,7 @@ class _PhoneVerificationViewState extends State<PhoneVerificationView> {
                       Text("+44 745 825 9546",
                           style: TextStyle(
                             fontFamily: 'Avenir',
-                            color: Color(0xff1d1d1d),
+                            color: AppColors.GREY_KIND,
                             fontSize: 16,
                             fontWeight: FontWeight.w900,
                             fontStyle: FontStyle.normal,

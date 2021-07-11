@@ -214,7 +214,7 @@ class _MosquesDetailsScreenState extends State<MosquesDetailsScreen>
               children: [
                 _getMosqueDetails(),
                 CustomSpacerWidget(
-                  width: 5,
+                  width: 2,
                 ),
                 Flexible(
                   child: status?_getUnFollowButton():_getFollowButton(),
@@ -307,7 +307,7 @@ class _MosquesDetailsScreenState extends State<MosquesDetailsScreen>
   }
   _getUnFollowButton() {
     return MosqueFollowButton(
-      radius: 30,
+      radius: 20,
       callBack: () {
         print("Handle CallBack");
         deleteMosqueFollower();

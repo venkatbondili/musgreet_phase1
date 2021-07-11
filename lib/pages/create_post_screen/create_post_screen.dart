@@ -19,7 +19,7 @@ import 'package:mus_greet/core/widgets/s3_bucket_image_widget.dart';
 import 'package:mus_greet/models/ModelProvider.dart';
 import 'package:mus_greet/pages/home_screen/home_screen.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:form_field_validator/form_field_validator.dart';
+//import 'package:form_field_validator/form_field_validator.dart';
 
 
 
@@ -78,16 +78,16 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
         //print(filepath.split('/').last);
         //uploadFile(_image, filepath);
         print("calling upload file");
-        uploadFile(_image, filepath).then((result) {
-          setState(() {
-            if (result is String)
-              S3ImageURL = result.toString(); //use toString to convert as String
-          });
-        });
-        print("After upload function");
-        print("S3 URL");
-        print(S3ImageURL);
-        print("After S3");
+        // uploadFile(_image, filepath).then((result) {
+        //   setState(() {
+        //     if (result is String)
+        //       S3ImageURL = result.toString(); //use toString to convert as String
+        //   });
+        // });
+        // print("After upload function");
+        // print("S3 URL");
+        // print(S3ImageURL);
+        // print("After S3");
         //uploadFile(filepath);
       } else {
         filepath = 'assets/images/google.png';
@@ -137,7 +137,14 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
             CustomSpacerWidget(
               height: 30,
             ),
+            Image.asset(
+              filepath,
+            ),
+            _image == null? Container() : Image.file(_image, height: 300.0, width: 300.0,),
             //_getPrivacyOfUser(),
+            CustomSpacerWidget(
+              height: 30,
+            ),
             _getPostVisibilityDropDown(),
             CustomSpacerWidget(
               height: 80,
@@ -429,7 +436,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
   }
 
 
-/// Method to upload image file to S3 bucket
+  /// Method to upload image file to S3 bucket
   Future<String> uploadFile(File _image, String filepath) async {
     try {
       final fileName = filepath.split('/').last;
@@ -468,7 +475,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
       throw e;
     }
   }
-/// Method to get Image URL of the file
+  /// Method to get Image URL of the file
   Future<String> getUrlForFile(String fileKey) async {
     try {
       final result = await Amplify.Storage.getUrl(key: fileKey);
@@ -488,36 +495,49 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
 
   _SavePosts() {
     print("inside save ");
+
+    uploadFile(_image, filepath).then((result) {
+      print(result);
+      print("After upload function");
+      print("S3 URL");
+      print(S3ImageURL);
+      print("After S3");
+      // setState(() {
+      //   if (result is String)
+      //     S3ImageURL = result.toString(); //use toString to convert as String
+      // });
+    });
     print(postVisibility);
     print(_thoughtsController.text);
-    print(S3ImageURL.split('?')[0]);
+    //print(S3ImageURL.split('?')[0]);
     //print(S3ImageURL.toString());
-    _thoughtsController.clear();
-    print(postVisibility);
+    //_thoughtsController.clear();
+    //print(postVisibility);
 
   }
-/// This Method is to save post in Database
+  /// This Method is to save post in Database
   Future<void> _SavePost() async{
     print(_thoughtsController.text);
     print(S3ImageURL);
     print(postVisibility);
     print("inside Save Posts");
     try {
-    final item = Posts(
-        post: _thoughtsController.text,
-        post_image_path: S3ImageURL.split('?')[0],
-        description: "Keep Smiling",
-        visibility: postVisibility,
-        usersID: widget.sessionUser.id,
-        //usersID: UserObject.ID,
-        //usersID: "49e213cb-2849-4164-b5c6-4e6ab971c4c7",
-        mosquesID: "",
-        Post_Comments: [],
-        Post_Likes: []);
-    await Amplify.DataStore.save(item);
-    print("saved post Successfully by sindhuja");
-    _thoughtsController.clear();
-    _navigateToHome();
+      final item = Posts(
+          post: _thoughtsController.text,
+          //post_image_path: S3ImageURL.split('?')[0],
+          post_image_path: "https://musgreetphase1images184452-staging.s3.eu-west-2.amazonaws.com/public/post_img_2.png",
+          description: "Keep Smiling",
+          visibility: postVisibility,
+          usersID: widget.sessionUser.id,
+          //usersID: UserObject.ID,
+          //usersID: "49e213cb-2849-4164-b5c6-4e6ab971c4c7",
+          mosquesID: "",
+          Post_Comments: [],
+          Post_Likes: []);
+      await Amplify.DataStore.save(item);
+      print("saved post Successfully by sindhuja");
+      _thoughtsController.clear();
+      _navigateToHome();
     } catch (e) {
       print("Could not query DataStore: " + e);
     }
@@ -556,11 +576,11 @@ class _TextFieldWidgetState extends State<CreatePostTextFieldWidget> {
           controller: widget.controller,
           maxLines: null,
           expands: true,
-          validator: MultiValidator(
-          [
-            RequiredValidator(errorText: 'Bio field is required'),
-          ]
-           ),
+          // validator: MultiValidator(
+          //     [
+          //       RequiredValidator(errorText: 'Bio field is required'),
+          //     ]
+          // ),
           style: TextStyle(
             fontWeight: FontWeight.w900,
             fontFamily: FontConstants.FONT,

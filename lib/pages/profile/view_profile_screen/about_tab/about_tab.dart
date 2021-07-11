@@ -73,7 +73,8 @@ class _AboutTabState extends State<AboutTab> {
   @override
   Widget build(BuildContext context) {
     //userList();
-
+print('inside about build');
+print(widget.sessionUser);
     // args=ModelRoute.of(context).settings.arguments as ViewProfileScreen;
     // sessionUser=args.sessionUser;
     // userid=sessionUser.id;
@@ -83,6 +84,8 @@ class _AboutTabState extends State<AboutTab> {
         switch (snapshot.connectionState) {
           case ConnectionState.done:
             userProfile = snapshot.data;
+            print('main build');
+            print(userProfile);
             return buildFamilyList(userProfile);
           default:
             return _buildLoadingScreen();
@@ -102,6 +105,8 @@ class _AboutTabState extends State<AboutTab> {
         switch (snapshot.connectionState) {
           case ConnectionState.done:
             userFamily = snapshot.data;
+            print('user family');
+            print(userFamily);
             return buildEducation(userFamily,widget.sessionUser);
           default:
             return _buildLoadingScreen();
@@ -122,6 +127,8 @@ class _AboutTabState extends State<AboutTab> {
         switch (snapshot.connectionState) {
           case ConnectionState.done:
             userEducation = snapshot.data;
+            print('education');
+            print(userEducation);
             return buildAbout(userFamily,user,userEducation);
           default:
             return _buildLoadingScreen();
@@ -138,9 +145,10 @@ class _AboutTabState extends State<AboutTab> {
     getUserFamily();
     gettingLanguages(userProfile);
     print("after getting the languages");
-    if(userFamily.isNotEmpty && userEducation.isNotEmpty){
-      status = true;
-    }//
+    // if(userFamily.isNotEmpty && userEducation.isNotEmpty){
+    //   status = true;
+    // }//
+    status = true;
     return status ? Container(
       width: MediaQuery.of(context).size.width,
       margin: EdgeInsets.only(top: 4),
@@ -325,7 +333,7 @@ class _AboutTabState extends State<AboutTab> {
   _getBioDetails()
   {
     if(userProfile[0].bio == "" || userProfile[0].bio == null){
-      //bio = "Add your bio here";
+      bio = "Add your bio here";
     }else{
       bio=userProfile[0].bio;
     }
@@ -457,6 +465,7 @@ class _AboutTabState extends State<AboutTab> {
 
     _getEducationList();
     print("inside the user education");
+
     print(userEducationUsers.length);
     print("length of the education");
       if(userEducationUsers.isEmpty) {
@@ -468,56 +477,133 @@ class _AboutTabState extends State<AboutTab> {
           educationValue=false;
         }
 
-    return Container(
-      padding: EdgeInsets.only(top: 10, bottom: 10),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(15),
-        color: AppColors.comment_wall_color,
-        //color:AppColors.Grey_Light,
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: <Widget>[
-          _getEducationDetails(),
-             Column(
-               children: <Widget>[
-                 //mainAxisAlignment: MainAxisAlignment.start,
-                 new ListView.builder(
-                   shrinkWrap: true,
-                   scrollDirection: Axis.vertical,
-                   itemCount: userEducationUsers.length,
-                   itemBuilder:(context ,index)
-                   {
-                     return  _getEducationInfo(
-                              institution: userEducationUsers[index].institution,
-                              dept: userEducationUsers[index].course,
-                              years: userEducationUsers[index].from + "," + userEducationUsers[index].to,
-                              //editIcon: true,
-                              number:index,
-                            );
-                   }
-                 )
+    // return userEducationUsers.length ==0? Container(
+        //   padding: EdgeInsets.only(top: 10, bottom: 10),
+        //   decoration: BoxDecoration(
+        //     borderRadius: BorderRadius.circular(15),
+        //     color: AppColors.comment_wall_color,
+        //     //color:AppColors.Grey_Light,
+        //   ),
+        //   child: Column(
+        //     mainAxisAlignment: MainAxisAlignment.start,
+        //     children: <Widget>[
+        //       _getEducationDetails(),
+        //       //userEducationUsers == [] ? Container() :
+        //       Column(
+        //           children: <Widget>[
+        //             //mainAxisAlignment: MainAxisAlignment.start,
+        //             new ListView.builder(
+        //                 shrinkWrap: true,
+        //                 scrollDirection: Axis.vertical,
+        //                 itemCount: 1,
+        //                 itemBuilder: (context, index) {
+        //                   return _getEducationInfo(
+        //                     institution: "Add Education here",
+        //                    dept: "",
+        //                     years: "",
+        //                     editIcon: true,
+        //                     //number: index,
+        //                   );
+        //                   //return getDefaultEducation();
+        //                 }
+        //             )
+        //           ]
+        //       ),
+        //       educationValue ? _getEditDetailsForEducation(
+        //           callBack: () {
+        //             //_navigateToEditEducationScreen(
+        //             //route: AppRoutes.ADD_EDUCATION,
+        //             Navigator.of(context)
+        //                 .push(new MaterialPageRoute(builder: (_) =>
+        //                 AddEducationScreen(sessionUser: widget.sessionUser)),)
+        //                 .then((value) => value ? build(context) : null);
+        //           }
+        //       )
+        //           : Container(),
+        //     ],
+        //
+        //   ),
+        //
+        // ):    //
+       return Container(
+        padding: EdgeInsets.only(top: 10, bottom: 10),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(15),
+          color: AppColors.comment_wall_color,
+          //color:AppColors.Grey_Light,
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: <Widget>[
+            _getEducationDetails(),
+          //userEducationUsers == [] ? Container() :
+          Column(
+                children: <Widget>[
+                  //mainAxisAlignment: MainAxisAlignment.start,
+                  new ListView.builder(
+                      shrinkWrap: true,
+                      scrollDirection: Axis.vertical,
+                      itemCount: userEducationUsers.length,
+                      itemBuilder: (context, index) {
+                        return _getEducationInfo(
+                          institution: userEducationUsers[index].institution,
+                          dept: userEducationUsers[index].course,
+                          years: userEducationUsers[index].from + "," +
+                              userEducationUsers[index].to,
+                          //editIcon: true,
+                          number: index,
+                        );
+                      }
+                  )
                 ]
-             ),
-             educationValue?_getEditDetailsForEducation(
-                 callBack: (){
-                   //_navigateToEditEducationScreen(
-                   //route: AppRoutes.ADD_EDUCATION,
-                   Navigator.of(context).push(new MaterialPageRoute(builder: (_)=> AddEducationScreen(sessionUser:widget.sessionUser)),).then((value) => value?build(context):null);
-                 }
-             )
-                 : Container(),
-        ],
+            ),
+            educationValue ? _getEditDetailsForEducation(
+                callBack: () {
+                  //_navigateToEditEducationScreen(
+                  //route: AppRoutes.ADD_EDUCATION,
+                  Navigator.of(context)
+                      .push(new MaterialPageRoute(builder: (_) =>
+                      AddEducationScreen(sessionUser: widget.sessionUser)),)
+                      .then((value) => value ? build(context) : null);
+                }
+            )
+                : Container(),
+          ],
 
-      ),
+        ),
 
-    );
+      );
+
   }
 
-  getPrint()
+  getDefaultEducation()
   {
-    print("no user education");
+    return Row(
+      children:
+      [
+      _getEducationInfo(
+      institution: "Add Education here",
+      dept: "",
+      years: "",
+      editIcon: true,
+      //number: index,
+       ),
+        educationValue ? _getEditDetailsForEducation(
+            callBack: () {
+              //_navigateToEditEducationScreen(
+              //route: AppRoutes.ADD_EDUCATION,
+              Navigator.of(context)
+                  .push(new MaterialPageRoute(builder: (_) =>
+                  AddEducationScreen(sessionUser: widget.sessionUser)),)
+                  .then((value) => value ? build(context) : null);
+            }
+        )
+            : Container(),
+      ]
+    );
+
   }
+
   _getEducationList()
   { print("get educationlist");
   userEducationUsers.clear();
@@ -536,6 +622,7 @@ class _AboutTabState extends State<AboutTab> {
 
   _getEducationInfo(
       {String institution, String dept, String years, bool editIcon = false, int number}) {
+
     return Container(
       alignment: Alignment.centerLeft,
       padding: EdgeInsets.only(left: 25, right: 25, top: 8, bottom: 8),
@@ -731,6 +818,9 @@ class _AboutTabState extends State<AboutTab> {
                   ),
                 ),
               ),
+              // SizedBox(
+              //   width:4,
+              // ),
               _isContactInfoExpanded
                   ? Padding(
                 padding: EdgeInsets.only(right:22, top: 15),
@@ -756,7 +846,8 @@ class _AboutTabState extends State<AboutTab> {
     String details,
   }) {
      return Container(
-      padding: EdgeInsets.only(left: 10, right: 0, top: 8, bottom: 8),
+
+      padding: EdgeInsets.only(left: 25, right: 25, top: 8, bottom: 8),
       width: MediaQuery.of(context).size.width -104,
       child: Flexible(
         child: Column(
@@ -911,7 +1002,7 @@ class _AboutTabState extends State<AboutTab> {
                             language?
                             _getContactInfoData(
                                 contactType: AppTexts.LANGUAGE_SPOKEN,
-                                details: listOfLanguages.join('.')) :
+                                details: listOfLanguages.join(', ')) :
                             _getContactInfoData(
                                 contactType: AppTexts.LANGUAGE_SPOKEN,
                                 details: "Add the Languages"),
@@ -961,11 +1052,15 @@ class _AboutTabState extends State<AboutTab> {
 
   _getLanguages()
   {
+    print("list of languages");
+    print(listOfLanguages);
     if(listOfLanguages == null  || listOfLanguages ==  [])
       {
+        print("displaying the languages false");
         language=false;
       }else
         {
+          print("displaying the languages true");
           language=true;
         }
      joinedDate=widget.sessionUser.joined_date.toString();
@@ -987,7 +1082,7 @@ class _AboutTabState extends State<AboutTab> {
        relationshipStatus = "No data available";
      }
     if(houseNumber == "" || houseNumber == null){
-      //houseNumber = "No data available";
+      houseNumber = "No data available";
     }
     if(street == "" || street == null){
       street = "No data available";
@@ -1401,6 +1496,7 @@ class _AboutTabState extends State<AboutTab> {
       List<dynamic> languageDecode=jsonDecode(language);
       print(languageDecode);
       var languageJoin=languageDecode.join(",");
+      print(languageJoin);
       var splitting= languageJoin.split(",");
       listOfLanguages=splitting;
       print(listOfLanguages);

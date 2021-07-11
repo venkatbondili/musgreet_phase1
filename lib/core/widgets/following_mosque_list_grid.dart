@@ -283,7 +283,7 @@ class _ActionButtonWidgetState extends State<MosqueFollowButton> {
     return GestureDetector(
       onTap: ()=> widget.callBack(),
       child: Container(
-        padding: EdgeInsets.only(left: 10,right: 10,top: 5,bottom: 5),
+        padding: EdgeInsets.only(left: 5,right: 5,top: 5,bottom: 5),
         decoration: BoxDecoration(
           border: Border.all(color: AppColors.background_color),
           borderRadius: BorderRadius.circular(widget.radius),

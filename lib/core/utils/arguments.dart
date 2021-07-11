@@ -2,6 +2,7 @@
 // In this example, create a class that contains both
 // a customizable title and message.
 class argumentClass {
-  final String email;
+  String email;
   argumentClass(this.email);
+
 }

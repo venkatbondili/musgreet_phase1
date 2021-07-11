@@ -42,6 +42,8 @@ class _MosqueSearchListViewState extends State<MosqueSearchListView> {
   List<Mosque> sectFilteredMosques = [];
   List<Mosque> facilityFilteredMosques = [];
   List<MosqueFollowers> MosqueFollowerss =[];
+
+
   @override
   Widget build1(BuildContext context) {
     print("printing args");
@@ -77,7 +79,17 @@ class _MosqueSearchListViewState extends State<MosqueSearchListView> {
   }
 
   Widget build(BuildContext context){
-    UserID = widget.sessionUser.id;
+    //UserID = widget.sessionUser.id;
+    print("printing args");
+    args = ModalRoute.of(context).settings.arguments as ArgumentClass;
+    print(args);
+    if(args != null){
+      UserID = args.sessionUser.id;
+    }
+    else{
+      UserID = widget.sessionUser.id;
+
+    }
     return FutureBuilder<List<Mosque>>(
       future: _getMosque(),
       builder: (ctx, snapshot) {
@@ -509,9 +521,9 @@ class _MosqueSearchListViewState extends State<MosqueSearchListView> {
   }
 
   Widget _getFacilitiesAndMosque(List<Mosque> mosques, List<Facilitiesmaster> facilitiesmasters, List<MosqueFollowers> MosqueFollowerss) {
-    print("printing args");
-    args = ModalRoute.of(context).settings.arguments as ArgumentClass;
-    print(args);
+    // print("printing args");
+    // args = ModalRoute.of(context).settings.arguments as ArgumentClass;
+    // print(args);
     //listMosque(advancedSearchSectList,advancedSearchFacilitiesList);
     if (args != null) {
       advancedSearchSectList = args.advancedSearchSectList;
@@ -595,10 +607,19 @@ class _MosqueSearchListViewState extends State<MosqueSearchListView> {
     //     index: 1,
     //   );
     // }
+    Users userObject;
+    if(args != null )
+      {
+        userObject=args.sessionUser;
+      }else{
+
+      userObject =widget.sessionUser;
+    }
     return BottomNavigationWidget(
       //MosqueFollowersList: MosqueFollowerss,
-      //CallingFunction: _navigateback(),
-      sessionUser: widget.sessionUser,
+      //CallingFunction: _navigateback()
+      sessionUser : userObject,
+      //sessionUser: widget.sessionUser,
       CallingScreen: "MosqueSearch",
       index: 1,
     );

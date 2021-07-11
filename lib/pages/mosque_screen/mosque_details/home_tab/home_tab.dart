@@ -1,4 +1,4 @@
-//import 'package:intl/intl.dart';
+import 'package:intl/intl.dart';
 
 import 'package:flutter/material.dart';
 import 'package:mus_greet/core/utils/constants.dart';
@@ -106,6 +106,8 @@ class _HomeTabState extends State<HomeTab> {
       setState(() {
         count++;
         date = date.add(Duration(days: count));
+        print("printing date");
+        print(date);
       });}}
        else
          {
@@ -173,8 +175,8 @@ class _HomeTabState extends State<HomeTab> {
                         Padding(
                           padding: const EdgeInsets.only(top: 3.0, left: 5),
                           child: Text(
-                            "",
-                           // '${DateFormat('hh:mm').format(mosquePrayers[index].begin_time.getDateTime())}',
+                            //"",
+                           '${DateFormat('hh:mm').format(mosquePrayers[index].begin_time.getDateTime())}',
                             //"DateFormate",
                             style: TextStyle(
                                 fontSize: 10,
@@ -208,8 +210,8 @@ class _HomeTabState extends State<HomeTab> {
                         Padding(
                           padding: const EdgeInsets.only(top: 3.0, left: 5),
                           child: Text(
-                            //'${DateFormat('hh:mm').format(mosquePrayers[index].end_time.getDateTime())}',
-                            "Date Formate",
+                            '${DateFormat('hh:mm').format(mosquePrayers[index].end_time.getDateTime())}',
+                            //"Date Formate",
                             style: TextStyle(
                                 fontSize: 10,
                                 fontFamily: FontConstants.FONT,
@@ -450,9 +452,17 @@ class _HomeTabState extends State<HomeTab> {
 
   Future<List<MosquePrayers>> getMosquePrayers() async {
     try {
-     // mosquePrayers = await Amplify.DataStore.query(MosquePrayers.classType , where: MosquePrayers.DATE.eq(DateFormat('yyyy-MM-dd').format(date)));
-      mosquePrayers = await Amplify.DataStore.query(MosquePrayers.classType , where: MosquePrayers.DATE.eq("2021-06-17"));
+     //mosquePrayers = await Amplify.DataStore.query(MosquePrayers.classType , where: MosquePrayers.DATE.eq(DateFormat('yyyy-MM-dd').format(date)));
+      mosquePrayers = await Amplify.DataStore.query(MosquePrayers.classType, where: MosquePrayers.MOSQUEID.eq(MosqueObject.id));
+     List mosquePrayers1 = await Amplify.DataStore.query(MosquePrayers.classType);
+     print(DateFormat('yyyy-MM-dd').format(date));
+     print("printing mosque prayers");
+     //print(MosqueObject.id);
       print(mosquePrayers);
+      print("checking date");
+      //print(mosquePrayers);
+     //print(mosquePrayers[12].Date);
+     // print(mosquePrayers1[20]);
   return mosquePrayers;
 
     } catch (e) {
@@ -542,8 +552,8 @@ class _HomeTabState extends State<HomeTab> {
                   children: [
                     Text(
                       //DateFormat('d MMMM yyyy').format(date),
-                      //DateFormat('d MMM yyyy').format(date),
-                      "Date format",
+                      DateFormat('d MMM yyyy').format(date),
+                      //"Date format",
                       style: TextStyle(
                           fontSize: 10,
                           fontFamily: FontConstants.FONT,
@@ -565,8 +575,8 @@ class _HomeTabState extends State<HomeTab> {
                       width: 3,
                     ),
                     Text(
-                      //DateFormat('EEEE').format(date),
-                      "Date Format",
+                      DateFormat('EEEE').format(date),
+                      //"Date Format",
                       style: TextStyle(
                           fontSize: 10,
                           fontFamily: FontConstants.FONT,

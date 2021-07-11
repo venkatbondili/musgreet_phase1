@@ -149,7 +149,7 @@ class _PhoneOtpViewState extends State<PhoneOtpView> {
 
   _getOTPField() {
     return Container(
-      padding: EdgeInsets.only(left: 40, right: 40),
+      padding: EdgeInsets.only(left: 15, right: 15, top: 10),
       child: OTPFieldWidget(
         callBack: () {},
         controller: _codeController,

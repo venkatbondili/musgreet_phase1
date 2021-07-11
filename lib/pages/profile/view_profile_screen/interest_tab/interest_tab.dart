@@ -65,7 +65,10 @@ class _InterestTabState extends State<InterestTab> {
       builder: (ctx, snapshot) {
         switch (snapshot.connectionState) {
           case ConnectionState.done:
+            print('done state');
+
             userProfile = snapshot.data;
+            print(snapshot.data);
             return buildUserProfileList(userProfile);
           default:
             return _buildLoadingScreen();
@@ -77,6 +80,8 @@ class _InterestTabState extends State<InterestTab> {
 
   buildUserProfileList(List<UserProfile> userProfile)
   {print("BUILD UI");
+  print(userProfile);
+  print(userProfile[0]);
   print(masterIntrest.length);
   getIntrests();
   print(idIntrest.length);
@@ -523,7 +528,8 @@ class _InterestTabState extends State<InterestTab> {
    }
 
    Future<List<UserProfile>>getUserProfile() async{
-
+print('inside getusrprofile method');
+print(widget.sessionUser.id);
       try {
         userProfile = await Amplify.DataStore.query(UserProfile.classType,
             where: UserProfile.USERSID.eq(widget.sessionUser.id));

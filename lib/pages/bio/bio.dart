@@ -151,15 +151,15 @@ class _BioState extends State<Bio> {
           child: ActionButtonWidget(
             callBack: () {
               //Navigation.back(context);
-              if (_controller.text.trim().length == 0) {
-                print('email empty case');
-                fieldErrorMessage= "First name field is required";
-              }
+              // if (_controller.text.trim().length == 0) {
+              //   print('email empty case');
+              //   fieldErrorMessage= "First name field is required";
+              // }
 
-              if (fieldErrorMessage.length > 0) {
-                setState(() {
-                  fieldVlidator = fieldErrorMessage;
-                });
+              // if (fieldErrorMessage.length > 0) {
+              //   setState(() {
+              //     fieldVlidator = fieldErrorMessage;
+              //   });
 
                 if (_firstnameKey.currentState.validate()) {
                   print(_controller.text);
@@ -167,9 +167,8 @@ class _BioState extends State<Bio> {
                   updateUserProfile(userProfile);
                   Navigator.pop(context,true);
                 }
-              }
+              },
 
-            },
             text: AppTexts.SAVE,
             isFilled: true,
           ),

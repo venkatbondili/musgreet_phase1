@@ -433,7 +433,7 @@ class _InterestScreenState extends State<InterestScreen> {
 
     print(communityIntrest);
     //Navigation.back(context);
-   // Navigator.pop(context,true);
+   Navigator.pop(context,true);
 
   }
 

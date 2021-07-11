@@ -41,5 +41,6 @@ class AppRoutes {
   static const String LOGIN = "login/login_screen";
   static const String VIEW_PROFILE_SCREEN = "/view_profile_screen/view_profile_screen.dart";
   static const String RELATIONSHIP = "/relation";
+  static const String MY_DATA="/dataBase.dart";
 
 }

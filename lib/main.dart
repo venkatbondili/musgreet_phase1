@@ -1,4 +1,6 @@
 // Amplify Flutter Packages
+import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
 
 import 'dart:convert';
 import 'dart:io';
@@ -59,6 +61,7 @@ import 'package:mus_greet/pages/splash_screen/splash_screen.dart';
 import 'core/utils/constants.dart';
 import 'core/utils/routes.dart';
 import 'models/UserFamily.dart';
+import 'package:path_provider/path_provider.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -167,6 +170,7 @@ class _MyAppState extends State<MyApp> {
   }
 }
 
+
 class MyDB extends StatefulWidget {
   //MyHomePage({Key key, this.title}) : super(key: key);
 
@@ -187,11 +191,110 @@ class MyDB extends StatefulWidget {
 
 class _MyDBState extends State<MyDB> {
   List<Users> Userss;
+
+  Future<bool> _checkStateforMasterData() async{
+    try {
+      print("inside _checkStateforMasterData");
+      bool blnFlag = false;
+
+      final directory = await getApplicationDocumentsDirectory();
+      print(directory.path);
+
+      String pth = directory.path;
+      String fname = 'test10.txt';
+
+      print('before checking for file');
+      blnFlag = await File('$pth/$fname').exists();
+
+      print('after checking for file');
+      print(blnFlag);
+
+      if (blnFlag == false) {
+        print('first time');
+        final file = File('$pth/$fname');
+        file.create();
+        return false;
+      } else {
+        print('second time');
+        return true;
+      }
+
+      //final file = File('$pth/master_data_state.txt');
+      //String content = await file.readAsString();
+      //await Future.delayed(Duration(seconds: 1));
+      //print(content);
+
+      //File('$pth/master_data_state.txt').exists().then((value) {blnFlag = true;});
+
+      clearData();
+      //createMasterData();
+
+      // if (blnFlag == false) {
+      //   print('first time');
+      //   final file = File('$pth/test2.txt');
+      //   file.create();
+      //
+      //   clearData();
+      //   createMasterData();
+      // } else {
+      //   print('second time');
+      // }
+
+      // if (content != 'done') {
+      //   clearData();
+      //   createMasterData();
+      //
+      //   file.writeAsString('done');
+      // }
+
+      // file.writeAsString('Done');
+      // print('after check');
+      //
+      // String content2 = await file.readAsString();
+      // print(content2);
+
+      // String content = await rootBundle.loadString('assets/localState.txt');
+      // print(content);
+
+    } catch(e) {
+      print ('Exception in _checkStateforMasterData method: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
-    print("Hello welcome");
-    createMasterData();
+
+    //clear local datastore and create master data for the very first time i.e. app installation
+    //_checkStateforMasterData();
+    //clearData();
+    //Future<bool> flag = createMasterData();
+
+    //clearData();
+    //createMasterData();
+    listUsers1();
+    // _checkStateforMasterData().then((value) {
+    //    print('entered');
+    //    if (!value) {
+    //      print('very first time');
+    //      //clearData();
+    //      createMasterData();
+    //   }
+    //  });
+
+    // print('after calling checkstate method');
+    // print(flag);
+    // if (flag == false) {
+    //   //first time case
+    //   print('first time case');
+    //   //clearData();
+    //   //createMasterData();
+    // }
+
+    return Container();
+
+   //clearData();
+   //createMasterData();
      //createUsers();
     // createMosqueFacility();
     // createLanguagesSpoken();
@@ -203,11 +306,48 @@ class _MyDBState extends State<MyDB> {
     // createMosqueUsers();
     // createMosquePrayers();
     //createPost();
-    //clearData();
     //deleteUserProfile();
     //throw UnimplementedError();
   }
 
+}
+
+
+
+Future<void> clearData() async {
+  print('before clear');
+  await Amplify.DataStore.clear();
+  print('after clear');
+  await Future.delayed(Duration(seconds: 2));
+}
+
+Future<void> createMasterData() async{
+
+  await Future.delayed(Duration(seconds: 2));
+  print('in masterdata method, before starting to add master data');
+  createMasterIntrest();
+  await Future.delayed(Duration(seconds: 2));
+  createMosqueFacility();
+  await Future.delayed(Duration(seconds: 2));
+  createLanguagesSpoken();
+  await Future.delayed(Duration(seconds: 2));
+  createUsers();
+  await Future.delayed(Duration(seconds: 2));
+  createMosque();
+  await Future.delayed(Duration(seconds: 2));
+  createMosquePrayers();
+  await Future.delayed(Duration(seconds: 2));
+  createUserEducation();
+  await Future.delayed(Duration(seconds: 2));
+  createUserFamily();
+  await Future.delayed(Duration(seconds: 2));
+  createMosqueUsers();
+  await Future.delayed(Duration(seconds: 2));
+  createPost();
+  await Future.delayed(Duration(seconds: 3));
+  createUserProfile();
+  await Future.delayed(Duration(seconds: 2));
+  print("Data Inserted");
 }
 
 Future<String> getFilePath() async {
@@ -531,8 +671,11 @@ Future<void> listMosqueFollowers1() async{
 
 TemporalDate date=new TemporalDate(DateTime.now());
 //TemporalDate nextDate=new TemporalDate(DateTime.);
-//DateFormat dateFormat=new DateFormat("dd-mm-yyyy");
-//TemporalDate temp=new TemporalDate(dateFormat.parse("23-06-2021"));
+DateFormat dateFormat=new DateFormat("yyyy-mm-dd");
+TemporalDate day2=new TemporalDate(dateFormat.parse("2021-07-08"));
+
+
+
 List<Users> users=[];
 List<Facilitiesmaster> facilities=[];
 List<MosquePhotos> mosquePhotos;
@@ -549,10 +692,6 @@ List<UserEducation> userEducation=[];
 List<MosqueUsers> mosqueUsers=[];
 List<MosquePrayers> mosquePrayers=[];
 
-Future<void> clearData() async {
-  await Amplify.DataStore.clear();
-}
-
 Future<void> deleteUserProfile() async {
   print(userProfile.length);
   await Amplify.DataStore.delete(userProfile[0]);
@@ -561,35 +700,9 @@ Future<void> deleteUserProfile() async {
   //await Amplify.DataStore.delete(userProfile[3]);
 }
 
-Future<void> createMasterData() async{
-  clearData();
-  await Future.delayed(Duration(seconds: 2));
-  createMasterIntrest();
-  await Future.delayed(Duration(seconds: 2));
-  createMosqueFacility();
-  await Future.delayed(Duration(seconds: 2));
-  createLanguagesSpoken();
-  await Future.delayed(Duration(seconds: 2));
-  createUsers();
-  await Future.delayed(Duration(seconds: 2));
-  createMosque();
-  await Future.delayed(Duration(seconds: 2));
-  createMosquePrayers();
-  await Future.delayed(Duration(seconds: 2));
-  createUserEducation();
-  await Future.delayed(Duration(seconds: 2));
-  createUserFamily();
-  await Future.delayed(Duration(seconds: 2));
-  createMosqueUsers();
-  await Future.delayed(Duration(seconds: 2));
-  createPost();
-  await Future.delayed(Duration(seconds: 3));
-  createUserProfile();
-  await Future.delayed(Duration(seconds: 2));
-  print("Data Inserted");
-}
-
 Future<void> createUsers() async {
+  print('inside createUsers');
+  print(languagesList.length);
   DateTime now=DateTime.now();
   TemporalDate date=new TemporalDate(DateTime.now());
 
@@ -717,7 +830,8 @@ Future<void> createUsers() async {
 
     //createMosqueFacility();
   } catch (e) {
-    print("Could not query DataStore: Created users error" + e);
+    print('Exception in createUsers');
+    print(e);
 
   }
 
@@ -779,6 +893,7 @@ Future<void> createLanguagesSpoken() async {
         await Amplify.DataStore.save(item);
         //await Future.delayed(Duration(milliseconds: 500));
         print("Languages created");
+        print(languagesList.length);
       }
     }
     //createMasterIntrest();
@@ -939,7 +1054,7 @@ Future<void> createUserProfile() async {
     print("printing the user list");
     //print(userProfile[3]);
     //print(userProfile[1]);
-    List<String> languages1=[languagesList[5].languages+ "," +languagesList[6].languages];
+    List<String> languages1=[languagesList[3].languages+ "," +languagesList[4].languages];
     List<String> communityIntrest1=[intrests[0].id + "," + intrests[1].id];
     List<String> skillsid=[skills[0].id + "," + skills[1].id];
     List<String> religiousId=[religiousIntrest[0].getId() + "," +religiousIntrest[1].getId()];
@@ -1027,7 +1142,7 @@ Future<void> createMosque() async {
           about: "Lorem ipsum dolor sit amet",
           is_verified: true,
           sect: "Sunni",
-          mosque_photos_list:  "",
+          mosque_photos_list:"https://musgreetphase1images184452-staging.s3.eu-west-2.amazonaws.com/public/img_mosque.png",
           mosque_facility_list: jsonEncode(facilityUserList),
           contact_description: "Lorem ipsum dolor sit amet",
           phone: "020 8690 5090",
@@ -1045,7 +1160,7 @@ Future<void> createMosque() async {
           about: "Lorem ipsum dolor sit amet",
           is_verified: true,
           sect: "Shia",
-          mosque_photos_list:  "",
+          mosque_photos_list:"https://musgreetphase1images184452-staging.s3.eu-west-2.amazonaws.com/public/img_mosque.png",
           mosque_facility_list: jsonEncode(facilityUserList1) ,
           contact_description: "Lorem ipsum dolor sit amet",
           phone: "998058798",
@@ -1127,9 +1242,15 @@ Future<void> createUserFamily() async {
 
 Future<void> createPost() async {
   try{
+    print('inside createPost');
+    print(languagesList.length);
     userPosts=await Amplify.DataStore.query(Posts.classType);
     print(userPosts.length);
     print(userPosts);
+
+    users = await Amplify.DataStore.query(Users.classType);
+    await Future.delayed(Duration(seconds: 2));
+    print(users.length);
 
     if(userPosts.isEmpty) {
       final item = Posts(
@@ -1229,7 +1350,9 @@ Future<void> createPost() async {
     }
   } catch(e)
   {
-
+    print('Exception in createpost method');
+    print(e);
+    //print('Exception occurred in createPost : $e');
   }
 
 }
@@ -1315,111 +1438,112 @@ Future<void> createMosquePrayers() async {
     print(mosquePrayers.length);
     print(mosquePrayers);
     if(mosquePrayers.isEmpty) {
-
-      final item = MosquePrayers(
+      final Day1Prayer1 = MosquePrayers(
           mosqueID: mosque[0].getId(),
           prayer: "Fajir",
           Date: date,
           end_time: TemporalTime.fromString("08:44"),
           begin_time: TemporalTime.fromString("08:14"));
-      await Amplify.DataStore.save(item);
+      await Amplify.DataStore.save(Day1Prayer1);
 
-      final prayer1 = MosquePrayers(
+      final Day1Prayer2 = MosquePrayers(
           mosqueID: mosque[0].getId(),
           prayer: "DHUMAR",
           Date: date,
           end_time: TemporalTime.fromString("13:15"),
           begin_time: TemporalTime.fromString("13:00"));
-      await Amplify.DataStore.save(prayer1);
+      await Amplify.DataStore.save(Day1Prayer2);
 
-      final prayer2 = MosquePrayers(
+      final Day1Prayer3 = MosquePrayers(
           mosqueID: mosque[0].getId(),
           prayer: "ASR",
           Date: date,
           end_time: TemporalTime.fromString("12:30"),
           begin_time: TemporalTime.fromString("12:14"));
-      await Amplify.DataStore.save(prayer2);
+      await Amplify.DataStore.save(Day1Prayer3);
 
-      final prayer3 = MosquePrayers(
+      final Day1Prayer4 = MosquePrayers(
           mosqueID: mosque[0].getId(),
           prayer: "MAGHRIB",
           Date: date,
           end_time: TemporalTime.fromString("16:29"),
           begin_time: TemporalTime.fromString("16:14"));
-      await Amplify.DataStore.save(prayer3);
+      await Amplify.DataStore.save(Day1Prayer4);
 
-      final prayer4 = MosquePrayers(
+      final Day1Prayer5 = MosquePrayers(
           mosqueID: mosque[0].getId(),
           prayer: "JUMMAH",
           Date: date,
           end_time: TemporalTime.fromString("18:30"),
           begin_time: TemporalTime.fromString("18:14"));
-      await Amplify.DataStore.save(prayer4);
+      await Amplify.DataStore.save(Day1Prayer5);
 
 
-      final prayer5 = MosquePrayers(
+      final Day1Prayer6 = MosquePrayers(
           mosqueID: mosque[0].getId(),
           prayer: "ISHA",
           Date: date,
           end_time: TemporalTime.fromString("20:30"),
           begin_time: TemporalTime.fromString("20:14"));
-      await Amplify.DataStore.save(prayer5);
+      await Amplify.DataStore.save(Day1Prayer6);
 
-      final prayer6 = MosquePrayers(
+      final Day2Prayer1 = MosquePrayers(
           mosqueID: mosque[0].getId(),
           prayer: "Fajir",
-          // Date: temp,
-          Date: null,
+          Date: day2,
+          //Date: null,
           end_time: TemporalTime.fromString("08:44"),
           begin_time: TemporalTime.fromString("08:14"));
-      await Amplify.DataStore.save(prayer6);
+      await Amplify.DataStore.save(Day2Prayer1);
 
-      final prayer7 = MosquePrayers(
+      final Day2Prayer2 = MosquePrayers(
           mosqueID: mosque[0].getId(),
           prayer: "DHUMAR",
-          // Date: temp,
-          Date: null,
+          Date: day2,
+          //Date: null,
           end_time: TemporalTime.fromString("13:15"),
           begin_time: TemporalTime.fromString("13:00"));
-      await Amplify.DataStore.save(prayer7);
+      await Amplify.DataStore.save(Day2Prayer2);
 
-      final prayer8 = MosquePrayers(
+      final Day2Prayer3 = MosquePrayers(
           mosqueID: mosque[0].getId(),
           prayer: "ASR",
-          // Date: temp,
-          Date: null,
+          Date: day2,
+          //Date: null,
           end_time: TemporalTime.fromString("12:30"),
           begin_time: TemporalTime.fromString("12:14"));
-      await Amplify.DataStore.save(prayer8);
+      await Amplify.DataStore.save(Day2Prayer3);
 
-      final prayer9 = MosquePrayers(
+      final Day2Prayer4 = MosquePrayers(
           mosqueID: mosque[0].getId(),
           prayer: "MAGHRIB",
-          // Date: temp,
-          Date: null,
+          Date: day2,
+          //Date: null,
           end_time: TemporalTime.fromString("16:29"),
           begin_time: TemporalTime.fromString("16:14"));
-      await Amplify.DataStore.save(prayer9);
+      await Amplify.DataStore.save(Day2Prayer4);
 
-      final prayer10 = MosquePrayers(
+      final Day2Prayer5 = MosquePrayers(
           mosqueID: mosque[0].getId(),
           prayer: "JUMMAH",
-          // Date: temp,
-          Date: null,
+          Date: day2,
+          //Date: null,
           end_time: TemporalTime.fromString("18:30"),
           begin_time: TemporalTime.fromString("18:14"));
-      await Amplify.DataStore.save(prayer10);
+      await Amplify.DataStore.save(Day2Prayer5);
 
 
-      final prayer11 = MosquePrayers(
+      final Day2Prayer6 = MosquePrayers(
           mosqueID: mosque[0].getId(),
           prayer: "ISHA",
-          // Date: temp,
-          Date: null,
+          Date: day2,
+          //Date: null,
           end_time: TemporalTime.fromString("20:30"),
           begin_time: TemporalTime.fromString("20:14"));
-      await Amplify.DataStore.save(prayer11);
+      await Amplify.DataStore.save(Day2Prayer6);
       //await Future.delayed(Duration(milliseconds: 500));
+
+
     }
   } catch(e)
   {

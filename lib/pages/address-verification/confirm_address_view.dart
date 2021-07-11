@@ -2,11 +2,15 @@ import 'dart:async';
 
 import 'package:amplify_datastore/amplify_datastore.dart';
 import 'package:amplify_flutter/amplify.dart';
+import 'package:dio/dio.dart';
+import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:mus_greet/core/config/navigation.dart';
 import 'package:mus_greet/core/utils/constants.dart';
 import 'package:mus_greet/core/utils/routes.dart';
 import 'package:mus_greet/core/utils/size_config.dart';
+import 'package:mus_greet/core/widgets/drop_down_text_field.dart';
+import 'package:mus_greet/core/widgets/login_screen_text_field_widget.dart';
 import 'package:mus_greet/models/Users.dart';
 import 'package:mus_greet/pages/address-verification/confirm_address_2_screen.dart';
 import 'package:mus_greet/pages/final/nearly_finished_page.dart';
@@ -20,6 +24,21 @@ class ConfirmAddressView extends StatefulWidget {
 
 class _ConfirmAddressViewState extends State<ConfirmAddressView> {
   List<Users> users;
+  var status = false;
+  List<String> results = [];
+  bool isLoading = false;
+  TextEditingController _postCodeController = new TextEditingController();
+  Response response;
+  var ContainerString;
+  String responsetext='Will get response here...';
+  var ListOfResponselength =0;
+  var ListOfResponse=[];
+  var idList = [];
+  List<String> addressList =[];
+  Map<String,String> AddressMap={};
+  var key = "CY82-HB62-CR19-GC96";
+  String selectedAddress = "";
+  //var postcode = "E62JJ";
 
   AddressVerificationArgumentClass args;
   Users sessionUser;
@@ -74,25 +93,6 @@ class _ConfirmAddressViewState extends State<ConfirmAddressView> {
               style: TextStyle(fontSize: 24.0, fontWeight: FontWeight.bold),
             ),
             SizedBox(height: SizeConfig.screenHeight * 0.04),
-            RaisedButton(
-              padding: EdgeInsets.symmetric(horizontal: 110, vertical: 22),
-              child: Text(
-                'Search',
-                style: TextStyle(
-                  color: Colors.green[800],
-                  fontSize: 16.0,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              color: Colors.white,
-              shape: RoundedRectangleBorder(
-                  side: BorderSide(color: Colors.green[800]),
-                  borderRadius: BorderRadius.all(
-                    Radius.circular(10.0),
-                  )),
-              onPressed: () {},
-            ),
-            SizedBox(height: SizeConfig.screenHeight * 0.04),
             Container(
               alignment: Alignment.centerLeft,
               padding: EdgeInsets.symmetric(horizontal: 25, vertical: 0),
@@ -110,25 +110,62 @@ class _ConfirmAddressViewState extends State<ConfirmAddressView> {
                 ],
               ),
             ),
-            Container(
-              alignment: Alignment.centerLeft,
-              padding: EdgeInsets.symmetric(horizontal: 25, vertical: 5),
-              child: TextFormField(
-                keyboardType: TextInputType.name,
-                decoration: InputDecoration(
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                    borderSide: BorderSide(color: Colors.grey),
-                  ),
-                  prefixIcon: Icon(
-                    Icons.location_on,
-                    color: Colors.grey,
-                  ),
-                  //labelText: 'Enter your PostCode',
-                  labelText: 'Flat 12, Federick Street, London LU2 7QU',
+            SizedBox(height: SizeConfig.screenHeight * 0.02),
+            _getPostCodeField(),
+            // Container(
+            //   alignment: Alignment.centerLeft,
+            //   padding: EdgeInsets.symmetric(horizontal: 25, vertical: 5),
+            //   child: TextFormField(
+            //     controller: _postCodeController,
+            //     keyboardType: TextInputType.name,
+            //     decoration: InputDecoration(
+            //       enabledBorder: OutlineInputBorder(
+            //         borderRadius: BorderRadius.all(Radius.circular(10.0)),
+            //         borderSide: BorderSide(color: Colors.grey),
+            //       ),
+            //       prefixIcon: Icon(
+            //         Icons.location_on,
+            //         color: Colors.grey,
+            //       ),
+            //       //labelText: 'Enter your PostCode',
+            //       labelText: 'Provide your post code here',
+            //     ),
+            //   ),
+            // ),
+            SizedBox(height: SizeConfig.screenHeight * 0.02),
+            RaisedButton(
+              padding: EdgeInsets.symmetric(horizontal: 110, vertical: 22),
+              child: Text(
+                'Search',
+                style: TextStyle(
+                  color: Colors.green[800],
+                  fontSize: 16.0,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
+              color: Colors.white,
+              shape: RoundedRectangleBorder(
+                  side: BorderSide(color: Colors.green[800]),
+                  borderRadius: BorderRadius.all(
+                    Radius.circular(10.0),
+                  )),
+              onPressed: () {
+                getlocation(_postCodeController.text);
+              },
             ),
+            SizedBox(height: SizeConfig.screenHeight * 0.02),
+            status ? Container(
+              padding: EdgeInsets.only(left: 5, right: 5),
+              child: DropDownTextField(
+                fieldName: "Select your address",
+                data: addressList,
+                callBack: (val) {
+                  print(val);
+                  selectedAddress=val;
+                },
+              ),
+            ):Container(),
+            SizedBox(height: SizeConfig.screenHeight * 0.04),
             // Container(
             //   //padding: EdgeInsets.all(20.0),
             //   padding: const EdgeInsets.only(top: 30.0, right: 220.0),
@@ -194,7 +231,7 @@ class _ConfirmAddressViewState extends State<ConfirmAddressView> {
               child: SizedBox(
                 width: double.infinity, // <-- match_parent
                 child:  RaisedButton(
-                  padding: EdgeInsets.symmetric(horizontal: 60, vertical: 15),
+                  padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
                   child: Text(
                     'Send code to Address',
                     style: TextStyle(
@@ -262,7 +299,7 @@ class _ConfirmAddressViewState extends State<ConfirmAddressView> {
               child: SizedBox(
                 width: double.infinity, // <-- match_parent
                 child:  RaisedButton(
-                  padding: EdgeInsets.symmetric(horizontal: 60, vertical: 15),
+                  padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
                   child: Text(
                     'Enter your full address',
                     style: TextStyle(
@@ -289,15 +326,145 @@ class _ConfirmAddressViewState extends State<ConfirmAddressView> {
     );
   }
 
+  _getPostCodeField() {
+    return LoginScreenTextField(
+      leadingIcon: ImageConstants.TEMP_LOCATION,
+      controller: _postCodeController,
+      hintText: "Please enter your post code",
+      isPasswordField: false,
+    );
+  }
+
+  Future getlocation(String postCode) async {
+    this.setState(() {
+      this.isLoading = true;
+    });
+    var key = 'CY82-HB62-CR19-GC96';
+    try {
+      response = await Dio().get('https://api.addressy.com/Capture/Interactive/Find/v1.10/csv.ws?'
+          'Key=${key}'
+          '&Text=${postCode}');
+          //'Key=CY82-HB62-CR19-GC96&Text=e62JJ');
+      print(response.runtimeType);
+      //await Future.delayed(Duration(seconds: 2));
+      //print(response.toString().split(",")[4]);
+      print(response);
+      ContainerString = response.toString().split(",")[4].split("\n")[1];
+      print("Container String");
+      ContainerString = ContainerString.replaceAll('\"','');
+      print(ContainerString);
+      getlocation2(ContainerString,postCode);
+
+    }
+    catch (e) {
+      print("Error occured: $e");
+    }
+    finally {
+      this.setState(() {
+        this.isLoading = false;
+        // getlocation2(response.toString().split(",")[4]);
+      });
+    }
+  }
+
+  Future getlocation2(String ContainerString, String postCode) async {
+    this.setState(() {
+      this.isLoading = true;
+    });
+    //var key = "CY82-HB62-CR19-GC96";
+    //var postcode = "E62JJ";
+    print("inside get location2");
+    print(ContainerString);
+    try {
+      final response = await http.Client()
+          .get(Uri.parse('https://api.addressy.com/Capture/Interactive/Find/v1.10/csv.ws?'
+          'Key=${key}'
+          '&Text=${postCode}'
+          '&Container=${ContainerString.toString()}'
+          '&IsMiddleware=false'
+          '&Origin=&'
+          '&Countries=GBR&'
+          '&Countries=GBR&'
+          '&Limit=10&'
+          '&Language=en-gb' ));
+
+      ListOfResponse = [];
+      idList = [];
+      addressList =[];
+      print("response body printing");
+      ListOfResponselength = response.body.split("\n").length;
+      print(ListOfResponselength);
+      for(var i = 1;i < ListOfResponselength;i++){
+        //print(i);
+        ListOfResponse.add(response.body.split("\n")[i]);
+        //print(response.body.split("\n")[i]);
+      }
+      print("List of Response Length");
+      print(ListOfResponse.length);
+      for(int j=0; j < ListOfResponse.length; j++){
+        var id = ListOfResponse[j].split(",")[0];
+        var housenumber = ListOfResponse[j].split(",")[2];
+        var street = ListOfResponse[j].split(",")[3];
+        var address = ListOfResponse[j].split(",")[2] + ListOfResponse[j].split(",")[3];
+        //var state = ListOfResponse[j].split(",")[5]+ListOfResponse[j].split(",")[6];
+        id = id.replaceAll('\"','');
+        address = address.replaceAll('\"','');
+        //state = state.replaceAll('\"','');
+        //var address =  city + "," + state;
+        //var address =  address ;
+        idList.add(id);
+        addressList.add(address);
+        //print(id);
+        //print(address);
+      }
+      print(idList.length);
+      print(addressList.length);
+      AddressMap ={
+        for(int k=0;k<idList.length ;k++)
+          idList[k] : addressList[k],
+      };
+      setState(() {
+        status = true;
+      });
+      // List<String> COLLEGE_CATEGORIES = addressList;
+
+
+    }
+    catch (e) {
+      print("Error occured: $e");
+    }
+    finally {
+      // this.setState(() {
+      //   this.isLoading = false;
+      // });
+      print("inside finally block");
+    }
+  }
+
+
   void updateUserDetails()  async{
+    //selectedAddress.split(" ");
+    var street = "";
+    var houseNumber = "";
+    var splitedAddress = selectedAddress.split(" ");
+    for(int i=0; i<splitedAddress.length;i++){
+      if(i == 0){
+        houseNumber = splitedAddress[i];
+      }
+      else{
+        street = street +" " + splitedAddress[i];
+      }
+    }
+    print(houseNumber);
+    print(street);
     try {
       if (sessionUser != null) {
         final updatedItem = sessionUser.copyWith(
-            house_number: "Flat 12",
-            street: "Federick Street",
+            house_number: houseNumber,
+            street: street,
             country: "United Kingodm",
             city: "London",
-            postcode: "LU2 7QU",
+            postcode: _postCodeController.text,
             address_verification_mode: "Manual",
             manual_address_taken_date: new TemporalDate(DateTime.now()),
             manul_address_code:123355,

@@ -14,6 +14,8 @@ import 'package:mus_greet/models/Users.dart';
 import 'package:amplify_flutter/amplify.dart';
 
 class MyFamilyScreen extends StatefulWidget {
+  Users sessionUser;
+  MyFamilyScreen({this.sessionUser});
   @override
   _MyFamilyScreenState createState() => _MyFamilyScreenState();
 }
@@ -29,6 +31,8 @@ class _MyFamilyScreenState extends State<MyFamilyScreen> {
   String userid;
 
   final List<RelationShipData> members = [];
+  final _familyRelation = GlobalKey<FormState>();
+  final _nameOffamily =GlobalKey<FormState>();
 
   @override
   void initState() {
@@ -39,6 +43,7 @@ class _MyFamilyScreenState extends State<MyFamilyScreen> {
 
   @override
   Widget build(BuildContext context) {
+    userid=widget.sessionUser.id;
     return SafeArea(
       child: Scaffold(
         backgroundColor: AppColors.white,
@@ -62,11 +67,33 @@ class _MyFamilyScreenState extends State<MyFamilyScreen> {
             CustomSpacerWidget(
               height: 40,
             ),
-            _getFamilyMemberRelationShip(),
+            Container(
+              child: Form(
+                key: _familyRelation,
+                autovalidateMode: AutovalidateMode.onUserInteraction,
+                child: Column(
+                  children: [
+                    _getFamilyMemberRelationShip(),
+                  ],
+                ),
+              ),
+            ),
+            //_getFamilyMemberRelationShip(),
             CustomSpacerWidget(
               height: 15,
             ),
-            _getNameOfMember(),
+            Container(
+              child: Form(
+                key: _nameOffamily,
+                autovalidateMode: AutovalidateMode.onUserInteraction,
+                child: Column(
+                  children: [
+                    _getNameOfMember(),
+                  ],
+                ),
+              ),
+            ),
+            //_getNameOfMember(),
             CustomSpacerWidget(
               height: 40,
             ),
@@ -216,9 +243,22 @@ class _MyFamilyScreenState extends State<MyFamilyScreen> {
         Expanded(
           child: ActionButtonWidget(
             callBack: () {
-              Navigation.back(context);
+             // Navigation.back(context);
               print("updating the database");
-              updatingFamilyDataBase();
+              if(_familyRelation.currentState.validate()) {
+                if (_nameOffamily.currentState.validate()) {
+                  updatingFamilyDataBase();
+                  Navigator.pop(context, true);
+                }else if(_nameOffamily.currentState.validate())
+                  {
+                    updatingFamilyDataBase();
+                    Navigator.pop(context, true);
+                  }
+              }
+              //   }else {
+              //   updatingFamilyDataBase();
+              //   Navigator.pop(context, true);
+              // }
             },
             text: AppTexts.SAVE,
             isFilled: true,
@@ -248,7 +288,7 @@ class _MyFamilyScreenState extends State<MyFamilyScreen> {
 
   Future<void> userList() async{
     try {
-      user= await Amplify.DataStore.query(Users.classType,where: Users.ID.eq("315eca04-ab0d-46f7-b063-d8707d607a18"));
+      user= await Amplify.DataStore.query(Users.classType,where: Users.ID.eq(userid));
     }catch(e)
     {
       print("Could not query DataStore: " + e);
@@ -283,7 +323,6 @@ class _MyFamilyScreenState extends State<MyFamilyScreen> {
           name: members[i].name);
       await Amplify.DataStore.save(item);
     }
-
   }
 
 }

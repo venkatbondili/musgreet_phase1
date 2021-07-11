@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mus_greet/core/config/navigation.dart';
@@ -7,10 +9,11 @@ import 'package:mus_greet/core/widgets/action_button_widget.dart';
 import 'package:mus_greet/core/widgets/asset_image_widget.dart';
 import 'package:mus_greet/core/widgets/custom_spacer_widget.dart';
 import 'package:mus_greet/core/widgets/rounded_button_widget.dart';
+import 'package:mus_greet/models/MasterIntrests.dart';
 import 'package:mus_greet/models/ModelProvider.dart';
 import 'package:amplify_flutter/amplify.dart';
 import 'package:mus_greet/pages/advanced_search/search_skills_screen.dart';
-
+import 'package:mus_greet/pages/interest_screen/multi_line_chip.dart';
 
 
 class AddSkillsScreen extends StatefulWidget {
@@ -18,9 +21,11 @@ class AddSkillsScreen extends StatefulWidget {
   final List<String> languagesList;
   final String gender;
   final String age;
+  final List<UserProfile> userProfile;
+  final List<String> skillsData;
   //final List<Users> genderFilteredUsers;
   //final List<Users> ageFilteredUsers;
-  AddSkillsScreen({this.callingScreen, this.languagesList, this.gender, this.age
+  AddSkillsScreen({this.callingScreen, this.languagesList, this.gender, this.age, this.userProfile, this.skillsData
     //this.genderFilteredUsers,
     //this.ageFilteredUsers
   });
@@ -30,7 +35,7 @@ class AddSkillsScreen extends StatefulWidget {
 
 class _AddSkillsScreenState extends State<AddSkillsScreen> {
   List<MasterIntrests> masterIntrest;
-  List<UserProfile> userProfile;
+  //List<UserProfile> userProfile;
   List<String> SKILLS_CATEGORIES=[];
   List<String> skills;
   List<String> idIntrest;
@@ -41,11 +46,26 @@ class _AddSkillsScreenState extends State<AddSkillsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    if(SKILLS_CATEGORIES.isEmpty) {
-      _getSkills();
-    }
-    _userProfile();
-    _generatingSkillsId();
+
+    return FutureBuilder<List<MasterIntrests>>(
+      future: _getSkills(),
+      builder: (ctx, snapshot) {
+        switch (snapshot.connectionState) {
+          case ConnectionState.done:
+            masterIntrest = snapshot.data;
+            return buildUi(masterIntrest);
+          default:
+            return _buildLoadingScreen();
+        }
+      },
+    );
+  }
+
+  buildUi(List<MasterIntrests> masterIntrest)
+  {
+    print("inside the widget");
+    print(widget.userProfile);
+    _getSkillsList();
     return SafeArea(
       child: Scaffold(
         backgroundColor: AppColors.white,
@@ -53,6 +73,7 @@ class _AddSkillsScreenState extends State<AddSkillsScreen> {
       ),
     );
   }
+
 
   _getBody() {
     return SingleChildScrollView(
@@ -133,14 +154,14 @@ class _AddSkillsScreenState extends State<AddSkillsScreen> {
     print(SKILLS_CATEGORIES);
     return MultiSelectChip(
       SKILLS_CATEGORIES,
-        //SKILLS,
+      widget.skillsData,
       onSelectionChanged: (val) {
         print("hiiiiiii");
         print(val);
-        setState(() {
+       // setState(() {
           _selectedItems.clear();
           _selectedItems.addAll(val);
-        });
+       // });
       },
     );
   }
@@ -195,12 +216,9 @@ class _AddSkillsScreenState extends State<AddSkillsScreen> {
                   //_selectedItems.clear();
                 }
                 else {
-                  Navigation.back(context);
-                  print("Before the Intrest");
-                  print(SKILLSLIST);
-                  skillList=SKILLSLIST.join(",");
-                  print(skillList=SKILLSLIST.join(","));
-                  _UpdatingSkills();
+                  print("calling from intrest tab");
+                  getAddedSkillsValue();
+                  //Navigation.back(context);
                   print("add");
                 }
 
@@ -213,6 +231,16 @@ class _AddSkillsScreenState extends State<AddSkillsScreen> {
     );
   }
 
+  getAddedSkillsValue()
+  {
+    _generatingSkillsId();
+    print("Before the Intrest");
+    print(SKILLSLIST);
+    //skillList=SKILLSLIST.join(",");
+    //print(skillList=SKILLSLIST.join(","));
+    _UpdatingSkills();
+  }
+
   _navigateToAdvancedSearchScreen(List<String> selectedItems) {
     List<String> selectedSkillsList =_selectedItems;
     // Navigation.intentWithData(context, AppRoutes.SEARCH_SKILLS_SCREEN ,ArgumentLanguageClass(_selectedItems,"Languages"));
@@ -223,9 +251,9 @@ class _AddSkillsScreenState extends State<AddSkillsScreen> {
   }
 
   Future<void> _userProfile() async {
-    userProfile=await Amplify.DataStore.query(UserProfile.classType , where :UserProfile.ID.eq("f6a5cb27-5528-470d-88c5-3f199a03ea79"));
+    //userProfile=await Amplify.DataStore.query(UserProfile.classType , where :UserProfile.ID.eq("f6a5cb27-5528-470d-88c5-3f199a03ea79"));
     print("Inside the User Profile data store skills");
-    var a=userProfile[0].skills;
+    var a=widget.userProfile[0].skills;
     var ab = (a.split(','));
     idIntrest=ab;
     print(idIntrest);
@@ -245,26 +273,32 @@ class _AddSkillsScreenState extends State<AddSkillsScreen> {
     }
 
 
-  Future<void> _getSkills() async {
+  Future<List<MasterIntrests>> _getSkills() async {
     try {
       masterIntrest = await Amplify.DataStore.query(MasterIntrests.classType);
-      for(int i=0;i<masterIntrest.length;i++)
-      {
-        if(masterIntrest[i].category_name =="Skills")
-        {
-          SKILLS_CATEGORIES.add(masterIntrest[i].intrest_name);
-        }
-      }
-      print("Get Skills Method");
-      print(SKILLS_CATEGORIES);
-
+     return masterIntrest;
     }
     catch (e) {
       print("Could not query DataStore: " + e.stacktrace);
     }
   }
 
-  Future<void> _generatingSkillsId() async {
+
+  _getSkillsList()
+  {SKILLS_CATEGORIES.clear();
+    for(int i=0;i<masterIntrest.length;i++)
+    {
+      if(masterIntrest[i].category_name =="Skills")
+      {
+        SKILLS_CATEGORIES.add(masterIntrest[i].intrest_name);
+      }
+    }
+    print("Get Skills Method");
+    print(SKILLS_CATEGORIES);
+
+  }
+
+  _generatingSkillsId()  {
     print("inside the geneating");
     for(int i=0;i<_selectedItems.length;i++)
     {
@@ -284,123 +318,30 @@ class _AddSkillsScreenState extends State<AddSkillsScreen> {
 
   }
 
+  Widget _buildLoadingScreen() {
+    return Center(
+      child: Container(
+        width: 50,
+        height: 50,
+        child: CircularProgressIndicator(),
+      ),
+    );
+  }
+
 
   Future<void> _UpdatingSkills() async {
-    final updatedItem = userProfile[0].copyWith(
+    print("inside the updating skills");
+    final updatedItem = widget.userProfile[0].copyWith(
 
-        skills:  skillList);
+        skills:  jsonEncode(SKILLSLIST));
 
     await Amplify.DataStore.save(updatedItem);
-
+    Navigator.pop(context,true);
   }
 }
 
-class MultiSelectChip extends StatefulWidget {
-  final List<String> reportList;
-  //List<String> selectedChoices;
-  final Function(List<String>) onSelectionChanged;
-  final double width;
-  final double fontSize;
-
-  MultiSelectChip(this.reportList, {this.onSelectionChanged,this.fontSize=12,this.width=1});
-
-  @override
-  _MultiSelectChipState createState() => _MultiSelectChipState();
-}
 
 
-class _MultiSelectChipState extends State<MultiSelectChip> {
- // // final List<String> =List.empty(growable: true);
-   List<String> selectedList = List.empty(growable: true);
-  _buildChoiceList() {
-    List<Widget> choices = List.empty(growable: true);
-    widget.reportList.forEach(
-      (item)
-      {
-        print("inside the build");
-        print(item);
-        choices.add(
-          Theme(
-            data: ThemeData(canvasColor: Colors.transparent),
-            child: ChoiceChip(
-              padding: EdgeInsets.only(left: 5, right: 5),
-              side: BorderSide(
-                  width: widget.width,
-                  color: selectedList.contains(item)
-                      ? AppColors.background_color
-                      : AppColors.background_color),
-              label: Text(item),
-              labelStyle: selectedList.contains(item)
-                  ? TextStyle(
-                      fontFamily: FontConstants.FONT,
-                      fontSize: widget.fontSize,
-                      color: AppColors.white,
-                      fontWeight: FontWeight.w900,
-                    )
-                  : TextStyle(
-                      fontFamily: FontConstants.FONT,
-                      fontSize: widget.fontSize,
-                      color: AppColors.black,
-                      fontWeight: FontWeight.w500),
-              selected: selectedList.contains(item),
-              backgroundColor: selectedList.contains(item)
-                  ? AppColors.background_color
-                  : AppColors.white,
-              selectedColor: AppColors.background_color,
-              onSelected: (selected) {
-                print("on Selected");
-                print(selected);
-                setState(() {
-                  //_getSelectedChoiceList(item,selected);
-                  // selectedList.contains(item)
-                  //     ? selectedList.add(item)
-                  //     : selectedList.remove(item);
-                  // widget.onSelectionChanged(selectedList);
-                });
-              },
-            ),
-          ),
-        );
-      },
-    );
-    print("outside the method");
-    return choices;
-  }
-
-  // _getSelectedChoiceList(String item,bool selected)
-  // {
-  //   if(selected==true)
-  //     {
-  //       print("true");
-  //       if(!widget.selectedChoices.contains(item)) {
-  //         widget.selectedChoices.add(item);
-  //       }
-  //     }else {
-  //     print("false");
-  //     print(widget.selectedChoices);
-  //     print(item);
-  //     if(widget.selectedChoices.contains(item));
-  //     {
-  //       print("contains true");
-  //       widget.selectedChoices.remove(item);
-  //       print(widget.selectedChoices);
-  //     }
-  //     }
-  //   widget.onSelectionChanged(widget.selectedChoices);
-  // }
-
-  @override
-  Widget build(BuildContext context) {
-    //selectedChoices.add(widget.reportList.first);
-    return Wrap(
-      spacing: 10.0, // spacing between adjacent chips
-      children: _buildChoiceList(),
-    );
-  }
-
-
-
-}
 
 
 

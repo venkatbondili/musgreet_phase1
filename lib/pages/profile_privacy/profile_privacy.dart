@@ -10,10 +10,13 @@ import 'package:mus_greet/core/widgets/asset_image_widget.dart';
 import 'package:mus_greet/core/widgets/custom_spacer_widget.dart';
 import 'package:mus_greet/core/widgets/drop_down_text_field.dart';
 import 'package:mus_greet/models/UserProfile.dart';
+import 'package:mus_greet/models/Users.dart';
 
 import '../../main.dart';
 
 class ProfilePrivacy extends StatefulWidget {
+  Users sessionUser;
+  ProfilePrivacy({this.sessionUser});
   @override
   _ProfilePrivacyState createState() => _ProfilePrivacyState();
 }
@@ -24,9 +27,12 @@ class _ProfilePrivacyState extends State<ProfilePrivacy> {
 
   List<UserProfile> userProfile;
   String member;
+  String loggedInUser;
+  final _profilePrivacy =GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
+    loggedInUser=widget.sessionUser.id;
     about();
     return SafeArea(
       child: Scaffold(
@@ -50,7 +56,18 @@ class _ProfilePrivacyState extends State<ProfilePrivacy> {
                   CustomSpacerWidget(
                     height: 30,
                   ),
-                  _getProfilePolicy(),
+                  Container(
+                    child: Form(
+                      key: _profilePrivacy,
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
+                      child: Column(
+                        children: [
+                          _getProfilePolicy(),
+                        ],
+                      ),
+                    ),
+                  ),
+                  //_getProfilePolicy(),
                   CustomSpacerWidget(
                     height: 30,
                   ),
@@ -135,9 +152,12 @@ class _ProfilePrivacyState extends State<ProfilePrivacy> {
         Expanded(
           child: ActionButtonWidget(
             callBack: () {
-              Navigation.back(context);
+              // Navigation.back(context);
               print("updating the database");
-              updateUserProfile(member);
+              if(_profilePrivacy.currentState.validate()) {
+                updateUserProfile(member);
+                Navigator.pop(context, true);
+              }
             },
             text: AppTexts.SAVE,
             isFilled: true,
@@ -150,7 +170,7 @@ class _ProfilePrivacyState extends State<ProfilePrivacy> {
   Future<void> about() async {
     try {
       userProfile = await Amplify.DataStore.query(UserProfile.classType,
-          where: UserProfile.ID.eq("0263d01c-1250-4541-826d-8d63f96cf8c0"));
+          where: UserProfile.USERSID.eq(loggedInUser));
       print(userProfile);
       print("inside the user profile");
     } catch (e) {

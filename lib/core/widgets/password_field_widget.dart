@@ -43,7 +43,7 @@ class _PasswordFieldWidgetState extends State<PasswordFieldWidget> {
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: AppColors.green_light),
       ),
-      child: TextFormField(
+      child: TextField(
         controller: widget.controller,
         style: TextStyle(
           fontWeight: FontWeight.bold,

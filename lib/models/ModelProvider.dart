@@ -19,6 +19,7 @@ import 'package:amplify_datastore_plugin_interface/amplify_datastore_plugin_inte
 import 'Facilitiesmaster.dart';
 import 'FriendRequest.dart';
 import 'Friends.dart';
+import 'Languagespoken.dart';
 import 'MasterIntrests.dart';
 import 'Mosque.dart';
 import 'MosqueFollowers.dart';
@@ -37,6 +38,7 @@ import 'Users.dart';
 export 'Facilitiesmaster.dart';
 export 'FriendRequest.dart';
 export 'Friends.dart';
+export 'Languagespoken.dart';
 export 'MasterIntrests.dart';
 export 'Mosque.dart';
 export 'MosqueFollowers.dart';
@@ -54,12 +56,13 @@ export 'Users.dart';
 
 class ModelProvider implements ModelProviderInterface {
   @override
-  String version = "ae6977e8a70f4835ddf423b89313d517";
+  String version = "aae05148b3755d1de86f8fd217ddcfbc";
   @override
   List<ModelSchema> modelSchemas = [
     Facilitiesmaster.schema,
     FriendRequest.schema,
     Friends.schema,
+    Languagespoken.schema,
     MasterIntrests.schema,
     Mosque.schema,
     MosqueFollowers.schema,
@@ -94,6 +97,11 @@ class ModelProvider implements ModelProviderInterface {
       case "Friends":
         {
           return Friends.classType;
+        }
+        break;
+      case "Languagespoken":
+        {
+          return Languagespoken.classType;
         }
         break;
       case "MasterIntrests":

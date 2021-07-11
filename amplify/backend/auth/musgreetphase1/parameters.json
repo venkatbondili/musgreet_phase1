@@ -1,6 +1,6 @@
 {
     "identityPoolName": "testAuthIdentityPool",
-    "allowUnauthenticatedIdentities": true,
+    "allowUnauthenticatedIdentities": false,
     "resourceNameTruncated": "musgre4950f888",
     "userPoolName": "musgreetphase1",
     "autoVerifiedAttributes": [
@@ -12,8 +12,8 @@
     ],
     "smsAuthenticationMessage": "Your login code is {####}",
     "smsVerificationMessage": "Your verification code is {####}",
-    "emailVerificationSubject": "Forgot password code: {####}",
-    "emailVerificationMessage": "Forgot password code: {####}",
+    "emailVerificationSubject": "Musgreet - Email registration code: {####}",
+    "emailVerificationMessage": "Thanks for taking time in signing up for Musgreet.\n\nYour musgreet email registration code: {####}",
     "defaultPasswordPolicy": false,
     "passwordPolicyMinLength": 8,
     "passwordPolicyCharacters": [
@@ -57,5 +57,6 @@
     "thirdPartyAuth": false,
     "authProviders": [],
     "usernameCaseSensitive": false,
-    "dependsOn": []
+    "dependsOn": [],
+    "hostedUI": false
 }

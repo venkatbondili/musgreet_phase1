@@ -1,3 +1,6 @@
+import 'dart:convert';
+
+import 'package:amplify_datastore/amplify_datastore.dart';
 import 'package:dotted_line/dotted_line.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -11,42 +14,79 @@ import 'package:mus_greet/models/UserFamily.dart';
 import 'package:mus_greet/models/UserProfile.dart';
 import 'package:amplify_flutter/amplify.dart';
 import 'package:mus_greet/models/Users.dart';
+import 'package:mus_greet/pages/add_education_screen/add_education_screen.dart';
+import 'package:mus_greet/pages/bio/bio.dart';
+import 'package:mus_greet/pages/final/nearly_finished_page.dart';
+import 'package:mus_greet/pages/islam_intrest/islam_intrest.dart';
+import 'package:mus_greet/pages/languages_screen/select_languages.dart';
+import 'package:mus_greet/pages/my_family_screen/my_family_screen.dart';
+import 'package:mus_greet/pages/profile/view_profile_screen/view_profile_screen.dart';
+import 'package:mus_greet/pages/profile_privacy/profile_privacy.dart';
+import 'package:mus_greet/pages/relation/relationshio.dart';
+
+import '../../../../main.dart';
 
 class AboutTab extends StatefulWidget {
-  List<UserProfile> userProfile;
-  AboutTab({this.userProfile});
+  final Users sessionUser;
+  AboutTab({this.sessionUser});
+
   @override
   _AboutTabState createState() => _AboutTabState();
 }
 
 class _AboutTabState extends State<AboutTab> {
-  //List<UserProfile> userProfile;
-  List<Users> user;
-  List<UserFamily> userFamily;
+  List<UserProfile> userProfile;
+  //List<Users> user=[];
+  List<UserFamily> userFamily=[];
   List<String> name=[];
   List<String> relationship=[];
   List<String> listOfLanguages;
   List<UserEducation> userEducation;
+  List<UserEducation> userEducationUsers=[];
   bool _isBioExpanded =false;
-   bool _isEducationExpanded = true;
+   bool _isEducationExpanded = false;
   bool _isContactInfoExpanded = false;
   bool _isGeneralInfoExpanded = false;
   bool _isFaithInfoExpanded = false;
   bool _isFamilyInfoExpanded = false;
   bool _isPrivacyInfoExpanded = false;
-  String userid="315eca04-ab0d-46f7-b063-d8707d607a18";
   Map<String,String> FAMILY_MEMBER={};
+  String bio="";
+  String sectName="";
+  String revert="";
+  String islamIntrestValue="";
+  String policy="";
+  bool language;
+  String joinedDate="";
+  String age="";
+  String relationshipStatus="";
+  String gender="";
+  String houseNumber="";
+  String street="";
+  String city="";
+  String country="";
+  String postCode="";
+  bool educationValue=true;
+  ViewProfileScreen args;
+  Users sessionUser;
 
   @override
   Widget build(BuildContext context) {
     //userList();
-    return FutureBuilder<List<Users>>(
+print('inside about build');
+print(widget.sessionUser);
+    // args=ModelRoute.of(context).settings.arguments as ViewProfileScreen;
+    // sessionUser=args.sessionUser;
+    // userid=sessionUser.id;
+    return FutureBuilder<List<UserProfile>>(
       future: userList(),
       builder: (ctx, snapshot) {
         switch (snapshot.connectionState) {
           case ConnectionState.done:
-            user = snapshot.data;
-            return buildFamilyList(user);
+            userProfile = snapshot.data;
+            print('main build');
+            print(userProfile);
+            return buildFamilyList(userProfile);
           default:
             return _buildLoadingScreen();
         }
@@ -54,16 +94,20 @@ class _AboutTabState extends State<AboutTab> {
     );
   }
 
-  buildFamilyList(List<Users> user)
+  buildFamilyList(List<UserProfile> userProfile)
   {
     //userFamilyList();
+    print(widget.sessionUser);
+    print("inside the user list method");
     return FutureBuilder<List<UserFamily>>(
       future: userFamilyList(),
       builder: (ctx, snapshot) {
         switch (snapshot.connectionState) {
           case ConnectionState.done:
             userFamily = snapshot.data;
-            return buildEducation(userFamily,user);
+            print('user family');
+            print(userFamily);
+            return buildEducation(userFamily,widget.sessionUser);
           default:
             return _buildLoadingScreen();
         }
@@ -72,15 +116,19 @@ class _AboutTabState extends State<AboutTab> {
   }
 
 
-  buildEducation(List<UserFamily> userFamily, List<Users> user)
+  buildEducation(List<UserFamily> userFamily, Users user)
   {
     //education();
+    print(userFamily.length);
+    print("inside the user family method");
     return FutureBuilder<List<UserEducation>>(
       future: education(),
       builder: (ctx, snapshot) {
         switch (snapshot.connectionState) {
           case ConnectionState.done:
             userEducation = snapshot.data;
+            print('education');
+            print(userEducation);
             return buildAbout(userFamily,user,userEducation);
           default:
             return _buildLoadingScreen();
@@ -90,13 +138,17 @@ class _AboutTabState extends State<AboutTab> {
   }
 
 
-  buildAbout(List<UserFamily> userFamily, List<Users> user, List<UserEducation> userEducation)
-  {
+  buildAbout(List<UserFamily> userFamily, Users user, List<UserEducation> userEducation) {
     bool status = false;
-    gettingLanguages();
-    if(userFamily.isNotEmpty && user.isNotEmpty && userEducation.isNotEmpty){
-      status = true;
-    }//
+    print("inside the build about");
+    print(userEducation);
+    getUserFamily();
+    gettingLanguages(userProfile);
+    print("after getting the languages");
+    // if(userFamily.isNotEmpty && userEducation.isNotEmpty){
+    //   status = true;
+    // }//
+    status = true;
     return status ? Container(
       width: MediaQuery.of(context).size.width,
       margin: EdgeInsets.only(top: 4),
@@ -169,21 +221,22 @@ class _AboutTabState extends State<AboutTab> {
         CustomSpacerWidget(
           height: 5,
         ),
-        Container(
-          padding: EdgeInsets.only(left: 15, right: 15),
-          child: Text(
-            widget.userProfile[0].bio,
-            style: TextStyle(
-              fontFamily: FontConstants.FONT,
-              fontSize: 12,
-              fontWeight: FontWeight.w400,
-              color: AppColors.header_black,
-            ),
-          ),
-        ),
-        CustomSpacerWidget(
-          height: 30,
-        ),
+        // Container(
+        //   padding: EdgeInsets.only(left: 15, right: 15),
+        //   child: Text(
+        //     //widget.userProfile[0].bio,
+        //     "",
+        //     style: TextStyle(
+        //       fontFamily: FontConstants.FONT,
+        //       fontSize: 12,
+        //       fontWeight: FontWeight.w400,
+        //       color: AppColors.header_black,
+        //     ),
+        //   ),
+        // ),
+        // CustomSpacerWidget(
+        //   height: 30,
+        // ),
         Container(
           padding: EdgeInsets.only(left: 15, right: 15),
           child: DottedLine(
@@ -206,6 +259,7 @@ class _AboutTabState extends State<AboutTab> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
+
             Text(
               AppTexts.BIO,
               style: TextStyle(
@@ -215,7 +269,6 @@ class _AboutTabState extends State<AboutTab> {
                 color: AppColors.header_black,
               ),
             ),
-
             _isBioExpanded
                 ? RotatedBox(
               quarterTurns: 2,
@@ -229,6 +282,7 @@ class _AboutTabState extends State<AboutTab> {
   }
 
   _getBioAndDottedBorderContainer() {
+    _getBioDetails();
     return Container(
       padding: EdgeInsets.only(top: 10, bottom: 10),
       decoration: BoxDecoration(
@@ -247,10 +301,13 @@ class _AboutTabState extends State<AboutTab> {
               Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    CustomSpacerWidget(
+                      height: 10,
+                    ),
                     Row(
                         children:[
                           _getContactInfoData(
-                              contactType: "", details: widget.userProfile[0].bio),
+                              contactType: "", details: bio ),
                         ]
                     ),
                   ]
@@ -258,9 +315,10 @@ class _AboutTabState extends State<AboutTab> {
               _isBioExpanded
                   ? Padding(
                 padding: EdgeInsets.only(right: 25, top: 15),
-                //_getLockDetails(),
+
                 child: _getEditDetails(callBack: (){
-                  _navigateToEditEducationScreen(route: AppRoutes.BIO);
+                  //_navigateToEditEducationScreen(route: AppRoutes.BIO);
+                  Navigator.of(context).push(new MaterialPageRoute(builder: (_)=>new Bio(sessionUser:widget.sessionUser)),).then((value) => value?build(context):null);
                 }),
               )
                   : Container(),
@@ -272,6 +330,14 @@ class _AboutTabState extends State<AboutTab> {
     );
   }
 
+  _getBioDetails()
+  {
+    if(userProfile[0].bio == "" || userProfile[0].bio == null){
+      bio = "Add your bio here";
+    }else{
+      bio=userProfile[0].bio;
+    }
+  }
 
 
   _getEducationDetails() {
@@ -283,7 +349,9 @@ class _AboutTabState extends State<AboutTab> {
       },
       child: Container(
         padding: EdgeInsets.only(left: 15, right: 15, top: 5, bottom: 5),
-        child: Row(
+        child:Column(
+          children: [
+         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
@@ -295,34 +363,17 @@ class _AboutTabState extends State<AboutTab> {
                 color: AppColors.header_black,
               ),
             ),
+
             _isEducationExpanded
                 ? RotatedBox(
                     quarterTurns: 2,
-                    child: _getArrowDownAndUp(_isEducationExpanded),
+                    child: _getArrowDownAndUpEducation(_isEducationExpanded),
                   )
-                : _getArrowDownAndUp(_isEducationExpanded),
+                : _getArrowDownAndUpEducation(_isEducationExpanded),
           ],
         ),
-      ),
-    );
-  }
-
-  _navigateToEditEducationScreen({String route}) {
-    if (route != null) {
-      Navigation.intent(context, route);
-    }
-  }
-
-  _getIconDetails()
-  {
-    return GestureDetector(
-      child: Padding(
-        padding: const EdgeInsets.all(5.0),
-        child: AssetImageWidget(
-          image: ImageConstants.IC_EYE,
-          height: 20,
-          width: 20,
-        ),
+        ]
+        )
       ),
     );
   }
@@ -331,7 +382,7 @@ class _AboutTabState extends State<AboutTab> {
   {
     return GestureDetector(
       child: Padding(
-        padding: const EdgeInsets.all(5.0),
+        padding: EdgeInsets.only(left:2, top: 15),
         child: AssetImageWidget(
           image: ImageConstants.IC_LOCK,
           height: 20,
@@ -341,12 +392,41 @@ class _AboutTabState extends State<AboutTab> {
     );
   }
 
+  _getEyeDetails()
+  {
+    return GestureDetector(
+      child: Padding(
+        padding: EdgeInsets.only(right:0, top: 15),
+        child: AssetImageWidget(
+          image: ImageConstants.IC_EYE,
+          height: 20,
+          width: 20,
+        ),
+      ),
+    );
+  }
+
 
   _getEditDetails({Function callBack}) {
-     return GestureDetector(
+    return GestureDetector(
       onTap: () => callBack(),
       child: Padding(
         padding: const EdgeInsets.all(5.0),
+        child: AssetImageWidget(
+          image: ImageConstants.IC_EDIT,
+          height: 20,
+          width: 20,
+        ),
+      ),
+    );
+
+  }
+
+  _getEditDetailsForEducation({Function callBack}) {
+    return GestureDetector(
+      onTap: () => callBack(),
+      child: Padding(
+        padding: EdgeInsets.only(left: 270, top: 0),
         child: AssetImageWidget(
           image: ImageConstants.IC_EDIT,
           height: 20,
@@ -369,36 +449,186 @@ class _AboutTabState extends State<AboutTab> {
     );
   }
 
-  _getEducationExpandedContainer() {
-    return Container(
+  _getArrowDownAndUpEducation(bool isExpanded) {
+    return Padding(
       padding: EdgeInsets.only(top: 10, bottom: 10),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(15),
-        color: AppColors.comment_wall_color,
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          _getEducationDetails(),
-          for(int i=0;i<userEducation.length ;i++)
-            if(userid ==userEducation[i].usersID)
-          _getEducationInfo(
-            institution: userEducation[i].institution,
-            dept: userEducation[i].course,
-            years: "2019-2021",
-            editIcon: true,
-          ),
-        ],
+      child: AssetImageWidget(
+        image: ImageConstants.IC_DOWN,
+        height: 15,
+        width: 15,
+        color: isExpanded ? AppColors.black : null,
       ),
     );
   }
 
+  _getEducationExpandedContainer() {
+
+    _getEducationList();
+    print("inside the user education");
+
+    print(userEducationUsers.length);
+    print("length of the education");
+      if(userEducationUsers.isEmpty) {
+        print("the value");
+        print(userEducationUsers.length);
+        educationValue=true;
+      }else
+        {
+          educationValue=false;
+        }
+
+    // return userEducationUsers.length ==0? Container(
+        //   padding: EdgeInsets.only(top: 10, bottom: 10),
+        //   decoration: BoxDecoration(
+        //     borderRadius: BorderRadius.circular(15),
+        //     color: AppColors.comment_wall_color,
+        //     //color:AppColors.Grey_Light,
+        //   ),
+        //   child: Column(
+        //     mainAxisAlignment: MainAxisAlignment.start,
+        //     children: <Widget>[
+        //       _getEducationDetails(),
+        //       //userEducationUsers == [] ? Container() :
+        //       Column(
+        //           children: <Widget>[
+        //             //mainAxisAlignment: MainAxisAlignment.start,
+        //             new ListView.builder(
+        //                 shrinkWrap: true,
+        //                 scrollDirection: Axis.vertical,
+        //                 itemCount: 1,
+        //                 itemBuilder: (context, index) {
+        //                   return _getEducationInfo(
+        //                     institution: "Add Education here",
+        //                    dept: "",
+        //                     years: "",
+        //                     editIcon: true,
+        //                     //number: index,
+        //                   );
+        //                   //return getDefaultEducation();
+        //                 }
+        //             )
+        //           ]
+        //       ),
+        //       educationValue ? _getEditDetailsForEducation(
+        //           callBack: () {
+        //             //_navigateToEditEducationScreen(
+        //             //route: AppRoutes.ADD_EDUCATION,
+        //             Navigator.of(context)
+        //                 .push(new MaterialPageRoute(builder: (_) =>
+        //                 AddEducationScreen(sessionUser: widget.sessionUser)),)
+        //                 .then((value) => value ? build(context) : null);
+        //           }
+        //       )
+        //           : Container(),
+        //     ],
+        //
+        //   ),
+        //
+        // ):    //
+       return Container(
+        padding: EdgeInsets.only(top: 10, bottom: 10),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(15),
+          color: AppColors.comment_wall_color,
+          //color:AppColors.Grey_Light,
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: <Widget>[
+            _getEducationDetails(),
+          //userEducationUsers == [] ? Container() :
+          Column(
+                children: <Widget>[
+                  //mainAxisAlignment: MainAxisAlignment.start,
+                  new ListView.builder(
+                      shrinkWrap: true,
+                      scrollDirection: Axis.vertical,
+                      itemCount: userEducationUsers.length,
+                      itemBuilder: (context, index) {
+                        return _getEducationInfo(
+                          institution: userEducationUsers[index].institution,
+                          dept: userEducationUsers[index].course,
+                          years: userEducationUsers[index].from + "," +
+                              userEducationUsers[index].to,
+                          //editIcon: true,
+                          number: index,
+                        );
+                      }
+                  )
+                ]
+            ),
+            educationValue ? _getEditDetailsForEducation(
+                callBack: () {
+                  //_navigateToEditEducationScreen(
+                  //route: AppRoutes.ADD_EDUCATION,
+                  Navigator.of(context)
+                      .push(new MaterialPageRoute(builder: (_) =>
+                      AddEducationScreen(sessionUser: widget.sessionUser)),)
+                      .then((value) => value ? build(context) : null);
+                }
+            )
+                : Container(),
+          ],
+
+        ),
+
+      );
+
+  }
+
+  getDefaultEducation()
+  {
+    return Row(
+      children:
+      [
+      _getEducationInfo(
+      institution: "Add Education here",
+      dept: "",
+      years: "",
+      editIcon: true,
+      //number: index,
+       ),
+        educationValue ? _getEditDetailsForEducation(
+            callBack: () {
+              //_navigateToEditEducationScreen(
+              //route: AppRoutes.ADD_EDUCATION,
+              Navigator.of(context)
+                  .push(new MaterialPageRoute(builder: (_) =>
+                  AddEducationScreen(sessionUser: widget.sessionUser)),)
+                  .then((value) => value ? build(context) : null);
+            }
+        )
+            : Container(),
+      ]
+    );
+
+  }
+
+  _getEducationList()
+  { print("get educationlist");
+  userEducationUsers.clear();
+      print("for loop of education list");
+        String userId=widget.sessionUser.id;
+        for(int i=0;i<userEducation.length;i++)
+          {print("for loop for length");
+            if(userId== userEducation[i].usersID)
+              {print("if condition is true");
+                userEducationUsers.add(userEducation[i]);
+              }
+
+      }
+    print(userEducationUsers.length);
+  }
+
   _getEducationInfo(
-      {String institution, String dept, String years, bool editIcon = false}) {
+      {String institution, String dept, String years, bool editIcon = false, int number}) {
+
     return Container(
       alignment: Alignment.centerLeft,
       padding: EdgeInsets.only(left: 25, right: 25, top: 8, bottom: 8),
-      child: Row(
+      child:Column(
+        children:[
+       Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Flexible(
@@ -416,7 +646,7 @@ class _AboutTabState extends State<AboutTab> {
                 CustomSpacerWidget(
                   height: 2,
                 ),
-                Text(
+                    Text(
                   dept,
                   style: TextStyle(
                       fontFamily: FontConstants.FONT,
@@ -424,9 +654,11 @@ class _AboutTabState extends State<AboutTab> {
                       fontWeight: FontWeight.bold,
                       color: AppColors.black),
                 ),
+
                 CustomSpacerWidget(
                   height: 2,
                 ),
+
                 Text(
                   years,
                   style: TextStyle(
@@ -435,21 +667,25 @@ class _AboutTabState extends State<AboutTab> {
                     color: AppColors.black,
                     fontWeight: FontWeight.w500,
                   ),
-                ),
+                 )
               ],
             ),
           ),
-          editIcon
-              ? _getEditDetails(
-                  callBack: (){
-                    _navigateToEditEducationScreen(
-                      route: AppRoutes.ADD_EDUCATION,
-                    );
-                  }
-                )
+          number==0? _getEditDetails(
+              callBack: (){
+                //_navigateToEditEducationScreen(
+                //route: AppRoutes.ADD_EDUCATION,
+                Navigator.of(context).push(new MaterialPageRoute(builder: (_)=> AddEducationScreen(sessionUser:widget.sessionUser)),).then((value) => value?build(context):null);
+              }
+          )
               : Container(),
         ],
+        ),
+
+      ]
       ),
+
+
     );
   }
 
@@ -542,7 +778,7 @@ class _AboutTabState extends State<AboutTab> {
                     children:[
                   _getContactInfoData(
                       contactType: AppTexts.EMAIL,
-                      details: user[0].email),
+                      details: widget.sessionUser.email),
                     ]
                   ),
                 ]
@@ -566,14 +802,15 @@ class _AboutTabState extends State<AboutTab> {
                         children:[
                           _getContactInfoData(
                               contactType: AppTexts.PHONE,
-                              details: user[0].phone),
+                              details: widget.sessionUser.phone),
                         ]
                     ),
+
                   ]
               ),
               GestureDetector(
                 child: Padding(
-                  padding: EdgeInsets.only(left:210, top: 20),
+                  padding: EdgeInsets.only(left: 0, top: 30),
                   child: AssetImageWidget(
                     image: ImageConstants.IC_EYE,
                     height: 20,
@@ -581,16 +818,18 @@ class _AboutTabState extends State<AboutTab> {
                   ),
                 ),
               ),
+              // SizedBox(
+              //   width:4,
+              // ),
               _isContactInfoExpanded
                   ? Padding(
-                padding: EdgeInsets.only(right: 25, top: 15),
+                padding: EdgeInsets.only(right:22, top: 15),
                 child:
-                _getEditDetails( callBack: (){
-                  _navigateToEditEducationScreen(route: AppRoutes.MY_FAMILY);
-                }),
+                _getLockDetails(
+                 // _navigateToEditEducationScreen(route: AppRoutes.MY_FAMILY);
+                ),
               )
                   : Container(),
-
             ],
 
           ),
@@ -600,37 +839,48 @@ class _AboutTabState extends State<AboutTab> {
   }
 
 
+
+
   _getContactInfoData({
     String contactType,
     String details,
   }) {
-    return Container(
+     return Container(
+
       padding: EdgeInsets.only(left: 25, right: 25, top: 8, bottom: 8),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            contactType,
-            style: TextStyle(
-              fontSize: 14,
-              color: AppColors.black_50,
-              fontFamily: FontConstants.FONT,
-            ),
-          ),
-          Text(
-            details,
-            style: TextStyle(
+      width: MediaQuery.of(context).size.width -104,
+      child: Flexible(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              contactType,
+              style: TextStyle(
                 fontSize: 14,
-                fontWeight: FontWeight.bold,
+                color: AppColors.black_50,
                 fontFamily: FontConstants.FONT,
-                color: AppColors.header_black),
-          ),
-        ],
+              ),
+            ),
+            Text(
+              details,
+              maxLines: 5,
+              textAlign: TextAlign.justify,
+              //overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                  fontFamily: FontConstants.FONT,
+                  color: AppColors.header_black),
+            ),
+          ],
+        ),
+
       ),
     );
   }
 
   _getGeneralInfoExpandedContainer() {
+    _getLanguages();
     return Container(
       padding: EdgeInsets.only(top: 10, bottom: 10),
       decoration: BoxDecoration(
@@ -653,7 +903,7 @@ class _AboutTabState extends State<AboutTab> {
                     children: [
                   _getContactInfoData(
                       contactType: AppTexts.JOINED_MUSGREET,
-                      details: 'March 2021'),
+                      details: joinedDate),
                         ]
                      ),
                     ]
@@ -676,7 +926,7 @@ class _AboutTabState extends State<AboutTab> {
                       Row (
                           children: [
                             _getContactInfoData(
-                                contactType: AppTexts.GENDAR, details: 'Male'),
+                                contactType: AppTexts.GENDAR, details: gender),
                           ]
                       ),
                     ]
@@ -700,7 +950,7 @@ class _AboutTabState extends State<AboutTab> {
                           children: [
                             _getContactInfoData(
                                 contactType: AppTexts.AGE,
-                                details: "27"),
+                                details: age),
                           ]
                       ),
                     ]
@@ -724,7 +974,7 @@ class _AboutTabState extends State<AboutTab> {
                           children: [
                             _getContactInfoData(
                                 contactType: AppTexts.RELATION_SHIP,
-                                details: "27"),
+                                details: relationshipStatus),
                           ]
                       ),
                     ]
@@ -732,7 +982,10 @@ class _AboutTabState extends State<AboutTab> {
                 _isGeneralInfoExpanded
                     ? Padding(
                   padding: EdgeInsets.only(right: 25, top: 15),
-                  child: _getEditDetails(),
+                  child: _getEditDetails(callBack: (){
+                    //_navigateToEditEducationScreen(route: AppRoutes.LANGUAGES_SCREEN);
+                    Navigator.of(context).push(new MaterialPageRoute(builder: (_)=>new Reliationship(sessionId: widget.sessionUser,)),).then((value) => value?build(context):null);
+                  }),
                 )
                     : Container(),
               ]
@@ -746,9 +999,13 @@ class _AboutTabState extends State<AboutTab> {
                     children: [
                       Row (
                           children: [
+                            language?
                             _getContactInfoData(
                                 contactType: AppTexts.LANGUAGE_SPOKEN,
-                                details: listOfLanguages.join('.')),
+                                details: listOfLanguages.join(', ')) :
+                            _getContactInfoData(
+                                contactType: AppTexts.LANGUAGE_SPOKEN,
+                                details: "Add the Languages"),
                           ]
                       ),
                     ]
@@ -757,7 +1014,8 @@ class _AboutTabState extends State<AboutTab> {
                     ? Padding(
                   padding: EdgeInsets.only(right: 25, top: 15),
                   child: _getEditDetails(callBack: (){
-                    _navigateToEditEducationScreen(route: AppRoutes.LANGUAGES_SCREEN);
+                    //_navigateToEditEducationScreen(route: AppRoutes.LANGUAGES_SCREEN);
+                    Navigator.of(context).push(new MaterialPageRoute(builder: (_)=>new LanguagesScreen(sessionId: widget.sessionUser,)),).then((value) => value?build(context):null);
                   }),
                 )
                     : Container(),
@@ -774,7 +1032,7 @@ class _AboutTabState extends State<AboutTab> {
                           children: [
                             _getContactInfoData(
                                 contactType: AppTexts.ADDRESS,
-                                details: "27"),
+                                details: houseNumber + " ," + street + "\n " + city+ ", " + country + ", " + postCode),
                           ]
                       ),
                     ]
@@ -790,6 +1048,55 @@ class _AboutTabState extends State<AboutTab> {
          ],
         ),
     );
+  }
+
+  _getLanguages()
+  {
+    print("list of languages");
+    print(listOfLanguages);
+    if(listOfLanguages == null  || listOfLanguages ==  [])
+      {
+        print("displaying the languages false");
+        language=false;
+      }else
+        {
+          print("displaying the languages true");
+          language=true;
+        }
+     joinedDate=widget.sessionUser.joined_date.toString();
+     gender=widget.sessionUser.gender;
+     age=widget.sessionUser.age;
+     relationshipStatus=userProfile[0].relationship_status;
+     houseNumber=widget.sessionUser.house_number;
+     street=widget.sessionUser.street;
+     city=widget.sessionUser.city;
+     country=widget.sessionUser.country;
+     postCode=widget.sessionUser.postcode;
+     if(joinedDate == "" || joinedDate == null){
+       joinedDate = "No data available";
+     }
+     if(gender == "" || gender == null){
+       gender = "No data available";
+     }
+     if(relationshipStatus == "" || relationshipStatus == null){
+       relationshipStatus = "No data available";
+     }
+    if(houseNumber == "" || houseNumber == null){
+      houseNumber = "No data available";
+    }
+    if(street == "" || street == null){
+      street = "No data available";
+    }
+    if(city == "" || city == null){
+      city = "No data available";
+    }
+    if(country == "" || country == null ){
+      country = "No data available";
+    }
+    if(postCode == "" || postCode == null){
+      postCode = "No data available";
+    }
+    //listOfLanguages.join(".");
   }
 
   _getFaithInfo() {
@@ -826,6 +1133,7 @@ class _AboutTabState extends State<AboutTab> {
   }
 
   _getFaithInfoExpandedContainer() {
+    _gettheSectData();
     return Container(
       padding: EdgeInsets.only(top: 10, bottom: 10),
       decoration: BoxDecoration(
@@ -847,14 +1155,14 @@ class _AboutTabState extends State<AboutTab> {
                     Row(
                         children:[
                           _getContactInfoData(
-                              contactType: AppTexts.SECT, details: widget.userProfile[0].sect),
+                              contactType: AppTexts.SECT, details: sectName),
                         ]
                     ),
                   ]
               ),
               GestureDetector(
                 child: Padding(
-                  padding: EdgeInsets.only(left:210, top: 20),
+                  padding: EdgeInsets.only(left: 0, top: 30),
                   child: AssetImageWidget(
                     image: ImageConstants.IC_EYE,
                     height: 20,
@@ -864,7 +1172,7 @@ class _AboutTabState extends State<AboutTab> {
               ),
               _isFaithInfoExpanded
                   ? Padding(
-                padding: EdgeInsets.only(right: 25, top: 15),
+                padding: EdgeInsets.only(right: 22, top: 15),
                 child: _getLockDetails(),
               )
                   : Container(),
@@ -882,7 +1190,7 @@ class _AboutTabState extends State<AboutTab> {
                     Row(
                         children:[
                           _getContactInfoData(
-                              contactType: AppTexts.ARE_YOU_A_REVERT, details: widget.userProfile[0].are_you_revert.toString()),
+                              contactType: AppTexts.ARE_YOU_A_REVERT, details:revert),
                         ]
                     ),
                   ]
@@ -908,7 +1216,7 @@ class _AboutTabState extends State<AboutTab> {
                         children:[
                           _getContactInfoData(
                               contactType: AppTexts.INTERESTED_IN_ISLAM,
-                              details: widget.userProfile[0].islam_interest.toString()),
+                              details: islamIntrestValue),
                         ]
                     ),
                   ]
@@ -917,7 +1225,8 @@ class _AboutTabState extends State<AboutTab> {
                   ? Padding(
                 padding: EdgeInsets.only(right: 25, top: 15),
                 child: _getEditDetails(callBack: (){
-                  _navigatetoIslamScreen();
+                 // _navigatetoIslamScreen();
+                  Navigator.of(context).push(new MaterialPageRoute(builder: (_)=> IslamIntrest(sessionUser:widget.sessionUser)),).then((value) => value?build(context):null);
                 }),
               )
                   : Container(),
@@ -930,6 +1239,12 @@ class _AboutTabState extends State<AboutTab> {
     );
   }
 
+  _gettheSectData()
+  {
+    sectName=userProfile[0].sect;
+    islamIntrestValue=userProfile[0].islam_interest.toString();
+    revert=userProfile[0].are_you_revert.toString();
+  }
   _getFamilyMemberInfo() {
     return GestureDetector(
       onTap: () {
@@ -987,7 +1302,9 @@ class _AboutTabState extends State<AboutTab> {
                   ),
                   for(int i=0;i<FAMILY_MEMBER.length;i++)
                   _getMemberDetails(
-                      name: FAMILY_MEMBER.keys.elementAt(i), relationShip: FAMILY_MEMBER.values.elementAt(i)),
+                      name: FAMILY_MEMBER.keys.elementAt(i), relationShip: FAMILY_MEMBER.values.elementAt(i)
+                  ),
+
                 ],
               ),
               _isFamilyInfoExpanded
@@ -995,7 +1312,9 @@ class _AboutTabState extends State<AboutTab> {
                       padding: EdgeInsets.only(right: 25, top: 15),
                       child: _getEditDetails(
                           callBack: (){
-                            _navigateToEditEducationScreen(route: AppRoutes.MY_FAMILY);
+                           // _navigateToEditEducationScreen(route: AppRoutes.MY_FAMILY);
+
+                            Navigator.of(context).push(new MaterialPageRoute(builder: (_)=> MyFamilyScreen(sessionUser:widget.sessionUser)),).then((value) => value?build(context):null);
                           }),
                     )
                   : Container(),
@@ -1017,8 +1336,12 @@ class _AboutTabState extends State<AboutTab> {
             width: 15,
           ),
           _getNameAndRelationShip(name: name, relationShip: relationShip),
+          SizedBox(
+            height: 50,
+          )
         ],
       ),
+
     );
   }
 
@@ -1026,8 +1349,8 @@ class _AboutTabState extends State<AboutTab> {
     var image = _getImageAccordingToRelationShip(relationShip: relationShip);
     return Image.asset(
       image,
-      height: 35,
-      width: 35,
+      height: 30,
+      width: 30,
     );
   }
 
@@ -1095,6 +1418,7 @@ class _AboutTabState extends State<AboutTab> {
   }
 
   _getPrivacyInfoExpandedContainer() {
+    _getPrivacy();
     return Container(
       padding: EdgeInsets.only(top: 10, bottom: 10),
       decoration: BoxDecoration(
@@ -1116,7 +1440,7 @@ class _AboutTabState extends State<AboutTab> {
                     Row(
                         children:[
                           _getContactInfoData(
-                              contactType: AppTexts.PROFILE_VIEW, details: widget.userProfile[0].profile_privacy),
+                              contactType: AppTexts.PROFILE_VIEW, details: policy),
                         ]
                     ),
                   ]
@@ -1125,17 +1449,26 @@ class _AboutTabState extends State<AboutTab> {
                   ? Padding(
                 padding: EdgeInsets.only(right: 25, top: 15),
                 child: _getEditDetails(callBack: (){
-                  _navigateToEditEducationScreen(route: AppRoutes.PROFILE_PRIVACY);
+                  //_navigateToEditEducationScreen(route: AppRoutes.PROFILE_PRIVACY);
+                  Navigator.of(context).push(new MaterialPageRoute(builder: (_)=> ProfilePrivacy(sessionUser:widget.sessionUser)),).then((value) => value?build(context):null);
                 }),
               )
                   : Container(),
-
             ],
 
           ),
         ],
       ),
     );
+  }
+
+  _getPrivacy()
+  {
+    policy=userProfile[0].profile_privacy;
+    if(policy=="" || policy==null)
+      {
+        policy="No Data Available";
+      }
   }
 
   _getImageAccordingToRelationShip({String relationShip}) {
@@ -1154,31 +1487,39 @@ class _AboutTabState extends State<AboutTab> {
     }
   }
 
-  gettingLanguages() {
-    try {
-      //userProfile = await Amplify.DataStore.query(UserProfile.classType,where: UserProfile.ID.eq("0263d01c-1250-4541-826d-8d63f96cf8c0"));
-      String language=widget.userProfile[0].languages_spoken;
-      var splitting= language.split(",");
+  gettingLanguages(List<UserProfile> userProfile) async {
+    try{
+    String language=userProfile[0].languages_spoken;
+    if(language.isNotEmpty){
+      print("getting languages");
+      print(language);
+      List<dynamic> languageDecode=jsonDecode(language);
+      print(languageDecode);
+      var languageJoin=languageDecode.join(",");
+      print(languageJoin);
+      var splitting= languageJoin.split(",");
       listOfLanguages=splitting;
       print(listOfLanguages);
-      print(widget.userProfile);
+      print(userProfile);
       print("inside the user profile");
+    }
+    else{
+      listOfLanguages = [];
+    }
     }catch(e)
     {
       print("Could not query DataStore: " + e);
     }
   }
 
-  Future<List<Users>> userList() async{
-
-    try {
-      user= await Amplify.DataStore.query(Users.classType,where: Users.ID.eq(userid));
-      print(user);
-      print("inside the user");
-      return user;
+  Future<List<UserProfile>> userList() async{
+    try{
+      userProfile = await Amplify.DataStore.query(UserProfile.classType,where: UserProfile.USERSID.eq(widget.sessionUser.id));
+      print(userProfile);
+      return userProfile;
     }catch(e)
     {
-      print("Could not query DataStore: " + e);
+
     }
   }
 
@@ -1196,11 +1537,12 @@ class _AboutTabState extends State<AboutTab> {
   }
 
   getUserFamily() {
+    FAMILY_MEMBER.clear();
     if(userFamily.isNotEmpty) {
-      for (int i = 0; i < user.length; i++) {
+      for (int i = 0; i < userFamily.length; i++) {
         print(userFamily[i].name);
-        if (userid == userFamily[i].user_id) {
-          print("hiiii");
+        if (widget.sessionUser.id == userFamily[i].user_id) {
+          print("inside the family widget");
           FAMILY_MEMBER.addAll({
             userFamily[i].name: userFamily[i].relationship,
           });
@@ -1208,15 +1550,18 @@ class _AboutTabState extends State<AboutTab> {
       }
     }else
       {
+        FAMILY_MEMBER = {};
         print("User Family List is Empty");
       }
+
+    print(FAMILY_MEMBER);
   }
 
   Future<List<UserEducation>> education() async {
     try {
       userEducation= await Amplify.DataStore.query(UserEducation.classType);
       print(userEducation);
-      print("inside the user");
+      print("inside the user education");
       return userEducation;
     }catch(e)
     {

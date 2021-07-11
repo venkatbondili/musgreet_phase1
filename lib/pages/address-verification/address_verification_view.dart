@@ -203,12 +203,12 @@ class _AddressVerificationViewState extends State<AddressVerificationView> {
             SizedBox(height: 20),
             Container(
               alignment: Alignment.centerLeft,
-              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 2),
+              padding: EdgeInsets.symmetric(horizontal: 10, vertical: 2),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: <Widget>[
                   Text(
-                    'If you are not at home, \n we can send a code to your home address',
+                    'If you are not at home, \nwe can send a code to your home address',
                     //textAlign: TextAlign.center,
                     style: TextStyle(
                         fontSize: 15.0, fontWeight: FontWeight.bold),
@@ -246,7 +246,7 @@ class _AddressVerificationViewState extends State<AddressVerificationView> {
               child: SizedBox(
                 width: double.infinity, // <-- match_parent
                 child:  RaisedButton(
-                  padding: EdgeInsets.symmetric(horizontal: 60, vertical: 15),
+                  padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
                   child: Text(
                     "Send code to home address",
                     style: TextStyle(

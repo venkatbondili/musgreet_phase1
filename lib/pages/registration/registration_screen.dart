@@ -114,6 +114,10 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                 ),
               ),
             ),
+            CustomSpacerWidget(
+              height: 5,
+            ),
+            _getPasswordText(),
             Container(
               child: Form(
                 key: _retypepasswordKey,
@@ -125,10 +129,6 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                 ),
               ),
             ),
-            CustomSpacerWidget(
-              height: 5,
-            ),
-            _getPasswordText(),
             CustomSpacerWidget(
               height: 20,
             ),
@@ -510,20 +510,20 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
           new SizedBox(
             height: 5,
           ),
-          new FlutterPwValidator(
-            controller: _passwordController,
-            minLength: 8,
-            uppercaseCharCount: 1,
-            numericCharCount: 1,
-            specialCharCount: 1,
-            width: 400,
-            height: 140,
-            onSuccess: () {
-              print("Matched");
-              // Scaffold.of(context).showSnackBar(new SnackBar(
-              //     content: new Text("Password is matched")));
-            },
-          ),
+          // new FlutterPwValidator(
+          //   controller: _passwordController,
+          //   minLength: 8,
+          //   uppercaseCharCount: 1,
+          //   numericCharCount: 1,
+          //   specialCharCount: 1,
+          //   width: 400,
+          //   height: 140,
+          //   onSuccess: () {
+          //     print("Matched");
+          //     // Scaffold.of(context).showSnackBar(new SnackBar(
+          //     //     content: new Text("Password is matched")));
+          //   },
+          // ),
         ],
       ),
 
@@ -809,151 +809,207 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     try {
       print(_emailController.text);
       print(_passwordController.text);
+      print(_reTypePasswordController.text);
 
       users = null;
 
-      _firstnameKey.currentState.reset();
-      _lastnameKey.currentState.reset();
-      _emailKey.currentState.reset();
-      _passwordKey.currentState.reset();
-      _retypepasswordKey.currentState.reset();
+      // _firstnameKey.currentState.reset();
+      // _lastnameKey.currentState.reset();
+      // _emailKey.currentState.reset();
+      // _passwordKey.currentState.reset();
+      //_retypepasswordKey.currentState.reset();
 
-      if (_firstNameController.text.trim().length == 0) {
+      if (_firstNameController.text
+          .trim()
+          .length == 0) {
         print('firstname empty case');
         firstnameErrorMessage = "First name field is required";
-
-      } else if (_lastNameController.text.trim().length == 0) {
+      } else if (_lastNameController.text
+          .trim()
+          .length == 0) {
         print('lastname empty case');
         lastnameErrorMessage = "Last name field is required";
-
-      } else if (_emailController.text.trim().length == 0) {
+      } else if (_emailController.text
+          .trim()
+          .length == 0) {
         print('email empty case');
         emailErrorMessage = "Email field is required";
+      } else if (_emailController.text
+          .trim()
+          .length > 0) {
 
-      // } else if (_passwordController.text.trim().length == 0) {
-      //   print('password empty case');
-      //   passwordErrorMessage = "Password field is required";
-
-      } else { //other checks
-        //bool emailValid = RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+").hasMatch(_emailController.text.trim());
-        bool emailValid = RegExp(
-            r'^.+@[a-zA-Z]+\.{1}[a-zA-Z]+(\.{0,1}[a-zA-Z]+)$').hasMatch(
-            _emailController.text.trim());
-        print('email check case');
-        print(emailValid);
-        if (!emailValid) {
+      print('email validity case');
+      //valid email check
+      //bool emailValid = RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+").hasMatch(_emailController.text.trim());
+      bool emailValid = RegExp(
+          r'^.+@[a-zA-Z]+\.{1}[a-zA-Z]+(\.{0,1}[a-zA-Z]+)$').hasMatch(
+          _emailController.text.trim());
+      print('email check case');
+      print(emailValid);
+      print(_reTypePasswordController.text.trim());
+      if (!emailValid) {
+        //invalid email case
+        emailErrorMessage = "Please provide valid email";
+      } else if (_passwordController.text
+          .trim()
+          .length == 0) {
+        print('password empty case');
+        passwordErrorMessage = "Password field is required";
+      } else if (_passwordController.text
+          .trim()
+          .length > 0) {
+        //valid password check
+        bool passwordValid = RegExp(
+            r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!@#\$&*~]).{8,}$')
+            .hasMatch(
+            _passwordController.text.trim());
+        print('password check case');
+        print(passwordValid);
+        print(_reTypePasswordController.text.trim());
+        if (!passwordValid) {
           //invalid email case
-          emailErrorMessage = "Please provide valid email";
-
-        } else if (_passwordController.text.trim().length == 0) {
-            print('password empty case');
-            passwordErrorMessage = "Password field is required";
-
-        } else if (_passwordController.text.trim() !=
-            _reTypePasswordController.text.trim()) {
-          //password and retype password do not match case
-          retypepasswordErrorMessage = "Password and re-type password do not match";
-
+          //passwordErrorMessage = "Password should be 8 characters in length, contain at least one uppercase, one lowercase and one special character";
+          passwordErrorMessage = "Please provide valid password";
         } else {
-          //email already exist
-          //valid password
 
-          users = await Amplify.DataStore.query(
-              Users.classType,
-              where: Users.EMAIL.eq(_emailController.text.trim()));
-          await Future.delayed(Duration(seconds: 1));
+          print('pwd and retype pwd match case');
+          print(_reTypePasswordController.text.trim());
 
-          print('after querying db');
+          if (_passwordController.text.trim() !=
+              _reTypePasswordController.text.trim()) {
+            //password and retype password do not match case
 
-          print(users);
+            print('pwd and retype pwd match case');
+            print(_passwordController.text.trim());
+            print(_reTypePasswordController.text.trim());
 
-          if (users != null) {
-            if (users.length > 0) {
-              //user already exists case
-              emailErrorMessage = "Email already exists";
-            } else {
-              //all validations succeeded
-              print('length zero case');
-
-              //signing up user in Cognito
-              Map<String, String> userAttributes = {
-                'email': _emailController.text.trim(),
-                'phone_number': '+447448479715',
-                // additional attributes as needed
-              };
-
-              SignUpResult res = await Amplify.Auth.signUp(
-                  username: _emailController.text.trim(),
-                  password: _passwordController.text.trim(),
-                  options: CognitoSignUpOptions(
-                      userAttributes: userAttributes
-                  )
-              );
-
-              if (res.isSignUpComplete) {
-                print('User registration successful');
-                //Add user to DB
-                insertUser();
-
-                if (users != null) {
-                  Navigation.intentWithData(context, AppRoutes.VERIFYEMAIL,RegistrationArgumentClass(users[0]));
-                  return;
-                }
-              }
-            }
+            retypepasswordErrorMessage =
+            "Password and re-type password do not match";
           } else {
-            //all validations succeeded
-            print('null case');
-            //Add user to DB
-            insertUser();
+            //email already exist
+            print('else case');
+            users = await Amplify.DataStore.query(
+                Users.classType,
+                where: Users.EMAIL.eq(_emailController.text.trim()));
+            await Future.delayed(Duration(seconds: 1));
+
+            print('after querying db');
+
+            print(users);
 
             if (users != null) {
-              Navigation.intentWithData(context, AppRoutes.VERIFYEMAIL,RegistrationArgumentClass(users[0]));
-              return;
+              if (users.length > 0) {
+                //user already exists case
+                emailErrorMessage = "Email already exists";
+              } else {
+                //all validations succeeded
+                print('length zero case');
+
+                //signing up user in Cognito
+                Map<String, String> userAttributes = {
+                  'email': _emailController.text.trim(),
+                  'phone_number': '+447448479715',
+                  // additional attributes as needed
+                };
+
+                SignUpResult res = await Amplify.Auth.signUp(
+                    username: _emailController.text.trim(),
+                    password: _passwordController.text.trim(),
+                    options: CognitoSignUpOptions(
+                        userAttributes: userAttributes
+                    )
+                );
+
+                if (res.isSignUpComplete) {
+                  print('User registration successful');
+                  //Add user to DB
+                  insertUser();
+
+                  if (users != null) {
+                    Navigation.intentWithData(context, AppRoutes.VERIFYEMAIL,
+                        RegistrationArgumentClass(users[0]));
+                    return;
+                  }
+                }
+              }
+            } else {
+              //all validations succeeded
+              print('null case');
+              //Add user to DB
+              insertUser();
+
+              if (users != null) {
+                Navigation.intentWithData(context, AppRoutes.VERIFYEMAIL,
+                    RegistrationArgumentClass(users[0]));
+                return;
+              }
             }
           }
         }
-      }
-      print('before checking email error msg length');
 
+        //}
+      }
+    }
+
+        print('before checking email error msg length');
 
       if (firstnameErrorMessage.length > 0) {
         setState(() {
           firstnameValidator = firstnameErrorMessage;
         });
-
-        if (_firstnameKey.currentState.validate()) {}
       }
+      else {
+        setState(() {
+          firstnameValidator = null;
+        });
+      }
+      if (_firstnameKey.currentState.validate()) {}
+
       if (lastnameErrorMessage.length > 0) {
         setState(() {
           lastnameValidator = lastnameErrorMessage;
         });
-
-        if (_lastnameKey.currentState.validate()) {}
+      } else {
+        setState(() {
+          lastnameValidator = null;
+        });
       }
+      if (_lastnameKey.currentState.validate()) {}
+
       if (emailErrorMessage.length > 0) {
         setState(() {
           emailValidator = emailErrorMessage;
         });
-
-        if (_emailKey.currentState.validate()) {}
-      }
-      if (passwordErrorMessage.length > 0) {
-        print(_passwordController.text.trim().length);
+      } else {
         setState(() {
-          print(passwordErrorMessage);
+          emailValidator = null;
+        });
+      }
+      if (_emailKey.currentState.validate()) {}
+
+      if (passwordErrorMessage.length > 0) {
+        setState(() {
           passwordValidator = passwordErrorMessage;
         });
-
-        if (_passwordKey.currentState.validate()) {}
+      } else {
+        setState(() {
+          passwordValidator = null;
+        });
       }
+      if (_passwordKey.currentState.validate()) {}
+
       if (retypepasswordErrorMessage.length > 0) {
         setState(() {
+          print(retypepasswordErrorMessage);
           retypepasswordValidator = retypepasswordErrorMessage;
         });
-
-        if (_retypepasswordKey.currentState.validate()) {}
+      } else {
+        setState(() {
+          print(retypepasswordErrorMessage);
+          retypepasswordValidator = null;
+        });
       }
+      if (_retypepasswordKey.currentState.validate()) {}
 
     } catch (e) {
       print("Error in _registerUser function");

@@ -1,3 +1,4 @@
+//import 'package:amplify_api/amplify_api.dart';
 import 'package:flutter/material.dart';
 import 'package:mus_greet/models/UserProfile.dart';
 import 'package:mus_greet/models/Users.dart';
@@ -6,6 +7,7 @@ import 'package:mus_greet/models/Users.dart';
 import 'dart:async';
 import 'package:mus_greet/pages/splash_screen/splash_screen_second.dart';
 import 'package:amplify_flutter/amplify.dart';
+//import 'dataBase.dart';
 
 class SplashScreen extends StatefulWidget {
   @override
@@ -123,6 +125,21 @@ class SplashScreenFirst extends StatelessWidget {
           SizedBox(
             height: 40.0,
           ),
+        // GestureDetector(
+        //   onTap: () {
+        //     Navigator.push(context,
+        //         MaterialPageRoute(
+        //           builder: (context) => MyData(action:"clear"),
+        //         )
+        //     );
+        //   },
+        //   child: Text('Skip',
+        //       textAlign: TextAlign.center,
+        //       style: TextStyle(
+        //           fontSize: 16.0,
+        //           color: Colors.grey,
+        //           fontWeight: FontWeight.w100)),
+        // ),
           Text('Skip',
               textAlign: TextAlign.center,
               style: TextStyle(

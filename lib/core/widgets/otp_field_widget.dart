@@ -29,9 +29,9 @@ class _OTPFieldWidgetState extends State<OTPFieldWidget> {
       controller: widget.controller,
       pinTheme: PinTheme(
         shape: PinCodeFieldShape.box,
-        activeColor: AppColors.green,
-        inactiveColor: AppColors.green,
-        selectedColor: AppColors.green,
+        activeColor: AppColors.GREY_KIND,
+        inactiveColor: AppColors.GREY_KIND,
+        selectedColor: AppColors.GREY_KIND,
         borderWidth: 1,
         borderRadius: BorderRadius.circular(5),
         fieldHeight: 50,

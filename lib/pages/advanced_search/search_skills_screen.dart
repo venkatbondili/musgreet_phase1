@@ -8,6 +8,7 @@ import 'package:mus_greet/core/widgets/advance_friend_search_context_widget.dart
 import 'package:mus_greet/core/widgets/asset_image_widget.dart';
 import 'package:mus_greet/core/widgets/custom_spacer_widget.dart';
 import 'package:mus_greet/core/widgets/drop_down_text_field.dart';
+import 'package:mus_greet/models/MasterIntrests.dart';
 import 'package:mus_greet/models/ModelProvider.dart';
 import 'package:mus_greet/pages/add_skills_screen/add_skills_screen.dart';
 import 'package:mus_greet/pages/languages_screen/select_languages.dart';

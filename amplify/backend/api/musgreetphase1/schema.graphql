@@ -1,3 +1,8 @@
+type Languagespoken @model @auth(rules: [{allow: public}]) {
+  id: ID!
+  languages: String
+}
+
 type UserFamily @model @auth(rules: [{allow: public}]) {
   id: ID!
   name: String

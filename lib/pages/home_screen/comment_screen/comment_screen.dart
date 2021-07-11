@@ -5,6 +5,7 @@ import 'package:mus_greet/core/utils/constants.dart';
 import 'package:mus_greet/core/utils/routes.dart';
 import 'package:mus_greet/core/widgets/add_comment_text_field_widget.dart';
 import 'package:mus_greet/core/widgets/asset_image_widget.dart';
+import 'package:mus_greet/core/widgets/bottom_navigation_widget.dart';
 import 'package:mus_greet/core/widgets/comment_box_widget.dart';
 import 'package:mus_greet/core/widgets/custom_spacer_widget.dart';
 import 'package:mus_greet/core/widgets/drawer_widget.dart';
@@ -16,8 +17,9 @@ class CommentScreen extends StatefulWidget {
   final Users UserObject;
   final Mosque MosqueObject;
   final String CommentsCount;
+  final Users LogedInUser;
 
-  CommentScreen({this.PostObject, this.UserObject, this.CommentsCount, this.MosqueObject});
+  CommentScreen({this.PostObject, this.UserObject, this.CommentsCount, this.MosqueObject,this.LogedInUser});
   @override
   _CommentScreenState createState() => _CommentScreenState();
 }
@@ -45,6 +47,17 @@ class _CommentScreenState extends State<CommentScreen> {
       appBar: _getAppBar(),
       drawer: DrawerWidget(),
       body: _getBody(),
+      bottomNavigationBar: _getBottomNavigation(),
+    );
+  }
+
+  _getBottomNavigation() {
+    return BottomNavigationWidget(
+      //MosqueFollowersList: UserMosqueFollowingList,
+      //CallingFunction: _navigateback(),
+      sessionUser: widget.LogedInUser,
+      CallingScreen: "CommentScreen",
+      index: 0,
     );
   }
 
@@ -58,7 +71,8 @@ class _CommentScreenState extends State<CommentScreen> {
         ListView(
           children: [
             PostCardWidget(
-              profileImage: "https://musgreetphase1images184452-staging.s3.eu-west-2.amazonaws.com/public/public.png",
+              profileImage: "https://musgreetphase1images184452-staging.s3.eu-west-2.amazonaws.com/public/home_user1.png",
+              //profileImage: "https://musgreetphase1images184452-staging.s3.eu-west-2.amazonaws.com/public/public.png",
               //profileImage: ImageConstants.IC_HOME_USER1,
               //name: AppTexts.TEMP_NAME1,
               //name: widget.UserName,
@@ -151,7 +165,7 @@ class _CommentScreenState extends State<CommentScreen> {
     );
   }
 
-  _getUsersCommentss() {
+  _getUsersCommentssssss() {
     return Container(
       padding: EdgeInsets.only(left: 20),
       child: Column(
@@ -180,6 +194,7 @@ class _CommentScreenState extends State<CommentScreen> {
       //physics: NeverScrollableScrollPhysics(),
       shrinkWrap: true,
       itemBuilder: (context, index) {
+        return _getCommentedUSerDetailsWidget(postCommentss[index]);
         return Center(
             child: postCommentss[index].parent_id == "" ? Container(
               padding: EdgeInsets.only(left: 20),
@@ -209,6 +224,59 @@ class _CommentScreenState extends State<CommentScreen> {
       //itemCount: 1,
       itemCount: postCommentss.length,
     );
+  }
+
+  _getCommentedUSerDetailsWidget(PostComments postComments){
+    return FutureBuilder<Users>(
+      //future: _getUser(postData.usersID),
+      future: _getCommentedUser(postComments.usersID),
+      builder: (ctx, snapshot) {
+        switch (snapshot.connectionState) {
+          case ConnectionState.done:
+            Users commentedUserData = snapshot.data;
+            return _getCommentsUI(postComments,commentedUserData);
+          default:
+            return _buildLoadingScreen();
+        }
+      },
+    );
+
+  }
+
+  _getCommentsUI(PostComments postComments, Users commentedUserData){
+    return Center(
+        child: postComments.parent_id == "" ? Container(
+          padding: EdgeInsets.only(left: 20),
+          child: Column(
+            children: [
+              CommentBoxWidget(
+                //userComment: AppTexts.COMMENT_SCREEN_TEXT,
+                userComment: postComments.comment,
+                //userName: AppTexts.COMMENT_USER_NAME,
+                userName: commentedUserData.first_name + " " + commentedUserData.last_name,
+              ),
+              CustomSpacerWidget(
+                height: 15,
+              ),
+            ],
+          ),
+        ) : _repliesCounter(postComments.id)
+    );
+  }
+
+  Future<Users> _getCommentedUser(String usersID) async {
+    print("User");
+    print(usersID);
+    try {
+     List<Users> UserObjectList = await Amplify.DataStore.query(Users.classType ,where :Users.ID.eq(usersID));
+      //print(User[0].first_name);
+      print(UserObjectList.length);
+      print(UserObjectList[0].first_name);
+      //await Future.delayed(Duration(seconds: 1));
+      return UserObjectList[0];
+    } catch (e) {
+      print("Could not query DataStore: " + e);
+    }
   }
 
   _getAppBar() {
@@ -270,9 +338,9 @@ class _CommentScreenState extends State<CommentScreen> {
 
   }
 
-  _addCommentTextField(List<PostComments> postCommentss) {
+  _addCommentTextField(List<PostComments> postCommentss,) {
     _CommentsCounter();
-    return AppCommentTextFieldWidget(hintText: "Write your Comment", ScreenType: "Comment",PostObject: widget.PostObject, UserObject: widget.UserObject, ParentID: "", commentsCount: widget.CommentsCount);
+    return AppCommentTextFieldWidget(hintText: "Write your Comment", ScreenType: "Comment",PostObject: widget.PostObject, UserObject: widget.UserObject, ParentID: "", commentsCount: widget.CommentsCount, sessionUser: widget.LogedInUser);
   }
 
   Future<List<PostComments>> queryComments() async {

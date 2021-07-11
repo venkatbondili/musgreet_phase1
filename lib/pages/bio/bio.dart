@@ -10,12 +10,16 @@ import 'package:mus_greet/core/widgets/asset_image_widget.dart';
 import 'package:mus_greet/core/widgets/custom_spacer_widget.dart';
 import 'package:mus_greet/core/widgets/drop_down_text_field.dart';
 import 'package:mus_greet/core/widgets/my_family_text_field_heading_widget.dart';
+import 'package:mus_greet/models/ModelProvider.dart';
 import 'package:mus_greet/models/UserProfile.dart';
 import 'package:mus_greet/pages/create_post_screen/create_post_screen.dart';
+import 'package:form_field_validator/form_field_validator.dart';
 
 import '../../main.dart';
 
 class Bio extends StatefulWidget {
+  Users sessionUser;
+  Bio({this.sessionUser});
   @override
   _BioState createState() => _BioState();
 }
@@ -25,10 +29,15 @@ class _BioState extends State<Bio> {
   final TextEditingController _controller = TextEditingController();
 
   List<UserProfile> userProfile;
+  final _firstnameKey = GlobalKey<FormState>();
+  String fieldVlidator;
+  String fieldErrorMessage;
 
   @override
   Widget build(BuildContext context) {
-    about();
+    print(widget.sessionUser);
+    print("inside the build of bio data");
+    userProfileData();
     return SafeArea(
       child: Scaffold(
         backgroundColor: AppColors.white,
@@ -51,7 +60,18 @@ class _BioState extends State<Bio> {
                   CustomSpacerWidget(
                     height: 30,
                   ),
-                  _getTextSection(),
+                  Container(
+                    child: Form(
+                      key: _firstnameKey,
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
+                      child: Column(
+                        children: [
+                          _getTextSection(),
+                        ],
+                      ),
+                    ),
+                  ),
+                  //_getTextSection(),
                   CustomSpacerWidget(
                     height: 30,
                   ),
@@ -130,12 +150,25 @@ class _BioState extends State<Bio> {
         Expanded(
           child: ActionButtonWidget(
             callBack: () {
-              Navigation.back(context);
-              print(_controller.text);
-              print("updating the database");
-              updateUserProfile();
+              //Navigation.back(context);
+              // if (_controller.text.trim().length == 0) {
+              //   print('email empty case');
+              //   fieldErrorMessage= "First name field is required";
+              // }
 
-            },
+              // if (fieldErrorMessage.length > 0) {
+              //   setState(() {
+              //     fieldVlidator = fieldErrorMessage;
+              //   });
+
+                if (_firstnameKey.currentState.validate()) {
+                  print(_controller.text);
+                  print("updating the database");
+                  updateUserProfile(userProfile);
+                  Navigator.pop(context,true);
+                }
+              },
+
             text: AppTexts.SAVE,
             isFilled: true,
           ),
@@ -144,24 +177,26 @@ class _BioState extends State<Bio> {
     );
   }
 
-  Future<void> about() async {
-    try {
+  Future<void> userProfileData() async {
+   // try {
       userProfile = await Amplify.DataStore.query(UserProfile.classType,
-          where: UserProfile.ID.eq("0263d01c-1250-4541-826d-8d63f96cf8c0"));
+          where: UserProfile.USERSID.eq(widget.sessionUser.id));
       print(userProfile);
       print("inside the user profile");
-    } catch (e) {
-      print("Could not query DataStore: " + e);
-    }
+    //} catch (e) {
+      ////print("Could not query DataStore: " + e);
+    //}
   }
 
 
-  updateUserProfile() async
+  updateUserProfile(List<UserProfile> userProfile) async
   {
+    print("inside the updated method");
     final updatedItem = userProfile[0].copyWith(
         bio: _controller.text);
 
     await Amplify.DataStore.save(updatedItem);
+
   }
 
 }

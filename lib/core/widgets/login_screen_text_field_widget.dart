@@ -37,7 +37,7 @@ class _LoginScreenTextFieldState extends State<LoginScreenTextField> {
     return Container(
       alignment: Alignment.centerLeft,
       height: 50,
-      padding: EdgeInsets.only(left: 15, top: 10, bottom: 12),
+      padding: EdgeInsets.only(left: 15, top: 10, bottom: 18),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: AppColors.green_light),
@@ -63,17 +63,17 @@ class _LoginScreenTextFieldState extends State<LoginScreenTextField> {
           ),
           suffixIcon: widget.suffixIcon != null
               ? GestureDetector(
-            onTap: () {},
-            child: Padding(
-              padding:
-              EdgeInsetsDirectional.only(start: 6, end: 20, top: 5),
-              child: AssetImageWidget(
-                image: widget.suffixIcon,
-                height: 10,
-                width: 10,
-              ),
-            ),
-          )
+                  onTap: () {},
+                  child: Padding(
+                    padding:
+                        EdgeInsetsDirectional.only(start: 6, end: 20, top: 5),
+                    child: AssetImageWidget(
+                      image: widget.suffixIcon,
+                      height: 10,
+                      width: 10,
+                    ),
+                  ),
+                )
               : null,
           hintText: widget.hintText,
           hintStyle: TextStyle(

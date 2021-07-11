@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:mus_greet/core/config/navigation.dart';
 import 'package:mus_greet/core/utils/constants.dart';
@@ -6,6 +8,7 @@ import 'package:mus_greet/core/widgets/action_button_widget.dart';
 import 'package:mus_greet/core/widgets/asset_image_widget.dart';
 import 'package:mus_greet/core/widgets/custom_spacer_widget.dart';
 import 'package:mus_greet/models/ModelProvider.dart';
+import 'package:mus_greet/pages/address-verification/address_verification_view.dart';
 import 'package:mus_greet/pages/advanced_search/search_skills_screen.dart';
 import 'package:mus_greet/pages/profile/view_profile_screen/view_profile_screen.dart';
 import 'package:amplify_flutter/amplify.dart';
@@ -15,12 +18,15 @@ class LanguagesScreen extends StatefulWidget {
   final List<String> skillsList;
   final String gender;
   final String age;
+  final Users sessionId;
+  final List<UserProfile> userProfile;
   //final List<Users> genderFilteredUsers;
   //final List<Users> ageFilteredUsers;
   LanguagesScreen({this.callingScreen,
     this.skillsList,
     this.gender,
-    this.age
+    this.age,
+     this.userProfile, this.sessionId,
     //this.genderFilteredUsers,
     //this.ageFilteredUsers
   });
@@ -29,12 +35,11 @@ class LanguagesScreen extends StatefulWidget {
 }
 class _LanguagesScreenState extends State<LanguagesScreen> {
    String languages;
-   List<UserProfile> userProfile;
+   List<UserProfile> userProfile=[];
    List<String> _selectedItems = [];
-   List<String> _list;
+   List<String> _list=[];
   @override
   Widget build(BuildContext context) {
-    userDetails();
     return SafeArea(
       child: Scaffold(
         backgroundColor: AppColors.white,
@@ -44,6 +49,7 @@ class _LanguagesScreenState extends State<LanguagesScreen> {
   }
 
   _getBody() {
+    userDetails(widget.sessionId);
     return SingleChildScrollView(
       child: Stack(
         children: [
@@ -152,13 +158,18 @@ class _LanguagesScreenState extends State<LanguagesScreen> {
                   print(_selectedItems);
                   _navigateToAdvancedSearchScreen(_selectedItems);
                   //_selectedItems.clear();
-                }else{
-                  print(_selectedItems);
-                  languages =_selectedItems.join(",");
-                  print(languages);
-                  print("Add");
-                  updateUserProfile(languages);
-                  Navigation.back(context);
+                }else if(widget.callingScreen == "NearlyFinished")
+                {
+                  print("creating the user profile");
+                  createUserProfile(jsonEncode(_selectedItems));
+                  //Navigator.pop(context,true);
+                  Navigation.intentWithData(context, AppRoutes.NEARLYFINISHED,
+                      AddressVerificationArgumentClass(widget.sessionId));
+                }
+                else
+                {
+                  updateUserProfile(jsonEncode(_selectedItems));
+                  Navigator.pop(context,true);
                 }
 
                 //Navigator.pop(context);
@@ -179,8 +190,10 @@ class _LanguagesScreenState extends State<LanguagesScreen> {
          "Languages"));
    }
 
-  Future<void> userDetails() async{
-    userProfile = await Amplify.DataStore.query(UserProfile.classType,where: UserProfile.ID.eq("0263d01c-1250-4541-826d-8d63f96cf8c0"));
+  Future<void> userDetails(Users sessionId) async{
+    print("user id" +sessionId.id);
+    userProfile = await Amplify.DataStore.query(UserProfile.classType , where: UserProfile.USERSID.eq(widget.sessionId.id));
+    print(userProfile);
      String link=userProfile[0].languages_spoken;
      var a=link.split(",");
     _list=a;
@@ -188,13 +201,34 @@ class _LanguagesScreenState extends State<LanguagesScreen> {
      print("print the languages");
   }
 
-  updateUserProfile(String languages) async{
-    final updatedItem = userProfile[0].copyWith(
+  // updateUserProfile(String languages) async{
+  //   final updatedItem = userProfile[0].copyWith(
+  //
+  //       languages_spoken:languages);
+  //
+  //   await Amplify.DataStore.save(updatedItem);
+  //   await Future.delayed(Duration(seconds: 1));
+  //
+  // }
 
-        languages_spoken:languages);
+   createUserProfile(String languages) async
+   {
+     print("creating the user profile");
+     final Item = UserProfile(
+         usersID: widget.sessionId.id,
+         languages_spoken: languages);
+     await Amplify.DataStore.save(Item);
+   }
 
-    await Amplify.DataStore.save(updatedItem);
-  }
+   updateUserProfile(String languages) async
+   {
+     print("updating the user profile");
+     final updatedItem = userProfile[0].copyWith(
+         usersID: widget.sessionId.id,
+         languages_spoken: languages);
+
+     await Amplify.DataStore.save(updatedItem);
+   }
 }
 class MultiSelectChip extends StatefulWidget {
   final List<String> reportList;
@@ -247,6 +281,8 @@ class _MultiSelectChipState extends State<MultiSelectChip> {
                       : selectedChoices.add(item);
                   widget.onSelectionChanged(selectedChoices); // +added
                 });
+
+                //validator: (value) => value == null ? 'field required' : null;
               },
             ),
           ),
@@ -265,3 +301,5 @@ class _MultiSelectChipState extends State<MultiSelectChip> {
     );
   }
 }
+
+

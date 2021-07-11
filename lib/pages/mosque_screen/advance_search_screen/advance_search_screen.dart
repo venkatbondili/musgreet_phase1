@@ -5,10 +5,14 @@ import 'package:mus_greet/core/utils/routes.dart';
 import 'package:mus_greet/core/widgets/action_button_widget.dart';
 import 'package:mus_greet/core/widgets/asset_image_widget.dart';
 import 'package:mus_greet/core/widgets/custom_spacer_widget.dart';
+import 'package:mus_greet/models/ModelProvider.dart';
 import 'package:mus_greet/pages/add_skills_screen/add_skills_screen.dart';
+//import 'package:mus_greet/pages/interest_screen/multi_line_chip.dart';
 import 'package:mus_greet/pages/mosque_screen/mosque_search_list_view/mosque_search_list_view.dart';
 
 class AdvanceSearchScreen extends StatefulWidget {
+  final Users sessionUser;
+  AdvanceSearchScreen({this.sessionUser}) ;
   @override
   _AdvanceSearchScreenState createState() => _AdvanceSearchScreenState();
 }
@@ -116,7 +120,7 @@ class _AdvanceSearchScreenState extends State<AdvanceSearchScreen> {
         ),
         MultiSelectChip(
           categories,
-          //_selected,
+         // _selected,
           onSelectionChanged: (val) {
             // print(val);
             setState(() {
@@ -167,7 +171,81 @@ class _AdvanceSearchScreenState extends State<AdvanceSearchScreen> {
   _navigationToSearch() {
     //_selectedReligion.clear();
     //_selectPreference.clear();
-    Navigation.intentWithData(context, AppRoutes.MOSQUE_SEARCH_LIST_VIEW,ArgumentClass(_selectedReligion,_selectPreference));
+    Navigation.intentWithData(context, AppRoutes.MOSQUE_SEARCH_LIST_VIEW,ArgumentClass(_selectedReligion,_selectPreference,widget.sessionUser));
 
+  }
+}
+
+
+class MultiSelectChip extends StatefulWidget {
+  final List<String> reportList;
+  final Function(List<String>) onSelectionChanged;
+  final double width;
+  final double fontSize;
+
+  MultiSelectChip(this.reportList, {this.onSelectionChanged,this.fontSize=12,this.width=1});
+
+  @override
+  _MultiSelectChipState createState() => _MultiSelectChipState();
+}
+
+class _MultiSelectChipState extends State<MultiSelectChip> {
+  List<String> selectedChoices = List.empty(growable: true);
+
+  _buildChoiceList() {
+    List<Widget> choices = List.empty(growable: true);
+    widget.reportList.forEach(
+          (item) {
+        choices.add(
+          Theme(
+            data: ThemeData(canvasColor: Colors.transparent),
+            child: ChoiceChip(
+              padding: EdgeInsets.only(left: 5, right: 5),
+              side: BorderSide(
+                  width: widget.width,
+                  color: selectedChoices.contains(item)
+                      ? AppColors.background_color
+                      : AppColors.background_color),
+              label: Text(item),
+              labelStyle: selectedChoices.contains(item)
+                  ? TextStyle(
+                fontFamily: FontConstants.FONT,
+                fontSize: widget.fontSize,
+                color: AppColors.white,
+                fontWeight: FontWeight.w900,
+              )
+                  : TextStyle(
+                  fontFamily: FontConstants.FONT,
+                  fontSize: widget.fontSize,
+                  color: AppColors.black,
+                  fontWeight: FontWeight.w500),
+              selected: selectedChoices.contains(item),
+              backgroundColor: selectedChoices.contains(item)
+                  ? AppColors.background_color
+                  : AppColors.white,
+              selectedColor: AppColors.background_color,
+              onSelected: (selected) {
+                setState(() {
+                  selectedChoices.contains(item)
+                      ? selectedChoices.remove(item)
+                      : selectedChoices.add(item);
+                  widget.onSelectionChanged(selectedChoices); // +added
+                });
+              },
+            ),
+          ),
+        );
+      },
+    );
+    return choices;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    //selectedChoices.add(widget.reportList.first);
+    return Wrap(
+      spacing: 10.0, // spacing between adjacent chips
+      children: _buildChoiceList(),
+    );
   }
 }

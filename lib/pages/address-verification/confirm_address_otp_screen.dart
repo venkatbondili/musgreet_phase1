@@ -5,7 +5,7 @@ import 'dart:convert';
 import 'package:amplify_flutter/amplify.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_session/flutter_session.dart';
+//import 'package:flutter_session/flutter_session.dart';
 import 'package:mus_greet/core/config/navigation.dart';
 //import 'package:mus_greet/core/utils/arguments.dart';
 import 'package:mus_greet/core/utils/constants.dart';
@@ -178,7 +178,7 @@ class _VerifyAddressOTPScreenState extends State<VerifyAddressOTPScreen> {
 
   _getOTPField() {
     return Container(
-      padding: EdgeInsets.only(left: 40, right: 40),
+      padding: EdgeInsets.only(left: 15, right: 15),
       child: OTPFieldWidget(
         callBack: () {},
         controller: _codeController,

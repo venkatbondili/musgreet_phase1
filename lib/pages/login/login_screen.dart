@@ -74,11 +74,11 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
             _getLogoAndBack(),
             CustomSpacerWidget(
-              height: 60,
+              height: 30,
             ),
             _getLoginText(),
             CustomSpacerWidget(
-              height: 5,
+              height: 25,
             ),
             //_getTextField(),
             // CustomSpacerWidget(
@@ -181,7 +181,7 @@ class _LoginScreenState extends State<LoginScreen> {
       child: Column(
         children: [
           SizedBox(
-            height: 20,
+            height: 5,
           ),
           Container(
             child: TextFormField(
@@ -485,8 +485,8 @@ class _LoginScreenState extends State<LoginScreen> {
       //   });
       //}
 
-      _loginKey.currentState.reset();
-      _passwordKey.currentState.reset();
+      //_loginKey.currentState.reset();
+      //_passwordKey.currentState.reset();
 
       //email validation
       if (_emailController.text
@@ -506,6 +506,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
         if (users != null) {
           if (users.length > 0) {
+            print('users length > 0 case');
             // emailErrorMessage = '';
             // setState(() {
             //   emailValidator = null;
@@ -538,18 +539,20 @@ class _LoginScreenState extends State<LoginScreen> {
                   return;
 
                 } else {
+                  print('invalid pwd case');
                   passwordErrorMessage = "Invalid password, please check";
                 }
               } else {
+                print('invalid pwd case');
                 passwordErrorMessage = "Invalid password, please check";
               }
             }
             if (passwordErrorMessage.length > 0) {
-              setState(() {
-                this.passwordValidator = passwordErrorMessage;
-              });
-
-              if (_passwordKey.currentState.validate()) {}
+              // setState(() {
+              //   this.passwordValidator = passwordErrorMessage;
+              // });
+              //
+              // if (_passwordKey.currentState.validate()) {}
             } else {
               emailErrorMessage =
               "Invalid email or email doesn't exist, please check";
@@ -562,15 +565,24 @@ class _LoginScreenState extends State<LoginScreen> {
       }
       print('before checking email error msg length');
       if (emailErrorMessage.length > 0) {
-        print('before setState');
         setState(() {
           emailValidator = emailErrorMessage;
-          print('inside setState');
         });
-
-        print('before invoking the validator');
-        if (_loginKey.currentState.validate()) {}
+      } else {
+        emailValidator = null;
       }
+      if (_loginKey.currentState.validate()) {}
+
+      if (passwordErrorMessage.length > 0) {
+        setState(() {
+          this.passwordValidator = passwordErrorMessage;
+        });
+      } else {
+        setState(() {
+          this.passwordValidator = null;
+        });
+      }
+      if (_passwordKey.currentState.validate()) {}
 
     } catch (e) {
       print("Error in _loginUser function");

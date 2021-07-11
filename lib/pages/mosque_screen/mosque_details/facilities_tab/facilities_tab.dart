@@ -74,13 +74,13 @@ class _FacilitiesTabState extends State<FacilitiesTab> {
           ),
           GridView.builder(
             physics: NeverScrollableScrollPhysics(),
-            padding: EdgeInsets.only(left: 8, right: 8, bottom: 10, top: 5),
+            padding: EdgeInsets.only(left: 0, right: 5, bottom: 10, top: 5),
             shrinkWrap: true,
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 2,
-                crossAxisSpacing: 5,
-                mainAxisSpacing: 5,
-                childAspectRatio: 6),
+                crossAxisSpacing: 2,
+                mainAxisSpacing: 2,
+                childAspectRatio: 3),
             itemCount: SAMPLE.length,
             itemBuilder: (BuildContext context, int index) {
               final title =SAMPLE.keys.elementAt(index);
@@ -123,8 +123,12 @@ class _FacilitiesTabState extends State<FacilitiesTab> {
   _getList()
   {
     var a=widget.mosque[0].mosque_facility_list;
-    var ab = (a.split(','));
-    idStringString=ab;
+    print("mosque facility list");
+    print(a);
+    List<dynamic> mosqueFacilitiesList = jsonDecode(a);
+    var jsonDecodeMosqueList = mosqueFacilitiesList.join(",");
+    var idStringString = (jsonDecodeMosqueList.split(','));
+    //idStringString=ab;
     for(int i=0;i<idStringString.length;i++) {
       if (idStringString[i] == facilities[i].id) {
         print(idStringString[i]);

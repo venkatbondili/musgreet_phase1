@@ -291,6 +291,7 @@ class AppTexts {
     "Badminton" :"assets/images/badminton.png",
     "Basketball" :"assets/images/basketball.png",
     "Boxing" :"assets/images/boxing.png",
+
     "Cricket" :"assets/images/cricket.png",
     "Cycling" :"assets/images/cycling.png",
     "Football" :"assets/images/football.png",

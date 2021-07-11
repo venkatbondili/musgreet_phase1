@@ -50,7 +50,9 @@ dependencies:
   readmore: ^2.0.0
   image_picker:
   pin_code_fields: ^7.1.0
+
   dio: ^4.0.0
+
 
 dev_dependencies:
   flutter_test:
